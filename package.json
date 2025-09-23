@@ -1,0 +1,126 @@
+{
+  "name": "multi-agent-ide",
+  "version": "1.0.0",
+  "description": "A collaborative IDE with multiple AI agents",
+  "main": "dist/main.js",
+  "homepage": "./",
+  "scripts": {
+    "build": "npm run build:main && npm run build:renderer",
+    "build:main": "webpack --config webpack.config.js --mode production",
+    "build:renderer": "webpack --config webpack.config.js --mode production",
+    "build:electron": "npm run build && electron-builder",
+    "dev": "ts-node src/main.ts",
+    "dev:electron": "node scripts/dev.js",
+    "dev:main": "webpack --config webpack.config.js --mode development --watch",
+    "dev:renderer": "webpack serve --config webpack.config.js --mode development",
+    "test": "jest",
+    "test:e2e": "playwright test",
+    "lint": "eslint src/**/*.ts src/**/*.tsx",
+    "lint:fix": "eslint src/**/*.ts src/**/*.tsx --fix",
+    "format": "prettier --write src/**/*.{ts,tsx,js,jsx}",
+    "start": "electron dist/main.js",
+    "start:electron": "electron .",
+    "prepare": "husky install"
+  },
+  "keywords": [
+    "ide",
+    "ai",
+    "agents",
+    "collaboration",
+    "electron",
+    "desktop"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/react": "^14.0.0",
+    "@types/jest": "^29.0.0",
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@types/uuid": "^9.0.8",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "concurrently": "^8.0.0",
+    "cross-env": "^7.0.0",
+    "css-loader": "^6.8.0",
+    "electron": "^27.0.0",
+    "electron-builder": "^24.0.0",
+    "electron-updater": "^6.1.0",
+    "eslint": "^8.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-react": "^7.33.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "html-webpack-plugin": "^5.5.0",
+    "husky": "^8.0.0",
+    "jest": "^29.0.0",
+    "lint-staged": "^15.0.0",
+    "prettier": "^3.0.0",
+    "style-loader": "^3.3.0",
+    "ts-jest": "^29.0.0",
+    "ts-loader": "^9.5.0",
+    "ts-node": "^10.0.0",
+    "typescript": "^5.0.0",
+    "wait-on": "^7.0.0",
+    "webpack": "^5.0.0",
+    "webpack-cli": "^5.0.0",
+    "webpack-dev-server": "^4.15.0"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.0.0",
+    "antd": "^5.12.0",
+    "bull": "^4.12.0",
+    "chokidar": "^3.5.0",
+    "diff": "^5.1.0",
+    "dotenv": "^16.3.0",
+    "eventemitter3": "^5.0.0",
+    "express": "^4.18.0",
+    "fs-extra": "^11.0.0",
+    "fuse.js": "^7.0.0",
+    "immer": "^10.0.0",
+    "monaco-editor": "^0.45.0",
+    "react": "^18.2.0",
+    "react-dnd": "^16.0.0",
+    "react-dnd-html5-backend": "^16.0.0",
+    "react-dom": "^18.2.0",
+    "react-redux": "^9.0.0",
+    "recharts": "^2.8.0",
+    "redis": "^4.6.0",
+    "rxjs": "^7.8.0",
+    "simple-git": "^3.20.0",
+    "socket.io": "^4.7.0",
+    "socket.io-client": "^4.7.0",
+    "sqlite3": "^5.1.0",
+    "styled-components": "^6.1.0",
+    "uuid": "^9.0.0",
+    "winston": "^3.11.0"
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "build": {
+    "appId": "com.multiagent.ide",
+    "productName": "Multi-Agent IDE",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "node_modules/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
+}
