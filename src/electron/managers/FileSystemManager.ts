@@ -285,6 +285,141 @@ export class FileSystemManager {
     }
   }
 
+  async isDirectory(filePath: string): Promise<boolean> {
+    try {
+      const stats = await fs.stat(filePath);
+      return stats.isDirectory();
+    } catch {
+      return false;
+    }
+  }
+
+  async isFile(filePath: string): Promise<boolean> {
+    try {
+      const stats = await fs.stat(filePath);
+      return stats.isFile();
+    } catch {
+      return false;
+    }
+  }
+
+  async getFileExtension(filePath: string): Promise<string> {
+    return path.extname(filePath).toLowerCase();
+  }
+
+  async getFileName(filePath: string): Promise<string> {
+    return path.basename(filePath);
+  }
+
+  async getDirectoryName(filePath: string): Promise<string> {
+    return path.dirname(filePath);
+  }
+
+  async joinPath(...paths: string[]): Promise<string> {
+    return path.join(...paths);
+  }
+
+  async resolvePath(filePath: string): Promise<string> {
+    return path.resolve(filePath);
+  }
+
+  async getRelativePath(from: string, to: string): Promise<string> {
+    return path.relative(from, to);
+  }
+
+  async isImageFile(filePath: string): Promise<boolean> {
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.webp', '.ico'];
+    const ext = await this.getFileExtension(filePath);
+    return imageExtensions.includes(ext);
+  }
+
+  async isTextFile(filePath: string): Promise<boolean> {
+    const textExtensions = [
+      '.txt', '.md', '.json', '.xml', '.html', '.css', '.js', '.ts', '.jsx', '.tsx',
+      '.py', '.java', '.cpp', '.c', '.h', '.cs', '.php', '.rb', '.go', '.rs',
+      '.yaml', '.yml', '.toml', '.ini', '.cfg', '.conf', '.log', '.sql', '.sh',
+      '.bat', '.ps1', '.dockerfile', '.gitignore', '.gitattributes', '.editorconfig'
+    ];
+    const ext = await this.getFileExtension(filePath);
+    return textExtensions.includes(ext);
+  }
+
+  async getFilePreview(filePath: string): Promise<{
+    type: 'text' | 'image' | 'binary';
+    content?: string;
+    size: number;
+    mtime: Date;
+  }> {
+    try {
+      const stats = await this.getFileStats(filePath);
+      
+      if (await this.isImageFile(filePath)) {
+        return {
+          type: 'image',
+          size: stats.size,
+          mtime: stats.mtime
+        };
+      }
+      
+      if (await this.isTextFile(filePath) && stats.size < 1024 * 1024) { // Max 1MB for preview
+        const content = await this.readFile(filePath);
+        return {
+          type: 'text',
+          content: content.substring(0, 10000), // Limit preview to 10k chars
+          size: stats.size,
+          mtime: stats.mtime
+        };
+      }
+      
+      return {
+        type: 'binary',
+        size: stats.size,
+        mtime: stats.mtime
+      };
+    } catch (error) {
+      throw new Error(`Failed to get file preview for ${filePath}: ${(error as Error).message}`);
+    }
+  }
+
+  async validateFileName(fileName: string): Promise<{ valid: boolean; error?: string }> {
+    // Check for invalid characters
+    const invalidChars = /[<>:"/\\|?*\x00-\x1f]/;
+    if (invalidChars.test(fileName)) {
+      return { valid: false, error: 'File name contains invalid characters' };
+    }
+
+    // Check for reserved names (Windows)
+    const reservedNames = ['CON', 'PRN', 'AUX', 'NUL', 'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9'];
+    if (reservedNames.includes(fileName.toUpperCase())) {
+      return { valid: false, error: 'File name is reserved by the system' };
+    }
+
+    // Check length
+    if (fileName.length > 255) {
+      return { valid: false, error: 'File name is too long' };
+    }
+
+    if (fileName.trim().length === 0) {
+      return { valid: false, error: 'File name cannot be empty' };
+    }
+
+    return { valid: true };
+  }
+
+  async createUniqueFileName(dirPath: string, baseName: string, extension: string = ''): Promise<string> {
+    let counter = 0;
+    let fileName = baseName + extension;
+    let fullPath = path.join(dirPath, fileName);
+
+    while (await this.exists(fullPath)) {
+      counter++;
+      fileName = `${baseName} (${counter})${extension}`;
+      fullPath = path.join(dirPath, fileName);
+    }
+
+    return fileName;
+  }
+
   cleanup(): void {
     // Close all watchers
     this.watchers.forEach((watcher) => {

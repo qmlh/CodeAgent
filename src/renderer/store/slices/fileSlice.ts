@@ -167,10 +167,60 @@ export const searchFiles = createAsyncThunk(
     query: string; 
     includeContent?: boolean; 
     fileExtensions?: string[]; 
-  }) => {
-    // TODO: Implement file search via IPC
-    // For now, return empty results
-    return [];
+  }, { getState }) => {
+    const state = getState() as any;
+    const currentWorkspace = state.file.currentWorkspace;
+    
+    if (!currentWorkspace) {
+      throw new Error('No workspace opened');
+    }
+
+    const result = await window.electronAPI?.fs.search(currentWorkspace, query, {
+      includeContent,
+      fileExtensions
+    });
+    
+    if (!result?.success) {
+      throw new Error(result?.error || 'Failed to search files');
+    }
+    
+    return result.results;
+  }
+);
+
+export const copyFile = createAsyncThunk(
+  'file/copyFile',
+  async ({ sourcePath, targetPath }: { sourcePath: string; targetPath: string }) => {
+    const result = await window.electronAPI?.fs.copy(sourcePath, targetPath);
+    if (!result?.success) {
+      throw new Error(result?.error || 'Failed to copy file');
+    }
+    
+    return { sourcePath, targetPath };
+  }
+);
+
+export const moveFile = createAsyncThunk(
+  'file/moveFile',
+  async ({ sourcePath, targetPath }: { sourcePath: string; targetPath: string }) => {
+    const result = await window.electronAPI?.fs.move(sourcePath, targetPath);
+    if (!result?.success) {
+      throw new Error(result?.error || 'Failed to move file');
+    }
+    
+    return { sourcePath, targetPath };
+  }
+);
+
+export const renameFile = createAsyncThunk(
+  'file/renameFile',
+  async ({ oldPath, newPath }: { oldPath: string; newPath: string }) => {
+    const result = await window.electronAPI?.fs.rename(oldPath, newPath);
+    if (!result?.success) {
+      throw new Error(result?.error || 'Failed to rename file');
+    }
+    
+    return { oldPath, newPath };
   }
 );
 
@@ -260,6 +310,39 @@ export const fileSlice = createSlice({
     
     clearError: (state) => {
       state.error = null;
+    },
+    
+    handleFileSystemEvent: (state, action: PayloadAction<{
+      eventType: string;
+      filename: string;
+      path: string;
+    }>) => {
+      const { eventType, filename, path: eventPath } = action.payload;
+      
+      // Handle file system events to keep the tree in sync
+      switch (eventType) {
+        case 'add':
+        case 'addDir':
+          // File/directory was added - refresh will be handled by watcher
+          break;
+        case 'unlink':
+        case 'unlinkDir':
+          // File/directory was deleted
+          if (state.activeFile === eventPath) {
+            state.activeFile = null;
+          }
+          state.openFiles = state.openFiles.filter(f => f.path !== eventPath);
+          state.recentFiles = state.recentFiles.filter(f => f !== eventPath);
+          break;
+        case 'change':
+          // File was modified externally
+          const openFile = state.openFiles.find(f => f.path === eventPath);
+          if (openFile && !openFile.isDirty) {
+            // Mark as needing reload if not currently dirty
+            openFile.lastModified = new Date();
+          }
+          break;
+      }
     }
   },
   
@@ -371,6 +454,50 @@ export const fileSlice = createSlice({
       // Search files
       .addCase(searchFiles.fulfilled, (state, action) => {
         state.searchResults = action.payload;
+      })
+      
+      // Copy file
+      .addCase(copyFile.fulfilled, (state, action) => {
+        // File tree will be updated via file watcher
+      })
+      
+      // Move file
+      .addCase(moveFile.fulfilled, (state, action) => {
+        const { sourcePath } = action.payload;
+        
+        // Remove from open files if it was open
+        state.openFiles = state.openFiles.filter(f => f.path !== sourcePath);
+        
+        // Update active file
+        if (state.activeFile === sourcePath) {
+          state.activeFile = state.openFiles.length > 0 ? state.openFiles[0].path : null;
+        }
+        
+        // Remove from recent files
+        state.recentFiles = state.recentFiles.filter(f => f !== sourcePath);
+      })
+      
+      // Rename file
+      .addCase(renameFile.fulfilled, (state, action) => {
+        const { oldPath, newPath } = action.payload;
+        
+        // Update open files
+        const openFile = state.openFiles.find(f => f.path === oldPath);
+        if (openFile) {
+          openFile.path = newPath;
+          openFile.name = newPath.split('/').pop() || newPath;
+        }
+        
+        // Update active file
+        if (state.activeFile === oldPath) {
+          state.activeFile = newPath;
+        }
+        
+        // Update recent files
+        const recentIndex = state.recentFiles.indexOf(oldPath);
+        if (recentIndex !== -1) {
+          state.recentFiles[recentIndex] = newPath;
+        }
       });
   }
 });
@@ -421,5 +548,6 @@ export const {
   collapseDirectory,
   addRecentFile,
   clearSearchResults,
-  clearError
+  clearError,
+  handleFileSystemEvent
 } = fileSlice.actions;

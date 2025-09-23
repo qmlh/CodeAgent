@@ -3,7 +3,7 @@
  * Global search functionality for files and content
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   Input, 
   List, 
@@ -11,18 +11,17 @@ import {
   Checkbox, 
   Collapse, 
   Tag, 
-  Tooltip,
   Space,
   Empty
 } from 'antd';
 import { 
   SearchOutlined, 
   FileOutlined, 
-  FolderOutlined,
   SettingOutlined,
   ClearOutlined
 } from '@ant-design/icons';
-import { useAppSelector } from '../../hooks/redux';
+import { useAppSelector, useAppDispatch } from '../../hooks/redux';
+import { searchFiles, openFile } from '../../store/slices/fileSlice';
 
 const { Search } = Input;
 const { Panel } = Collapse;
@@ -40,7 +39,8 @@ interface SearchResult {
 }
 
 export const SearchPanel: React.FC = () => {
-  const { currentProject } = useAppSelector(state => state.app);
+  const dispatch = useAppDispatch();
+  const { currentWorkspace, searchResults: fileSearchResults, status } = useAppSelector(state => state.file);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -55,7 +55,7 @@ export const SearchPanel: React.FC = () => {
   });
 
   const handleSearch = async (value: string) => {
-    if (!value.trim()) {
+    if (!value.trim() || !currentWorkspace) {
       setSearchResults([]);
       return;
     }
@@ -64,43 +64,27 @@ export const SearchPanel: React.FC = () => {
     setSearchTerm(value);
 
     try {
-      // TODO: Implement actual search via Electron API
-      // For now, simulate search results
-      const mockResults: SearchResult[] = [
-        {
-          id: '1',
-          type: 'file',
-          filePath: '/src/components/App.tsx',
-          fileName: 'App.tsx',
-          matches: 1
-        },
-        {
-          id: '2',
-          type: 'content',
-          filePath: '/src/components/Button.tsx',
-          fileName: 'Button.tsx',
-          line: 15,
-          column: 8,
-          content: `const Button = ({ ${value}, ...props }) => {`,
-          context: 'React component definition',
-          matches: 1
-        },
-        {
-          id: '3',
-          type: 'content',
-          filePath: '/src/utils/helpers.ts',
-          fileName: 'helpers.ts',
-          line: 42,
-          column: 12,
-          content: `export function ${value}Helper() {`,
-          context: 'Utility function',
-          matches: 1
-        }
-      ];
-
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setSearchResults(mockResults);
+      // Use the file system search functionality
+      await dispatch(searchFiles({
+        query: value,
+        includeContent: searchOptions.includeContent,
+        fileExtensions: []
+      })).unwrap();
+      
+      // Convert file search results to our format
+      const convertedResults: SearchResult[] = fileSearchResults.map((result, index) => ({
+        id: `${index}`,
+        type: result.matches && result.matches.length > 0 ? 'content' : 'file',
+        filePath: result.path,
+        fileName: result.name,
+        matches: result.matches ? result.matches.length : 1,
+        ...(result.matches && result.matches.length > 0 && {
+          line: result.matches[0].line,
+          content: result.matches[0].content
+        })
+      }));
+      
+      setSearchResults(convertedResults);
     } catch (error) {
       console.error('Search failed:', error);
       setSearchResults([]);
@@ -109,12 +93,12 @@ export const SearchPanel: React.FC = () => {
     }
   };
 
-  const handleResultClick = (result: SearchResult) => {
-    // TODO: Open file and navigate to line/column
-    console.log('Open search result:', result);
-    
-    if (window.electronAPI?.fs) {
-      window.electronAPI.fs.readFile(result.filePath);
+  const handleResultClick = async (result: SearchResult) => {
+    try {
+      await dispatch(openFile(result.filePath)).unwrap();
+      // TODO: Navigate to specific line/column if available
+    } catch (error) {
+      console.error('Failed to open file:', error);
     }
   };
 
@@ -307,8 +291,8 @@ export const SearchPanel: React.FC = () => {
           <div className="search-results">
             <div className="search-results-header">
               <span>{searchResults.length} result{searchResults.length > 1 ? 's' : ''}</span>
-              {currentProject && (
-                <span className="search-scope">in {currentProject.split('/').pop()}</span>
+              {currentWorkspace && (
+                <span className="search-scope">in {currentWorkspace.split('/').pop()}</span>
               )}
             </div>
             

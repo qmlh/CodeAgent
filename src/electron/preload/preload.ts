@@ -34,6 +34,22 @@ const electronAPI = {
     watchDirectory: (dirPath: string) => ipcRenderer.invoke('fs:watch-directory', dirPath),
     unwatchDirectory: (watcherId: string) => ipcRenderer.invoke('fs:unwatch-directory', watcherId),
     
+    // Extended file operations
+    copy: (sourcePath: string, destinationPath: string) => ipcRenderer.invoke('fs:copy', sourcePath, destinationPath),
+    move: (sourcePath: string, destinationPath: string) => ipcRenderer.invoke('fs:move', sourcePath, destinationPath),
+    rename: (oldPath: string, newPath: string) => ipcRenderer.invoke('fs:rename', oldPath, newPath),
+    exists: (filePath: string) => ipcRenderer.invoke('fs:exists', filePath),
+    getPreview: (filePath: string) => ipcRenderer.invoke('fs:get-preview', filePath),
+    search: (dirPath: string, pattern: string, options?: any) => ipcRenderer.invoke('fs:search', dirPath, pattern, options),
+    validateName: (fileName: string) => ipcRenderer.invoke('fs:validate-name', fileName),
+    createUniqueName: (dirPath: string, baseName: string, extension?: string) => ipcRenderer.invoke('fs:create-unique-name', dirPath, baseName, extension),
+    
+    // Path utilities
+    joinPath: (...paths: string[]) => ipcRenderer.invoke('fs:join-path', ...paths),
+    getFileName: (filePath: string) => ipcRenderer.invoke('fs:get-file-name', filePath),
+    getDirectoryName: (filePath: string) => ipcRenderer.invoke('fs:get-directory-name', filePath),
+    getExtension: (filePath: string) => ipcRenderer.invoke('fs:get-extension', filePath),
+    
     // File system events
     onDirectoryChanged: (callback: (data: any) => void) => {
       ipcRenderer.on('fs:directory-changed', (event, data) => callback(data));

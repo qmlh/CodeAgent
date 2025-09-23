@@ -200,6 +200,123 @@ export class IPCManager {
         return { success: false, error: (error as Error).message };
       }
     });
+
+    // Copy file/directory
+    ipcMain.handle('fs:copy', async (event, sourcePath: string, destinationPath: string) => {
+      try {
+        await this.fileSystemManager.copyFile(sourcePath, destinationPath);
+        return { success: true };
+      } catch (error) {
+        return { success: false, error: (error as Error).message };
+      }
+    });
+
+    // Move file/directory
+    ipcMain.handle('fs:move', async (event, sourcePath: string, destinationPath: string) => {
+      try {
+        await this.fileSystemManager.moveFile(sourcePath, destinationPath);
+        return { success: true };
+      } catch (error) {
+        return { success: false, error: (error as Error).message };
+      }
+    });
+
+    // Rename file/directory
+    ipcMain.handle('fs:rename', async (event, oldPath: string, newPath: string) => {
+      try {
+        await this.fileSystemManager.renameFile(oldPath, newPath);
+        return { success: true };
+      } catch (error) {
+        return { success: false, error: (error as Error).message };
+      }
+    });
+
+    // Check if path exists
+    ipcMain.handle('fs:exists', async (event, filePath: string) => {
+      try {
+        const exists = await this.fileSystemManager.exists(filePath);
+        return { success: true, exists };
+      } catch (error) {
+        return { success: false, error: (error as Error).message };
+      }
+    });
+
+    // Get file preview
+    ipcMain.handle('fs:get-preview', async (event, filePath: string) => {
+      try {
+        const preview = await this.fileSystemManager.getFilePreview(filePath);
+        return { success: true, preview };
+      } catch (error) {
+        return { success: false, error: (error as Error).message };
+      }
+    });
+
+    // Search files
+    ipcMain.handle('fs:search', async (event, dirPath: string, pattern: string, options: any = {}) => {
+      try {
+        const results = await this.fileSystemManager.searchFiles(dirPath, pattern, options);
+        return { success: true, results };
+      } catch (error) {
+        return { success: false, error: (error as Error).message };
+      }
+    });
+
+    // Validate file name
+    ipcMain.handle('fs:validate-name', async (event, fileName: string) => {
+      try {
+        const validation = await this.fileSystemManager.validateFileName(fileName);
+        return { success: true, validation };
+      } catch (error) {
+        return { success: false, error: (error as Error).message };
+      }
+    });
+
+    // Create unique file name
+    ipcMain.handle('fs:create-unique-name', async (event, dirPath: string, baseName: string, extension: string = '') => {
+      try {
+        const uniqueName = await this.fileSystemManager.createUniqueFileName(dirPath, baseName, extension);
+        return { success: true, uniqueName };
+      } catch (error) {
+        return { success: false, error: (error as Error).message };
+      }
+    });
+
+    // Path utilities
+    ipcMain.handle('fs:join-path', async (event, ...paths: string[]) => {
+      try {
+        const joinedPath = await this.fileSystemManager.joinPath(...paths);
+        return { success: true, path: joinedPath };
+      } catch (error) {
+        return { success: false, error: (error as Error).message };
+      }
+    });
+
+    ipcMain.handle('fs:get-file-name', async (event, filePath: string) => {
+      try {
+        const fileName = await this.fileSystemManager.getFileName(filePath);
+        return { success: true, fileName };
+      } catch (error) {
+        return { success: false, error: (error as Error).message };
+      }
+    });
+
+    ipcMain.handle('fs:get-directory-name', async (event, filePath: string) => {
+      try {
+        const dirName = await this.fileSystemManager.getDirectoryName(filePath);
+        return { success: true, dirName };
+      } catch (error) {
+        return { success: false, error: (error as Error).message };
+      }
+    });
+
+    ipcMain.handle('fs:get-extension', async (event, filePath: string) => {
+      try {
+        const extension = await this.fileSystemManager.getFileExtension(filePath);
+        return { success: true, extension };
+      } catch (error) {
+        return { success: false, error: (error as Error).message };
+      }
+    });
   }
 
   private setupApplicationHandlers(): void {

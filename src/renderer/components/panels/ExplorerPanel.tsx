@@ -1,28 +1,52 @@
 /**
  * Explorer Panel Component
- * File system explorer
+ * File system explorer with enhanced file management
  */
 
 import React, { useState, useEffect } from 'react';
-import { Tree, Button, Input, message } from 'antd';
-import { 
-  FolderOutlined, 
-  FolderOpenOutlined, 
-  FileOutlined,
-  SearchOutlined,
-  PlusOutlined,
-  FolderAddOutlined
-} from '@ant-design/icons';
+import { Button, message, Divider } from 'antd';
+import { FolderOpenOutlined } from '@ant-design/icons';
 import { useAppSelector, useAppDispatch } from '../../hooks/redux';
-import { loadWorkspace, openFile, expandDirectory, collapseDirectory } from '../../store/slices/fileSlice';
-
-const { Search } = Input;
-const { DirectoryTree } = Tree;
+import { useFileSystemEvents } from '../../hooks/useFileSystemEvents';
+import { 
+  loadWorkspace, 
+  openFile, 
+  expandDirectory, 
+  collapseDirectory,
+  createFile,
+  createDirectory,
+  deleteFile
+} from '../../store/slices/fileSlice';
+import { FileTree } from '../file-tree/FileTree';
+import { FilePreview } from '../file-tree/FilePreview';
+import { FileItem } from '../../store/slices/fileSlice';
 
 export const ExplorerPanel: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { currentWorkspace, fileTree } = useAppSelector(state => state.file);
-  const [searchValue, setSearchValue] = useState('');
+  const { currentWorkspace, fileTree, activeFile } = useAppSelector(state => state.file);
+  const [expandedDirectories, setExpandedDirectories] = useState<Set<string>>(new Set());
+  const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
+
+  // Set up file system event listening
+  useFileSystemEvents(currentWorkspace);
+
+  // Update expanded directories from Redux state
+  useEffect(() => {
+    const updateExpanded = (items: FileItem[], expanded: Set<string>) => {
+      items.forEach(item => {
+        if (item.isDirectory && item.expanded) {
+          expanded.add(item.path);
+        }
+        if (item.children) {
+          updateExpanded(item.children, expanded);
+        }
+      });
+    };
+
+    const newExpanded = new Set<string>();
+    updateExpanded(fileTree, newExpanded);
+    setExpandedDirectories(newExpanded);
+  }, [fileTree]);
 
   const handleOpenProject = async () => {
     try {
@@ -42,12 +66,12 @@ export const ExplorerPanel: React.FC = () => {
     }
   };
 
-  const handleFileSelect = async (selectedKeys: React.Key[], info: any) => {
-    const { node } = info;
+  const handleFileSelect = async (file: FileItem) => {
+    setSelectedFile(file);
     
-    if (node.isFile) {
+    if (file.isFile) {
       try {
-        await dispatch(openFile(node.path)).unwrap();
+        await dispatch(openFile(file.path)).unwrap();
       } catch (error) {
         message.error('Failed to open file');
         console.error('Error opening file:', error);
@@ -55,115 +79,156 @@ export const ExplorerPanel: React.FC = () => {
     }
   };
 
-  const handleDirectoryExpand = (expandedKeys: React.Key[], info: any) => {
-    const { node, expanded } = info;
-    
-    if (node.isDirectory) {
-      if (expanded) {
-        dispatch(expandDirectory(node.path));
-      } else {
-        dispatch(collapseDirectory(node.path));
+  const handleDirectoryExpand = async (path: string) => {
+    try {
+      await dispatch(expandDirectory(path));
+      setExpandedDirectories(prev => new Set([...prev, path]));
+    } catch (error) {
+      message.error('Failed to expand directory');
+    }
+  };
+
+  const handleDirectoryCollapse = (path: string) => {
+    dispatch(collapseDirectory(path));
+    setExpandedDirectories(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(path);
+      return newSet;
+    });
+  };
+
+  const handleFileCreate = async (parentPath: string, fileName: string) => {
+    try {
+      const filePath = await window.electronAPI?.fs.joinPath(parentPath, fileName);
+      if (filePath?.success) {
+        await dispatch(createFile({ filePath: filePath.path })).unwrap();
+        message.success('File created successfully');
       }
+    } catch (error) {
+      message.error('Failed to create file');
     }
   };
 
-  const convertFileTreeToTreeData = (files: any[]): any[] => {
-    return files.map(file => ({
-      title: file.name,
-      key: file.path,
-      path: file.path,
-      isFile: file.isFile,
-      isDirectory: file.isDirectory,
-      icon: file.isDirectory ? 
-        (file.expanded ? <FolderOpenOutlined /> : <FolderOutlined />) : 
-        <FileOutlined />,
-      children: file.children ? convertFileTreeToTreeData(file.children) : undefined
-    }));
+  const handleDirectoryCreate = async (parentPath: string, dirName: string) => {
+    try {
+      const dirPath = await window.electronAPI?.fs.joinPath(parentPath, dirName);
+      if (dirPath?.success) {
+        await dispatch(createDirectory(dirPath.path)).unwrap();
+        message.success('Folder created successfully');
+      }
+    } catch (error) {
+      message.error('Failed to create folder');
+    }
   };
 
-  const filteredTreeData = React.useMemo(() => {
-    const treeData = convertFileTreeToTreeData(fileTree);
-    
-    if (!searchValue) {
-      return treeData;
-    }
-
-    // Simple search filter - in a real app, you'd want more sophisticated filtering
-    const filterTree = (nodes: any[]): any[] => {
-      return nodes.filter(node => {
-        const matchesSearch = node.title.toLowerCase().includes(searchValue.toLowerCase());
-        const hasMatchingChildren = node.children ? filterTree(node.children).length > 0 : false;
-        
-        if (hasMatchingChildren) {
-          node.children = filterTree(node.children);
+  const handleFileRename = async (oldPath: string, newPath: string) => {
+    try {
+      const result = await window.electronAPI?.fs.rename(oldPath, newPath);
+      if (result?.success) {
+        message.success('File renamed successfully');
+        // Refresh workspace to reflect changes
+        if (currentWorkspace) {
+          dispatch(loadWorkspace(currentWorkspace));
         }
-        
-        return matchesSearch || hasMatchingChildren;
-      });
-    };
+      } else {
+        message.error(result?.error || 'Failed to rename file');
+      }
+    } catch (error) {
+      message.error('Failed to rename file');
+    }
+  };
 
-    return filterTree(treeData);
-  }, [fileTree, searchValue]);
+  const handleFileDelete = async (path: string) => {
+    try {
+      await dispatch(deleteFile(path)).unwrap();
+      message.success('File deleted successfully');
+    } catch (error) {
+      message.error('Failed to delete file');
+    }
+  };
+
+  const handleFileCopy = async (sourcePath: string, targetPath: string) => {
+    try {
+      const result = await window.electronAPI?.fs.copy(sourcePath, targetPath);
+      if (result?.success) {
+        message.success('File copied successfully');
+        // Refresh workspace to reflect changes
+        if (currentWorkspace) {
+          dispatch(loadWorkspace(currentWorkspace));
+        }
+      } else {
+        message.error(result?.error || 'Failed to copy file');
+      }
+    } catch (error) {
+      message.error('Failed to copy file');
+    }
+  };
+
+  const handleFileMove = async (sourcePath: string, targetPath: string) => {
+    try {
+      const result = await window.electronAPI?.fs.move(sourcePath, targetPath);
+      if (result?.success) {
+        message.success('File moved successfully');
+        // Refresh workspace to reflect changes
+        if (currentWorkspace) {
+          dispatch(loadWorkspace(currentWorkspace));
+        }
+      } else {
+        message.error(result?.error || 'Failed to move file');
+      }
+    } catch (error) {
+      message.error('Failed to move file');
+    }
+  };
+
+  const handleRefresh = () => {
+    if (currentWorkspace) {
+      dispatch(loadWorkspace(currentWorkspace));
+    }
+  };
 
   return (
-    <div style={{ padding: '8px' }}>
-      <div style={{ marginBottom: '8px', display: 'flex', gap: '4px' }}>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      {/* Header */}
+      <div style={{ padding: '8px', borderBottom: '1px solid #333' }}>
         <Button 
           size="small" 
           icon={<FolderOpenOutlined />}
           onClick={handleOpenProject}
-          style={{ flex: 1 }}
+          block
         >
           Open Folder
         </Button>
-        <Button 
-          size="small" 
-          icon={<PlusOutlined />}
-          disabled={!currentWorkspace}
-          title="New File"
-        />
-        <Button 
-          size="small" 
-          icon={<FolderAddOutlined />}
-          disabled={!currentWorkspace}
-          title="New Folder"
+      </div>
+
+      {/* File Tree */}
+      <div style={{ flex: 1, minHeight: 0 }}>
+        <FileTree
+          files={fileTree}
+          selectedFile={selectedFile?.path || null}
+          expandedDirectories={expandedDirectories}
+          onFileSelect={handleFileSelect}
+          onDirectoryExpand={handleDirectoryExpand}
+          onDirectoryCollapse={handleDirectoryCollapse}
+          onFileCreate={handleFileCreate}
+          onDirectoryCreate={handleDirectoryCreate}
+          onFileRename={handleFileRename}
+          onFileDelete={handleFileDelete}
+          onFileCopy={handleFileCopy}
+          onFileMove={handleFileMove}
+          onRefresh={handleRefresh}
+          workspacePath={currentWorkspace}
         />
       </div>
 
-      {currentWorkspace && (
+      {/* File Preview */}
+      {selectedFile && (
         <>
-          <Search
-            placeholder="Search files..."
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            style={{ marginBottom: '8px' }}
-            size="small"
-          />
-
-          <DirectoryTree
-            multiple={false}
-            onSelect={handleFileSelect}
-            onExpand={handleDirectoryExpand}
-            treeData={filteredTreeData}
-            showIcon
-            style={{ 
-              background: 'transparent',
-              color: '#cccccc'
-            }}
-          />
+          <Divider style={{ margin: '8px 0' }} />
+          <div style={{ height: '200px', minHeight: '200px' }}>
+            <FilePreview file={selectedFile} />
+          </div>
         </>
-      )}
-
-      {!currentWorkspace && (
-        <div style={{ 
-          textAlign: 'center', 
-          padding: '20px', 
-          color: '#888',
-          fontSize: '12px'
-        }}>
-          <p>No folder opened</p>
-          <p>Open a folder to start working with files</p>
-        </div>
       )}
     </div>
   );
