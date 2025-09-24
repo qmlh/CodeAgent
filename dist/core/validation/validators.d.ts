@@ -76,4 +76,3 @@ export declare class ValidationUtils {
      */
     static isValidEmail(email: string): boolean;
 }
-//# sourceMappingURL=validators.d.ts.map

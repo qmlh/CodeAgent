@@ -15,10 +15,13 @@ interface FilePreviewProps {
 }
 
 interface FilePreview {
-  type: 'text' | 'image' | 'binary';
+  type: 'text' | 'image' | 'binary' | 'code';
   content?: string;
   size: number;
   mtime: Date;
+  language?: string;
+  encoding?: string;
+  lineCount?: number;
 }
 
 export const FilePreview: React.FC<FilePreviewProps> = ({ file, style }) => {
@@ -89,6 +92,41 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ file, style }) => {
                 margin: 0,
                 whiteSpace: 'pre-wrap',
                 wordBreak: 'break-word',
+              }}
+            >
+              {preview.content}
+            </pre>
+          </div>
+        );
+
+      case 'code':
+        return (
+          <div style={{ padding: '12px' }}>
+            <div style={{ 
+              fontSize: '11px', 
+              color: '#888', 
+              marginBottom: '8px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <span>Language: {preview.language || 'Unknown'}</span>
+              {preview.lineCount && <span>Lines: {preview.lineCount}</span>}
+            </div>
+            <pre
+              style={{
+                fontSize: '12px',
+                fontFamily: 'Consolas, Monaco, "Courier New", monospace',
+                backgroundColor: '#1e1e1e',
+                color: '#d4d4d4',
+                padding: '12px',
+                borderRadius: '4px',
+                overflow: 'auto',
+                maxHeight: '300px',
+                margin: 0,
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
+                border: '1px solid #333',
               }}
             >
               {preview.content}
@@ -193,6 +231,14 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ file, style }) => {
             <Text type="secondary" style={{ fontSize: '11px' }}>
               Modified: {formatDate(preview.mtime)}
             </Text>
+            {preview.encoding && (
+              <>
+                <br />
+                <Text type="secondary" style={{ fontSize: '11px' }}>
+                  Encoding: {preview.encoding}
+                </Text>
+              </>
+            )}
           </div>
           
           {renderPreviewContent()}

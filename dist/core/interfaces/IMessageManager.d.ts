@@ -22,5 +22,6 @@ export interface IMessageManager {
     createNotification(agentId: string, title: string, message: string, type?: MessageType): Promise<void>;
     getNotifications(agentId: string, unreadOnly?: boolean): Promise<AgentMessage[]>;
     markNotificationAsRead(messageId: string): Promise<void>;
+    updateHeartbeat(agentId: string): void;
+    getEventEmitter(): any;
 }
-//# sourceMappingURL=IMessageManager.d.ts.map

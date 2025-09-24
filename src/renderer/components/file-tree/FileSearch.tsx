@@ -119,7 +119,7 @@ export const FileSearch: React.FC = () => {
                 {result.name}
               </Text>
               {result.matches && result.matches.length > 0 && (
-                <Tag size="small" color="blue">
+                <Tag color="blue">
                   {result.matches.length} match{result.matches.length > 1 ? 'es' : ''}
                 </Tag>
               )}

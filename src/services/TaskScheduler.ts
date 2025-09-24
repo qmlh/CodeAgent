@@ -441,37 +441,31 @@ export class TaskScheduler {
   }
 
   private wouldCreateCircularDependency(taskId: string, dependencyId: string): boolean {
+    // Simple check: if dependencyId already depends on taskId (directly or indirectly),
+    // then adding taskId -> dependencyId would create a cycle
     const visited = new Set<string>();
-    const recursionStack = new Set<string>();
-
-    const hasCycle = (currentId: string): boolean => {
-      if (recursionStack.has(currentId)) {
+    
+    const hasPath = (from: string, to: string): boolean => {
+      if (from === to) {
         return true;
       }
-
-      if (visited.has(currentId)) {
+      
+      if (visited.has(from)) {
         return false;
       }
-
-      visited.add(currentId);
-      recursionStack.add(currentId);
-
-      const deps = this.dependencyGraph.get(currentId) || new Set();
-      for (const depId of Array.from(deps)) {
-        if (hasCycle(depId)) {
+      
+      visited.add(from);
+      
+      const deps = this.dependencyGraph.get(from) || new Set();
+      for (const dep of deps) {
+        if (hasPath(dep, to)) {
           return true;
         }
       }
-
-      // Check the proposed new dependency
-      if (currentId === dependencyId && hasCycle(taskId)) {
-        return true;
-      }
-
-      recursionStack.delete(currentId);
+      
       return false;
     };
-
-    return hasCycle(dependencyId);
+    
+    return hasPath(dependencyId, taskId);
   }
 }

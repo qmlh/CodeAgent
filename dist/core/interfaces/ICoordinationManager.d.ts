@@ -37,4 +37,3 @@ export interface ICoordinationManager {
     getCollaborationRules(): Promise<Record<string, any>>;
     validateAgentAction(agentId: string, action: string, context: any): Promise<boolean>;
 }
-//# sourceMappingURL=ICoordinationManager.d.ts.map

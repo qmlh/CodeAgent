@@ -11,8 +11,8 @@ import { AgentConfig, AgentType, Task, TaskResult } from '../core';
 export class TestAgent extends BaseAgent {
   private _initializationData: any = null;
 
-  constructor(id: string, name: string, config: AgentConfig) {
-    super(id, name, AgentType.TESTING, config);
+  constructor(id: string, name: string, type: AgentType, config: AgentConfig) {
+    super(id, name, type, config);
   }
 
   /**

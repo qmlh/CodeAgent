@@ -24,4 +24,3 @@ export interface IAgent {
     updateConfig(config: Partial<AgentConfig>): Promise<void>;
     getConfig(): AgentConfig;
 }
-//# sourceMappingURL=IAgent.d.ts.map

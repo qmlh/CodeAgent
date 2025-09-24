@@ -133,4 +133,3 @@ export declare class MessageFactory {
      */
     static isSessionActive(session: CollaborationSession): boolean;
 }
-//# sourceMappingURL=MessageFactory.d.ts.map

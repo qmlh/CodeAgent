@@ -3,7 +3,7 @@
  */
 
 import { EventEmitter } from 'eventemitter3';
-import { Agent, AgentType, AgentStatus, AgentConfig } from '../core';
+import { Agent, AgentType, AgentStatus, AgentConfig, ErrorType, ErrorSeverity } from '../core';
 import { BaseAgent } from './BaseAgent';
 import { AgentRegistry, AgentDiscoveryCriteria } from './AgentRegistry';
 import { ConcreteAgentFactory, CreateAgentInstanceOptions } from './ConcreteAgentFactory';
@@ -68,13 +68,13 @@ export class AgentManager extends EventEmitter<AgentManagerEvents> {
    */
   public async createAgent(options: CreateAgentInstanceOptions): Promise<Agent> {
     if (this._isShuttingDown) {
-      throw new SystemError('Cannot create agents during shutdown', 'system_error', 'medium');
+      throw new SystemError('Cannot create agents during shutdown', ErrorType.SYSTEM_ERROR, ErrorSeverity.MEDIUM);
     }
 
     // Validate creation options
     const validation = ConcreteAgentFactory.validateCreationOptions(options);
     if (!validation.isValid) {
-      throw new ValidationError(`Invalid agent creation options: ${validation.errors.join(', ')}`);
+      throw new SystemError(`Invalid agent creation options: ${validation.errors.join(', ')}`, ErrorType.VALIDATION_ERROR, ErrorSeverity.MEDIUM);
     }
 
     try {
@@ -108,7 +108,8 @@ export class AgentManager extends EventEmitter<AgentManagerEvents> {
 
     } catch (error) {
       const agentError = new AgentError(
-        `Failed to create agent: ${error instanceof Error ? error.message : 'Unknown error'}`
+        `Failed to create agent: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        options.id || 'unknown'
       );
       
       // Update lifecycle state to error
@@ -320,8 +321,8 @@ export class AgentManager extends EventEmitter<AgentManagerEvents> {
     } catch (error) {
       throw new SystemError(
         `Failed to shutdown agent manager: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        'system_error',
-        'high'
+        ErrorType.SYSTEM_ERROR,
+        ErrorSeverity.HIGH
       );
     }
   }
@@ -469,7 +470,7 @@ export class AgentManager extends EventEmitter<AgentManagerEvents> {
   /**
    * Register a new agent type
    */
-  public registerAgentType(type: AgentType, constructor: new (id: string, name: string, config: AgentConfig) => BaseAgent): void {
+  public registerAgentType(type: AgentType, constructor: new (id: string, name: string, type: AgentType, config: AgentConfig) => BaseAgent): void {
     ConcreteAgentFactory.registerAgentType(type, constructor);
   }
 
@@ -552,41 +553,6 @@ export class AgentManager extends EventEmitter<AgentManagerEvents> {
     }
 
     return { recovered, failed };
-  }
-
-  /**
-   * Restart an agent
-   */
-  public async restartAgent(agentId: string): Promise<void> {
-    const agentInstance = this._registry.getAgent(agentId);
-    if (!agentInstance) {
-      throw new AgentError(`Agent with ID ${agentId} not found`, agentId);
-    }
-
-    try {
-      this.updateLifecycleState(agentId, AgentLifecycleState.STOPPING);
-
-      // Shutdown and restart
-      await agentInstance.shutdown();
-      
-      this.updateLifecycleState(agentId, AgentLifecycleState.INITIALIZING);
-      await agentInstance.initialize(agentInstance.getConfig());
-
-      this.updateLifecycleState(agentId, AgentLifecycleState.RUNNING);
-      this.setAgentStartTime(agentId);
-
-      this.emit('agent-started', agentId);
-
-    } catch (error) {
-      const agentError = new AgentError(
-        `Failed to restart agent: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        agentId
-      );
-      
-      this.updateLifecycleState(agentId, AgentLifecycleState.ERROR, agentError);
-      this.emit('agent-error', agentId, agentError);
-      throw agentError;
-    }
   }
 
   /**

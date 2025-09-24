@@ -2,6 +2,9 @@
  * Factory exports
  */
 
-export { AgentFactory, CreateAgentOptions } from './AgentFactory';
-export { TaskFactory, CreateTaskOptions } from './TaskFactory';
-export { MessageFactory, CreateMessageOptions, CreateCollaborationSessionOptions } from './MessageFactory';
+export { AgentFactory } from './AgentFactory';
+export type { CreateAgentOptions } from './AgentFactory';
+export { TaskFactory } from './TaskFactory';
+export type { CreateTaskOptions } from './TaskFactory';
+export { MessageFactory } from './MessageFactory';
+export type { CreateMessageOptions, CreateCollaborationSessionOptions } from './MessageFactory';

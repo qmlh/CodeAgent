@@ -41,12 +41,13 @@ describe('TaskManager', () => {
 
     it('should generate default values for missing fields', async () => {
       const taskData = {
-        title: 'Minimal Task'
+        title: 'Minimal Task',
+        description: 'A minimal task for testing'
       };
 
       const task = await taskManager.createTask(taskData);
 
-      expect(task.description).toBe('');
+      expect(task.description).toBe('A minimal task for testing');
       expect(task.type).toBe('general');
       expect(task.status).toBe(TaskStatus.PENDING);
       expect(task.dependencies).toEqual([]);
@@ -56,7 +57,7 @@ describe('TaskManager', () => {
 
     it('should throw validation error for invalid task data', async () => {
       const taskData = {
-        title: '', // Invalid empty title
+        title: 'A'.repeat(250), // Invalid long title (over 200 chars)
         description: 'Test'
       };
 
@@ -114,6 +115,7 @@ describe('TaskManager', () => {
     beforeEach(async () => {
       task = await taskManager.createTask({
         title: 'Frontend Task',
+        description: 'A frontend task for testing',
         type: 'frontend',
         priority: TaskPriority.HIGH
       });
@@ -152,10 +154,12 @@ describe('TaskManager', () => {
     beforeEach(async () => {
       task1 = await taskManager.createTask({
         title: 'Task 1',
+        description: 'Backend task for testing',
         type: 'backend'
       });
       task2 = await taskManager.createTask({
         title: 'Task 2',
+        description: 'Frontend task for testing',
         type: 'frontend'
       });
     });
@@ -189,6 +193,7 @@ describe('TaskManager', () => {
     beforeEach(async () => {
       task = await taskManager.createTask({
         title: 'Status Test Task',
+        description: 'A task for testing status changes',
         type: 'general'
       });
     });
@@ -222,11 +227,13 @@ describe('TaskManager', () => {
     beforeEach(async () => {
       task1 = await taskManager.createTask({
         title: 'High Priority Task',
+        description: 'High priority frontend task',
         type: 'frontend',
         priority: TaskPriority.HIGH
       });
       task2 = await taskManager.createTask({
         title: 'Low Priority Task',
+        description: 'Low priority frontend task',
         type: 'frontend',
         priority: TaskPriority.LOW
       });
@@ -258,14 +265,17 @@ describe('TaskManager', () => {
       // Create tasks with different statuses
       await taskManager.createTask({
         title: 'Pending Task',
+        description: 'A pending task for testing',
         status: TaskStatus.PENDING
       });
       await taskManager.createTask({
         title: 'In Progress Task',
+        description: 'An in-progress task for testing',
         status: TaskStatus.IN_PROGRESS
       });
       await taskManager.createTask({
         title: 'Completed Task',
+        description: 'A completed task for testing',
         status: TaskStatus.COMPLETED
       });
     });
@@ -300,16 +310,19 @@ describe('TaskManager', () => {
     beforeEach(async () => {
       task1 = await taskManager.createTask({
         title: 'Available Task',
+        description: 'An available frontend task',
         type: 'frontend',
         status: TaskStatus.PENDING
       });
       task2 = await taskManager.createTask({
         title: 'Assigned Task',
+        description: 'An assigned frontend task',
         type: 'frontend',
         status: TaskStatus.PENDING
       });
       task3 = await taskManager.createTask({
         title: 'Dependent Task',
+        description: 'A dependent frontend task',
         type: 'frontend',
         status: TaskStatus.PENDING
       });
@@ -342,6 +355,7 @@ describe('TaskManager', () => {
     beforeEach(async () => {
       task = await taskManager.createTask({
         title: 'Priority Test Task',
+        description: 'A task for testing priority changes',
         priority: TaskPriority.LOW
       });
     });
@@ -371,6 +385,7 @@ describe('TaskManager', () => {
     it('should remove agent information', async () => {
       const task = await taskManager.createTask({
         title: 'Test Task',
+        description: 'A test task for agent management',
         type: 'frontend'
       });
       

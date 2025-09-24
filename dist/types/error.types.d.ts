@@ -37,4 +37,3 @@ export interface RecoveryResult {
     message: string;
     retryAfter?: number;
 }
-//# sourceMappingURL=error.types.d.ts.map

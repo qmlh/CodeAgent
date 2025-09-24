@@ -158,4 +158,3 @@ export declare abstract class BaseAgent extends EventEmitter<AgentEvents> implem
      */
     protected log(level: 'info' | 'warn' | 'error', message: string, data?: any): void;
 }
-//# sourceMappingURL=BaseAgent.d.ts.map

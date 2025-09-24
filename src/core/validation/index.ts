@@ -3,7 +3,6 @@
  */
 
 export {
-  ValidationResult,
   BaseValidator,
   AgentConfigValidator,
   AgentValidator,
@@ -12,3 +11,4 @@ export {
   CollaborationSessionValidator,
   ValidationUtils
 } from './validators';
+export type { ValidationResult } from './validators';

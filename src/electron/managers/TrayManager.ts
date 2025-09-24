@@ -5,7 +5,9 @@
 
 import { Tray, Menu, nativeImage, app, BrowserWindow } from 'electron';
 import * as path from 'path';
+import * as fs from 'fs';
 import { WindowManager } from './WindowManager';
+import { getAssetPath, assetExists } from '../utils/assetPaths';
 
 export class TrayManager {
   private tray: Tray | null = null;
@@ -16,19 +18,33 @@ export class TrayManager {
   }
 
   async initialize(): Promise<void> {
-    console.log('TrayManager initialized');
+    try {
+      console.log('TrayManager initialized');
+    } catch (error) {
+      console.error('Failed to initialize TrayManager:', error);
+      throw error;
+    }
   }
 
   createTray(): void {
     const iconPath = this.getTrayIconPath();
     if (!iconPath) {
-      console.warn('Tray icon not found, skipping tray creation');
+      console.warn('Cannot create system tray: No tray icon found. Please ensure tray icon assets are available in the assets/icons directory.');
+      console.warn('Expected tray icon locations:');
+      console.warn(`  - Windows: assets/icons/tray-icon.ico`);
+      console.warn(`  - macOS/Linux: assets/icons/tray-icon.png`);
       return;
     }
 
-    this.tray = new Tray(iconPath);
-    this.setupTrayMenu();
-    this.setupTrayEvents();
+    try {
+      this.tray = new Tray(iconPath);
+      this.setupTrayMenu();
+      this.setupTrayEvents();
+      console.log('System tray created successfully');
+    } catch (error) {
+      console.warn('Failed to create system tray:', error);
+      this.tray = null;
+    }
   }
 
   updateTrayIcon(status: 'idle' | 'working' | 'error'): void {
@@ -36,7 +52,13 @@ export class TrayManager {
 
     const iconPath = this.getTrayIconPath(status);
     if (iconPath) {
-      this.tray.setImage(iconPath);
+      try {
+        this.tray.setImage(iconPath);
+      } catch (error) {
+        console.warn(`Failed to update tray icon to status '${status}':`, error);
+      }
+    } else {
+      console.warn(`Status-specific tray icon for '${status}' not found, keeping current icon`);
     }
   }
 
@@ -47,12 +69,16 @@ export class TrayManager {
   }
 
   showNotification(title: string, body: string): void {
-    if (this.tray) {
+    if (!this.tray) return;
+
+    try {
       this.tray.displayBalloon({
         title,
         content: body,
         icon: this.getTrayIconPath() || undefined
       });
+    } catch (error) {
+      console.warn('Failed to show tray notification:', error);
     }
   }
 
@@ -165,55 +191,83 @@ export class TrayManager {
   private setupTrayEvents(): void {
     if (!this.tray) return;
 
-    // Double-click to show/hide main window
-    this.tray.on('double-click', () => {
-      this.toggleMainWindow();
-    });
+    try {
+      // Double-click to show/hide main window
+      this.tray.on('double-click', () => {
+        try {
+          this.toggleMainWindow();
+        } catch (error) {
+          console.error('Error handling tray double-click:', error);
+        }
+      });
 
-    // Right-click shows context menu (handled automatically)
-    this.tray.on('right-click', () => {
-      // Context menu is shown automatically
-    });
+      // Right-click shows context menu (handled automatically)
+      this.tray.on('right-click', () => {
+        try {
+          // Context menu is shown automatically
+        } catch (error) {
+          console.error('Error handling tray right-click:', error);
+        }
+      });
 
-    // Balloon clicked
-    this.tray.on('balloon-click', () => {
-      this.showMainWindow();
-    });
+      // Balloon clicked
+      this.tray.on('balloon-click', () => {
+        try {
+          this.showMainWindow();
+        } catch (error) {
+          console.error('Error handling tray balloon-click:', error);
+        }
+      });
+    } catch (error) {
+      console.error('Failed to setup tray events:', error);
+    }
   }
 
   private toggleMainWindow(): void {
-    const mainWindow = this.windowManager.getMainWindow();
-    
-    if (!mainWindow) {
-      this.windowManager.createMainWindow();
-      return;
-    }
+    try {
+      const mainWindow = this.windowManager.getMainWindow();
+      
+      if (!mainWindow) {
+        this.windowManager.createMainWindow().catch(error => {
+          console.error('Failed to create main window from tray:', error);
+        });
+        return;
+      }
 
-    if (mainWindow.isVisible()) {
-      if (mainWindow.isFocused()) {
-        mainWindow.hide();
+      if (mainWindow.isVisible()) {
+        if (mainWindow.isFocused()) {
+          mainWindow.hide();
+        } else {
+          mainWindow.focus();
+        }
       } else {
+        mainWindow.show();
         mainWindow.focus();
       }
-    } else {
-      mainWindow.show();
-      mainWindow.focus();
+    } catch (error) {
+      console.error('Failed to toggle main window:', error);
     }
   }
 
   private showMainWindow(): void {
-    const mainWindow = this.windowManager.getMainWindow();
-    
-    if (!mainWindow) {
-      this.windowManager.createMainWindow();
-      return;
-    }
+    try {
+      const mainWindow = this.windowManager.getMainWindow();
+      
+      if (!mainWindow) {
+        this.windowManager.createMainWindow().catch(error => {
+          console.error('Failed to create main window from tray:', error);
+        });
+        return;
+      }
 
-    if (!mainWindow.isVisible()) {
-      mainWindow.show();
+      if (!mainWindow.isVisible()) {
+        mainWindow.show();
+      }
+      
+      mainWindow.focus();
+    } catch (error) {
+      console.error('Failed to show main window:', error);
     }
-    
-    mainWindow.focus();
   }
 
   private getTrayIconPath(status?: 'idle' | 'working' | 'error'): string | null {
@@ -226,11 +280,29 @@ export class TrayManager {
 
       // Platform-specific icon extensions
       const extension = process.platform === 'win32' ? '.ico' : '.png';
-      const iconPath = path.join(__dirname, `../../assets/icons/${iconName}${extension}`);
+      const iconAssetPath = `icons/${iconName}${extension}`;
       
-      return iconPath;
+      // Check if file exists before returning path
+      if (assetExists(iconAssetPath)) {
+        return getAssetPath(iconAssetPath);
+      } else {
+        const iconPath = getAssetPath(iconAssetPath);
+        console.warn(`Tray icon not found at path: ${iconPath}`);
+        
+        // Try fallback to base tray icon if status-specific icon is missing
+        if (status) {
+          const fallbackAssetPath = `icons/tray-icon${extension}`;
+          if (assetExists(fallbackAssetPath)) {
+            const fallbackIconPath = getAssetPath(fallbackAssetPath);
+            console.warn(`Using fallback tray icon: ${fallbackIconPath}`);
+            return fallbackIconPath;
+          }
+        }
+        
+        return null;
+      }
     } catch (error) {
-      console.warn('Tray icon not found:', error);
+      console.warn('Error accessing tray icon:', error);
       return null;
     }
   }
@@ -258,43 +330,75 @@ export class TrayManager {
     }
   }
 
+  private handleOpenProjet(): void {
+    try {
+      const mainWindow = this.windowManager.getMainWindow();
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('tray-action', { action: 'new-project' });
+        this.showMainWindow();
+      }
+    } catch (error) {
+      console.error('Failed to handle new project action:', error);
+    }
+  }
+
   private handleOpenProject(): void {
-    const mainWindow = this.windowManager.getMainWindow();
-    if (mainWindow) {
-      mainWindow.webContents.send('tray-action', { action: 'open-project' });
-      this.showMainWindow();
+    try {
+      const mainWindow = this.windowManager.getMainWindow();
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('tray-action', { action: 'open-project' });
+        this.showMainWindow();
+      }
+    } catch (error) {
+      console.error('Failed to handle open project action:', error);
     }
   }
 
   private handleCreateAgent(): void {
-    const mainWindow = this.windowManager.getMainWindow();
-    if (mainWindow) {
-      mainWindow.webContents.send('tray-action', { action: 'create-agent' });
-      this.showMainWindow();
+    try {
+      const mainWindow = this.windowManager.getMainWindow();
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('tray-action', { action: 'create-agent' });
+        this.showMainWindow();
+      }
+    } catch (error) {
+      console.error('Failed to handle create agent action:', error);
     }
   }
 
   private handleCreateTask(): void {
-    const mainWindow = this.windowManager.getMainWindow();
-    if (mainWindow) {
-      mainWindow.webContents.send('tray-action', { action: 'create-task' });
-      this.showMainWindow();
+    try {
+      const mainWindow = this.windowManager.getMainWindow();
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('tray-action', { action: 'create-task' });
+        this.showMainWindow();
+      }
+    } catch (error) {
+      console.error('Failed to handle create task action:', error);
     }
   }
 
   private handleSettings(): void {
-    const mainWindow = this.windowManager.getMainWindow();
-    if (mainWindow) {
-      mainWindow.webContents.send('tray-action', { action: 'settings' });
-      this.showMainWindow();
+    try {
+      const mainWindow = this.windowManager.getMainWindow();
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('tray-action', { action: 'settings' });
+        this.showMainWindow();
+      }
+    } catch (error) {
+      console.error('Failed to handle settings action:', error);
     }
   }
 
   private handleAbout(): void {
-    const mainWindow = this.windowManager.getMainWindow();
-    if (mainWindow) {
-      mainWindow.webContents.send('tray-action', { action: 'about' });
-      this.showMainWindow();
+    try {
+      const mainWindow = this.windowManager.getMainWindow();
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('tray-action', { action: 'about' });
+        this.showMainWindow();
+      }
+    } catch (error) {
+      console.error('Failed to handle about action:', error);
     }
   }
 }

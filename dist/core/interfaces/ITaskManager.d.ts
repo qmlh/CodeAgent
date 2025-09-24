@@ -25,4 +25,3 @@ export interface ITaskManager {
         pending: number;
     }>;
 }
-//# sourceMappingURL=ITaskManager.d.ts.map

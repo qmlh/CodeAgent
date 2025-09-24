@@ -2,9 +2,9 @@
  * Core interfaces export
  */
 
-export { IAgent } from './IAgent';
-export { ITaskManager } from './ITaskManager';
-export { IFileManager } from './IFileManager';
-export { IMessageManager } from './IMessageManager';
-export { ICoordinationManager } from './ICoordinationManager';
-export { IErrorRecoveryStrategy } from './IErrorRecoveryStrategy';
+export type { IAgent } from './IAgent';
+export type { ITaskManager } from './ITaskManager';
+export type { IFileManager } from './IFileManager';
+export type { IMessageManager } from './IMessageManager';
+export type { ICoordinationManager } from './ICoordinationManager';
+export type { IErrorRecoveryStrategy } from './IErrorRecoveryStrategy';

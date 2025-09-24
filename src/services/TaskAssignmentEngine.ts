@@ -230,19 +230,18 @@ export class TaskAssignmentEngine {
 
     for (const execution of Array.from(this.taskExecutions.values())) {
       // Check for timeout
-      if (now > execution.expectedEndTime) {
-        const timeoutRatio = (now.getTime() - execution.expectedEndTime.getTime()) / 
-                           (execution.expectedEndTime.getTime() - execution.startTime.getTime());
-        
-        if (timeoutRatio > this.timeoutThreshold) {
-          triggers.push({
-            type: 'timeout',
-            taskId: execution.taskId,
-            agentId: execution.agentId,
-            reason: `Task exceeded timeout threshold by ${Math.round(timeoutRatio * 100)}%`,
-            timestamp: now
-          });
-        }
+      const elapsedTime = now.getTime() - execution.startTime.getTime();
+      const estimatedTime = execution.expectedEndTime.getTime() - execution.startTime.getTime();
+      const timeoutRatio = elapsedTime / estimatedTime;
+      
+      if (timeoutRatio > this.timeoutThreshold) {
+        triggers.push({
+          type: 'timeout',
+          taskId: execution.taskId,
+          agentId: execution.agentId,
+          reason: `Task exceeded timeout threshold by ${Math.round((timeoutRatio - 1) * 100)}%`,
+          timestamp: now
+        });
       }
 
       // Check for missing heartbeat

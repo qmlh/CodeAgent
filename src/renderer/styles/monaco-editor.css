@@ -1,0 +1,401 @@
+/**
+ * Monaco Editor Enhanced Styles
+ * Custom styling for Monaco Editor integration
+ */
+
+/* Monaco Editor Container */
+.monaco-editor-container {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+/* Readonly file indicator */
+.monaco-editor-container.readonly {
+  position: relative;
+}
+
+.monaco-editor-container.readonly::before {
+  content: '🔒 Read-only';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(255, 77, 79, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* Readonly glyph margin */
+.readonly-glyph-margin {
+  background: #ff4d4f !important;
+  width: 4px !important;
+}
+
+.readonly-file-indicator {
+  background: rgba(255, 77, 79, 0.1) !important;
+}
+
+/* Enhanced find widget styling */
+.monaco-editor .find-widget {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  border: 1px solid #3e3e42 !important;
+  border-radius: 6px !important;
+}
+
+/* Enhanced scrollbar styling */
+.monaco-editor .monaco-scrollable-element > .scrollbar > .slider {
+  border-radius: 4px !important;
+}
+
+.monaco-editor .monaco-scrollable-element > .scrollbar > .slider:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Enhanced minimap */
+.monaco-editor .minimap {
+  border-left: 1px solid #3e3e42 !important;
+}
+
+/* Enhanced bracket matching */
+.monaco-editor .bracket-match {
+  background: rgba(0, 122, 204, 0.3) !important;
+  border: 1px solid #007acc !important;
+}
+
+/* Enhanced selection */
+.monaco-editor .selected-text {
+  background: rgba(0, 122, 204, 0.3) !important;
+}
+
+/* Enhanced current line highlight */
+.monaco-editor .current-line {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: none !important;
+}
+
+/* Enhanced line numbers */
+.monaco-editor .line-numbers {
+  color: #858585 !important;
+}
+
+.monaco-editor .line-numbers.active-line-number {
+  color: #c6c6c6 !important;
+}
+
+/* Enhanced folding controls */
+.monaco-editor .folding-decoration {
+  color: #c6c6c6 !important;
+}
+
+.monaco-editor .folding-decoration:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Enhanced code lens */
+.monaco-editor .codelens-decoration {
+  color: #999999 !important;
+  font-style: italic !important;
+}
+
+.monaco-editor .codelens-decoration:hover {
+  color: #c6c6c6 !important;
+}
+
+/* Enhanced parameter hints */
+.monaco-editor .parameter-hints-widget {
+  border: 1px solid #3e3e42 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  border-radius: 6px !important;
+}
+
+/* Enhanced suggest widget */
+.monaco-editor .suggest-widget {
+  border: 1px solid #3e3e42 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  border-radius: 6px !important;
+}
+
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row.focused {
+  background: rgba(0, 122, 204, 0.2) !important;
+}
+
+/* Enhanced hover widget */
+.monaco-editor .monaco-hover {
+  border: 1px solid #3e3e42 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  border-radius: 6px !important;
+}
+
+/* Enhanced context menu */
+.monaco-menu {
+  border: 1px solid #3e3e42 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  border-radius: 6px !important;
+}
+
+/* Enhanced diff editor */
+.monaco-diff-editor .diffViewport {
+  border: 1px solid #3e3e42 !important;
+}
+
+.monaco-diff-editor .diff-review-line-number {
+  color: #858585 !important;
+}
+
+/* Enhanced error/warning squiggles */
+.monaco-editor .squiggly-error {
+  border-bottom: 2px solid #ff4d4f !important;
+}
+
+.monaco-editor .squiggly-warning {
+  border-bottom: 2px solid #faad14 !important;
+}
+
+.monaco-editor .squiggly-info {
+  border-bottom: 2px solid #1890ff !important;
+}
+
+/* Enhanced sticky scroll */
+.monaco-editor .sticky-line-root {
+  background: rgba(45, 45, 48, 0.95) !important;
+  border-bottom: 1px solid #3e3e42 !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+/* Enhanced indentation guides */
+.monaco-editor .lines-content .cigr {
+  box-shadow: 1px 0 0 0 rgba(255, 255, 255, 0.1) inset !important;
+}
+
+.monaco-editor .lines-content .cigra {
+  box-shadow: 1px 0 0 0 rgba(0, 122, 204, 0.6) inset !important;
+}
+
+/* Enhanced whitespace rendering */
+.monaco-editor .mtkw {
+  color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Enhanced ruler */
+.monaco-editor .view-ruler {
+  border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Enhanced overview ruler */
+.monaco-editor .decorationsOverviewRuler {
+  border-left: 1px solid #3e3e42 !important;
+}
+
+/* Enhanced lightbulb */
+.monaco-editor .lightbulb-glyph {
+  color: #faad14 !important;
+}
+
+.monaco-editor .lightbulb-glyph:hover {
+  color: #ffc53d !important;
+}
+
+/* Enhanced peek view */
+.monaco-editor .zone-widget .zone-widget-container {
+  border: 1px solid #3e3e42 !important;
+  border-radius: 6px !important;
+}
+
+.monaco-editor .peekview-widget .head {
+  background: #2d2d30 !important;
+  border-bottom: 1px solid #3e3e42 !important;
+}
+
+/* Enhanced rename input */
+.monaco-editor .rename-box {
+  border: 1px solid #007acc !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  border-radius: 4px !important;
+}
+
+/* Enhanced quick input */
+.quick-input-widget {
+  border: 1px solid #3e3e42 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  border-radius: 6px !important;
+}
+
+/* Enhanced editor tabs */
+.ant-tabs-tab {
+  transition: all 0.2s ease !important;
+}
+
+.ant-tabs-tab:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.ant-tabs-tab-active {
+  background: rgba(0, 122, 204, 0.1) !important;
+}
+
+/* Enhanced editor toolbar */
+.editor-toolbar {
+  background: #2d2d30;
+  border-bottom: 1px solid #3e3e42;
+  padding: 4px 8px;
+}
+
+.editor-toolbar .ant-btn {
+  color: #c6c6c6;
+  border: none;
+}
+
+.editor-toolbar .ant-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.editor-toolbar .ant-btn:disabled {
+  color: #666666;
+}
+
+/* Enhanced split view */
+.editor-split-container {
+  height: 100%;
+  display: flex;
+}
+
+.editor-split-pane {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+.editor-split-divider {
+  background: #3e3e42;
+  cursor: col-resize;
+}
+
+.editor-split-divider:hover {
+  background: #007acc;
+}
+
+.editor-split-divider.horizontal {
+  cursor: row-resize;
+}
+
+/* Enhanced file lock indicator */
+.file-lock-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.file-lock-indicator .lock-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  color: #ff4d4f;
+}
+
+.file-lock-indicator .lock-message {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.file-lock-indicator .lock-agent {
+  font-size: 14px;
+  color: #999;
+}
+
+/* Enhanced search and replace */
+.monaco-findInput {
+  border-radius: 4px !important;
+}
+
+.monaco-findInput.highlight-find {
+  border-color: #007acc !important;
+}
+
+/* Enhanced breadcrumb */
+.monaco-breadcrumbs {
+  background: #2d2d30 !important;
+  border-bottom: 1px solid #3e3e42 !important;
+}
+
+.monaco-breadcrumbs .monaco-breadcrumb-item {
+  color: #c6c6c6 !important;
+}
+
+.monaco-breadcrumbs .monaco-breadcrumb-item:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Enhanced status bar integration */
+.editor-status-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  color: #c6c6c6;
+}
+
+.editor-status-info .status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.editor-status-info .status-item:hover {
+  color: #ffffff;
+  cursor: pointer;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .monaco-editor .minimap {
+    display: none !important;
+  }
+  
+  .editor-toolbar {
+    padding: 2px 4px;
+  }
+  
+  .editor-toolbar .ant-btn {
+    padding: 2px 4px;
+    font-size: 12px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .monaco-editor {
+    border: 2px solid #ffffff !important;
+  }
+  
+  .monaco-editor .current-line {
+    background: rgba(255, 255, 255, 0.2) !important;
+  }
+  
+  .monaco-editor .selected-text {
+    background: rgba(255, 255, 255, 0.4) !important;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .monaco-editor * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

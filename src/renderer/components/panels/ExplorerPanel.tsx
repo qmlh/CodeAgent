@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Button, message, Divider } from 'antd';
+import { Button, message, Divider, notification } from 'antd';
 import { FolderOpenOutlined } from '@ant-design/icons';
 import { useAppSelector, useAppDispatch } from '../../hooks/redux';
 import { useFileSystemEvents } from '../../hooks/useFileSystemEvents';
@@ -20,6 +20,8 @@ import {
 import { FileTree } from '../file-tree/FileTree';
 import { FilePreview } from '../file-tree/FilePreview';
 import { FileItem } from '../../store/slices/fileSlice';
+import { fileWatcherService, FileWatchEvent } from '../../services/FileWatcherService';
+import { fileOperationsService, FileOperation } from '../../services/FileOperationsService';
 
 export const ExplorerPanel: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -29,6 +31,100 @@ export const ExplorerPanel: React.FC = () => {
 
   // Set up file system event listening
   useFileSystemEvents(currentWorkspace);
+
+  // Set up enhanced file operations and monitoring
+  useEffect(() => {
+    // Set up file operation event listeners
+    const handleOperationCompleted = (operation: FileOperation) => {
+      if (operation.status === 'completed') {
+        message.success(`${operation.type} operation completed successfully`);
+      } else if (operation.status === 'failed') {
+        message.error(`${operation.type} operation failed: ${operation.error}`);
+      }
+    };
+
+    const handleOperationUpdated = (operation: FileOperation) => {
+      if (operation.status === 'running' && operation.progress > 0) {
+        // Show progress notification for long-running operations
+        if (operation.totalSize && operation.totalSize > 1024 * 1024) { // > 1MB
+          notification.info({
+            key: operation.id,
+            message: `${operation.type} in progress`,
+            description: `${operation.progress}% complete`,
+            duration: 0
+          });
+        }
+      } else if (operation.status === 'completed' || operation.status === 'failed') {
+        notification.destroy(operation.id);
+      }
+    };
+
+    // Set up file watcher event listeners for real-time notifications
+    const handleFileChange = (event: FileWatchEvent) => {
+      switch (event.type) {
+        case 'add':
+          if (event.filename && !event.filename.startsWith('.')) {
+            notification.success({
+              message: 'File Added',
+              description: `${event.filename} was added to the workspace`,
+              duration: 3,
+              placement: 'bottomRight'
+            });
+          }
+          break;
+        case 'unlink':
+          if (event.filename && !event.filename.startsWith('.')) {
+            notification.info({
+              message: 'File Deleted',
+              description: `${event.filename} was removed from the workspace`,
+              duration: 3,
+              placement: 'bottomRight'
+            });
+          }
+          break;
+        case 'addDir':
+          if (event.filename && !event.filename.startsWith('.')) {
+            notification.success({
+              message: 'Folder Added',
+              description: `${event.filename} folder was created`,
+              duration: 3,
+              placement: 'bottomRight'
+            });
+          }
+          break;
+        case 'unlinkDir':
+          if (event.filename && !event.filename.startsWith('.')) {
+            notification.info({
+              message: 'Folder Deleted',
+              description: `${event.filename} folder was removed`,
+              duration: 3,
+              placement: 'bottomRight'
+            });
+          }
+          break;
+        case 'error':
+          notification.error({
+            message: 'File System Error',
+            description: event.error || 'An error occurred while monitoring files',
+            duration: 5,
+            placement: 'bottomRight'
+          });
+          break;
+      }
+    };
+
+    // Register event listeners
+    fileOperationsService.on('operationCompleted', handleOperationCompleted);
+    fileOperationsService.on('operationUpdated', handleOperationUpdated);
+    fileWatcherService.on('fileChange', handleFileChange);
+
+    return () => {
+      // Cleanup event listeners
+      fileOperationsService.off('operationCompleted', handleOperationCompleted);
+      fileOperationsService.off('operationUpdated', handleOperationUpdated);
+      fileWatcherService.off('fileChange', handleFileChange);
+    };
+  }, []);
 
   // Update expanded directories from Redux state
   useEffect(() => {
@@ -101,11 +197,18 @@ export const ExplorerPanel: React.FC = () => {
     try {
       const filePath = await window.electronAPI?.fs.joinPath(parentPath, fileName);
       if (filePath?.success) {
+        // Use enhanced file operations service
+        await fileOperationsService.createFile(filePath.path);
         await dispatch(createFile({ filePath: filePath.path })).unwrap();
-        message.success('File created successfully');
+        
+        // Refresh workspace to reflect changes
+        if (currentWorkspace) {
+          dispatch(loadWorkspace(currentWorkspace));
+        }
       }
     } catch (error) {
-      message.error('Failed to create file');
+      // Error handling is done by the service
+      console.error('File creation error:', error);
     }
   };
 
@@ -115,6 +218,11 @@ export const ExplorerPanel: React.FC = () => {
       if (dirPath?.success) {
         await dispatch(createDirectory(dirPath.path)).unwrap();
         message.success('Folder created successfully');
+        
+        // Refresh workspace to reflect changes
+        if (currentWorkspace) {
+          dispatch(loadWorkspace(currentWorkspace));
+        }
       }
     } catch (error) {
       message.error('Failed to create folder');
@@ -123,61 +231,62 @@ export const ExplorerPanel: React.FC = () => {
 
   const handleFileRename = async (oldPath: string, newPath: string) => {
     try {
-      const result = await window.electronAPI?.fs.rename(oldPath, newPath);
-      if (result?.success) {
-        message.success('File renamed successfully');
-        // Refresh workspace to reflect changes
-        if (currentWorkspace) {
-          dispatch(loadWorkspace(currentWorkspace));
-        }
-      } else {
-        message.error(result?.error || 'Failed to rename file');
+      // Use enhanced file operations service with validation
+      await fileOperationsService.renameFile(oldPath, newPath);
+      
+      // Refresh workspace to reflect changes
+      if (currentWorkspace) {
+        dispatch(loadWorkspace(currentWorkspace));
       }
     } catch (error) {
-      message.error('Failed to rename file');
+      // Error handling is done by the service
+      console.error('File rename error:', error);
     }
   };
 
   const handleFileDelete = async (path: string) => {
     try {
+      // Use enhanced file operations service with confirmation
+      await fileOperationsService.deleteFile(path);
       await dispatch(deleteFile(path)).unwrap();
-      message.success('File deleted successfully');
+      
+      // Refresh workspace to reflect changes
+      if (currentWorkspace) {
+        dispatch(loadWorkspace(currentWorkspace));
+      }
     } catch (error) {
-      message.error('Failed to delete file');
+      // Error handling is done by the service
+      console.error('File deletion error:', error);
     }
   };
 
   const handleFileCopy = async (sourcePath: string, targetPath: string) => {
     try {
-      const result = await window.electronAPI?.fs.copy(sourcePath, targetPath);
-      if (result?.success) {
-        message.success('File copied successfully');
-        // Refresh workspace to reflect changes
-        if (currentWorkspace) {
-          dispatch(loadWorkspace(currentWorkspace));
-        }
-      } else {
-        message.error(result?.error || 'Failed to copy file');
+      // Use enhanced file operations service with progress tracking
+      await fileOperationsService.copyFile(sourcePath, targetPath);
+      
+      // Refresh workspace to reflect changes
+      if (currentWorkspace) {
+        dispatch(loadWorkspace(currentWorkspace));
       }
     } catch (error) {
-      message.error('Failed to copy file');
+      // Error handling is done by the service
+      console.error('File copy error:', error);
     }
   };
 
   const handleFileMove = async (sourcePath: string, targetPath: string) => {
     try {
-      const result = await window.electronAPI?.fs.move(sourcePath, targetPath);
-      if (result?.success) {
-        message.success('File moved successfully');
-        // Refresh workspace to reflect changes
-        if (currentWorkspace) {
-          dispatch(loadWorkspace(currentWorkspace));
-        }
-      } else {
-        message.error(result?.error || 'Failed to move file');
+      // Use enhanced file operations service with progress tracking
+      await fileOperationsService.moveFile(sourcePath, targetPath);
+      
+      // Refresh workspace to reflect changes
+      if (currentWorkspace) {
+        dispatch(loadWorkspace(currentWorkspace));
       }
     } catch (error) {
-      message.error('Failed to move file');
+      // Error handling is done by the service
+      console.error('File move error:', error);
     }
   };
 

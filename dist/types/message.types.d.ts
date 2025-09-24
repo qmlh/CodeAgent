@@ -39,4 +39,3 @@ export interface CollaborationSession {
     endTime?: Date;
     status: 'active' | 'paused' | 'completed';
 }
-//# sourceMappingURL=message.types.d.ts.map

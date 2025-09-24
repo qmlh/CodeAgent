@@ -34,4 +34,3 @@ export interface FileChange {
     diff?: string;
     metadata?: Record<string, any>;
 }
-//# sourceMappingURL=file.types.d.ts.map

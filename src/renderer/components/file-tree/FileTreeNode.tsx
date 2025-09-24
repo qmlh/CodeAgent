@@ -15,7 +15,7 @@ import {
   MoreOutlined
 } from '@ant-design/icons';
 import { Dropdown, Menu, message } from 'antd';
-import { useDrag, useDrop } from 'react-dnd';
+// import { useDrag, useDrop } from 'react-dnd';
 import { FileItem } from '../../store/slices/fileSlice';
 
 interface FileTreeNodeProps {
@@ -63,35 +63,19 @@ export const FileTreeNode: React.FC<FileTreeNodeProps> = ({
   const nodeRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Drag and drop setup
-  const [{ isDragging }, drag] = useDrag({
-    type: 'FILE_TREE_NODE',
-    item: { type: 'FILE_TREE_NODE', file },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  });
-
-  const [{ isOver, canDrop }, drop] = useDrop({
-    accept: 'FILE_TREE_NODE',
-    drop: (item: DragItem) => {
-      if (item.file.path !== file.path && file.isDirectory) {
-        handleMove(item.file, file);
-      }
-    },
-    canDrop: (item: DragItem) => {
-      return file.isDirectory && item.file.path !== file.path;
-    },
-    collect: (monitor) => ({
-      isOver: monitor.isOver(),
-      canDrop: monitor.canDrop(),
-    }),
-  });
+  // Drag and drop setup (temporarily disabled)
+  const isDragging = false;
+  const isOver = false;
+  const canDrop = false;
+  const drag = (el: any) => el;
+  const drop = (el: any) => el;
 
   // Combine drag and drop refs
   const dragDropRef = useCallback((node: HTMLDivElement) => {
     drag(drop(node));
-    nodeRef.current = node;
+    if (nodeRef.current !== node) {
+      (nodeRef as any).current = node;
+    }
   }, [drag, drop]);
 
   const getFileIcon = (file: FileItem) => {
@@ -186,6 +170,38 @@ export const FileTreeNode: React.FC<FileTreeNodeProps> = ({
     } catch (error) {
       message.error('Failed to move file');
     }
+  };
+
+  const handleExternalFileDrop = async (files: File[]) => {
+    try {
+      for (const droppedFile of files) {
+        // Read file content
+        const content = await readFileContent(droppedFile);
+        const targetPath = await window.electronAPI?.fs.joinPath(file.path, droppedFile.name);
+        
+        if (targetPath?.success) {
+          const result = await window.electronAPI?.fs.writeFile(targetPath.path, content);
+          if (!result?.success) {
+            message.error(`Failed to import ${droppedFile.name}: ${result?.error}`);
+          }
+        }
+      }
+      
+      if (files.length > 0) {
+        message.success(`Imported ${files.length} file(s)`);
+      }
+    } catch (error) {
+      message.error('Failed to import files');
+    }
+  };
+
+  const readFileContent = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target?.result as string);
+      reader.onerror = (e) => reject(e);
+      reader.readAsText(file);
+    });
   };
 
   const contextMenu = (

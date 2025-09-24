@@ -23,4 +23,3 @@ export interface IFileManager {
     createBackup(filePath: string): Promise<string>;
     restoreBackup(backupId: string, targetPath: string): Promise<void>;
 }
-//# sourceMappingURL=IFileManager.d.ts.map

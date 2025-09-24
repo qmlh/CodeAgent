@@ -47,4 +47,3 @@ export declare const EVENT_NAMES: {
     readonly HEALTH_CHECK: "system:health_check";
 };
 export declare const DEFAULT_AGENT_CAPABILITIES: Record<AgentType, string[]>;
-//# sourceMappingURL=index.d.ts.map

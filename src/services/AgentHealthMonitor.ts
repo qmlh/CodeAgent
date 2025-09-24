@@ -195,7 +195,7 @@ export class AgentHealthMonitor extends EventEmitter {
     this.healthCheckTimers.set(agentId, timer);
     
     // Perform initial health check
-    setImmediate(() => this.performHealthCheck(agentId));
+    setTimeout(() => this.performHealthCheck(agentId), 0);
   }
 
   private stopMonitoringAgent(agentId: string): void {

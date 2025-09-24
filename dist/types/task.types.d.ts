@@ -39,4 +39,3 @@ export interface TaskResult {
     executionTime: number;
     completedAt: Date;
 }
-//# sourceMappingURL=task.types.d.ts.map

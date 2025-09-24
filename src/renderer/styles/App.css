@@ -2,6 +2,8 @@
  * App Component Styles
  */
 
+@import './agent-components.css';
+
 .app-layout {
   height: 100vh;
   overflow: hidden;

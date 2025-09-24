@@ -1,203 +1,116 @@
 /**
  * Agent Panel Component
- * Displays and manages AI agents
+ * Comprehensive agent management interface with creation wizard, details panel, and list view
  */
 
-import React, { useEffect } from 'react';
-import { List, Button, Badge, Avatar, Tooltip, message } from 'antd';
+import React, { useState } from 'react';
+import { Tabs, Button, Space } from 'antd';
 import { 
   RobotOutlined, 
-  PlayCircleOutlined, 
-  PauseCircleOutlined,
   PlusOutlined,
-  SettingOutlined,
-  DeleteOutlined
+  UnorderedListOutlined,
+  EyeOutlined
 } from '@ant-design/icons';
 import { useAppSelector, useAppDispatch } from '../../hooks/redux';
-import { loadAgents, startAgent, stopAgent, setSelectedAgent } from '../../store/slices/agentSlice';
+import { setSelectedAgent } from '../../store/slices/agentSlice';
+import { AgentCreationWizard } from '../agents/AgentCreationWizard';
+import { AgentListView } from '../agents/AgentListView';
+import { AgentDetailsPanel } from '../agents/AgentDetailsPanel';
 
-const getAgentTypeIcon = (type: string) => {
-  const icons: Record<string, string> = {
-    frontend: '🎨',
-    backend: '⚙️',
-    testing: '🧪',
-    documentation: '📝',
-    code_review: '👀',
-    devops: '🚀'
-  };
-  return icons[type] || '🤖';
-};
-
-const getStatusColor = (status: string) => {
-  const colors: Record<string, string> = {
-    idle: 'default',
-    working: 'processing',
-    waiting: 'warning',
-    error: 'error',
-    offline: 'default'
-  };
-  return colors[status] || 'default';
-};
+const { TabPane } = Tabs;
 
 export const AgentPanel: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { agents, selectedAgent, status } = useAppSelector(state => state.agent);
-
-  useEffect(() => {
-    dispatch(loadAgents());
-  }, [dispatch]);
-
-  const handleStartAgent = async (agentId: string) => {
-    try {
-      await dispatch(startAgent(agentId)).unwrap();
-      message.success('Agent started successfully');
-    } catch (error) {
-      message.error('Failed to start agent');
-    }
-  };
-
-  const handleStopAgent = async (agentId: string) => {
-    try {
-      await dispatch(stopAgent(agentId)).unwrap();
-      message.success('Agent stopped successfully');
-    } catch (error) {
-      message.error('Failed to stop agent');
-    }
-  };
+  const { selectedAgent } = useAppSelector(state => state.agent);
+  const [showCreateWizard, setShowCreateWizard] = useState(false);
+  const [activeTab, setActiveTab] = useState('list');
 
   const handleCreateAgent = () => {
-    // TODO: Open create agent modal
-    message.info('Create agent functionality coming soon');
+    setShowCreateWizard(true);
   };
 
-  const handleAgentSettings = (agentId: string) => {
-    // TODO: Open agent settings
-    message.info('Agent settings functionality coming soon');
+  const handleViewDetails = (agentId: string) => {
+    dispatch(setSelectedAgent(agentId));
+    setActiveTab('details');
   };
 
-  const handleDeleteAgent = (agentId: string) => {
-    // TODO: Implement agent deletion
-    message.info('Delete agent functionality coming soon');
+  const handleCloseWizard = () => {
+    setShowCreateWizard(false);
   };
 
   return (
-    <div style={{ padding: '8px' }}>
-      <div style={{ marginBottom: '8px' }}>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      {/* Header */}
+      <div style={{ 
+        padding: '12px 16px', 
+        borderBottom: '1px solid #d9d9d9',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
+        <Space>
+          <RobotOutlined />
+          <span style={{ fontWeight: 500 }}>Agent Management</span>
+        </Space>
         <Button 
           type="primary" 
+          size="small"
           icon={<PlusOutlined />}
           onClick={handleCreateAgent}
-          style={{ width: '100%' }}
-          size="small"
         >
           Create Agent
         </Button>
       </div>
 
-      <List
-        size="small"
-        dataSource={agents}
-        loading={status === 'loading'}
-        renderItem={(agent) => (
-          <List.Item
-            style={{ 
-              padding: '8px',
-              background: selectedAgent === agent.id ? '#37373d' : 'transparent',
-              borderRadius: '4px',
-              marginBottom: '4px',
-              cursor: 'pointer'
-            }}
-            onClick={() => dispatch(setSelectedAgent(agent.id))}
-            actions={[
-              <Tooltip title={agent.status === 'offline' ? 'Start Agent' : 'Stop Agent'}>
-                <Button
-                  type="text"
-                  size="small"
-                  icon={agent.status === 'offline' ? <PlayCircleOutlined /> : <PauseCircleOutlined />}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (agent.status === 'offline') {
-                      handleStartAgent(agent.id);
-                    } else {
-                      handleStopAgent(agent.id);
-                    }
-                  }}
-                />
-              </Tooltip>,
-              <Tooltip title="Settings">
-                <Button
-                  type="text"
-                  size="small"
-                  icon={<SettingOutlined />}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleAgentSettings(agent.id);
-                  }}
-                />
-              </Tooltip>,
-              <Tooltip title="Delete">
-                <Button
-                  type="text"
-                  size="small"
-                  icon={<DeleteOutlined />}
-                  danger
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteAgent(agent.id);
-                  }}
-                />
-              </Tooltip>
-            ]}
+      {/* Content */}
+      <div style={{ flex: 1, overflow: 'hidden' }}>
+        <Tabs
+          activeKey={activeTab}
+          onChange={setActiveTab}
+          size="small"
+          style={{ height: '100%' }}
+          tabBarStyle={{ 
+            margin: 0, 
+            paddingLeft: '16px',
+            paddingRight: '16px'
+          }}
+        >
+          <TabPane
+            tab={
+              <Space size="small">
+                <UnorderedListOutlined />
+                Agent List
+              </Space>
+            }
+            key="list"
+            style={{ height: 'calc(100vh - 120px)', overflow: 'auto' }}
           >
-            <List.Item.Meta
-              avatar={
-                <Badge 
-                  status={getStatusColor(agent.status) as any}
-                  dot
-                >
-                  <Avatar 
-                    size="small" 
-                    style={{ backgroundColor: '#1890ff' }}
-                  >
-                    {getAgentTypeIcon(agent.type)}
-                  </Avatar>
-                </Badge>
-              }
-              title={
-                <div style={{ fontSize: '12px', color: '#cccccc' }}>
-                  {agent.name}
-                </div>
-              }
-              description={
-                <div style={{ fontSize: '11px', color: '#888' }}>
-                  <div>{agent.type}</div>
-                  <div>
-                    {agent.status} • {agent.workload} tasks
-                  </div>
-                  {agent.currentTask && (
-                    <div style={{ color: '#1890ff' }}>
-                      Working on task
-                    </div>
-                  )}
-                </div>
-              }
+            <AgentListView
+              onCreateAgent={handleCreateAgent}
+              onViewDetails={handleViewDetails}
             />
-          </List.Item>
-        )}
-      />
+          </TabPane>
 
-      {agents.length === 0 && status !== 'loading' && (
-        <div style={{ 
-          textAlign: 'center', 
-          padding: '20px', 
-          color: '#888',
-          fontSize: '12px'
-        }}>
-          <RobotOutlined style={{ fontSize: '24px', marginBottom: '8px' }} />
-          <p>No agents created</p>
-          <p>Create your first agent to get started</p>
-        </div>
-      )}
+          <TabPane
+            tab={
+              <Space size="small">
+                <EyeOutlined />
+                Agent Details
+              </Space>
+            }
+            key="details"
+            style={{ height: 'calc(100vh - 120px)', overflow: 'auto' }}
+          >
+            <AgentDetailsPanel agentId={selectedAgent} />
+          </TabPane>
+        </Tabs>
+      </div>
+
+      {/* Agent Creation Wizard */}
+      <AgentCreationWizard
+        visible={showCreateWizard}
+        onClose={handleCloseWizard}
+      />
     </div>
   );
 };

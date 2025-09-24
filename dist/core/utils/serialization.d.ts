@@ -96,4 +96,3 @@ export declare class SerializationUtils {
      */
     static deserializeBatch<T>(data: SerializableData[], deserializer: (data: SerializableData) => T): T[];
 }
-//# sourceMappingURL=serialization.d.ts.map

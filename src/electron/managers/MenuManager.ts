@@ -41,7 +41,7 @@ export class MenuManager {
           { role: 'services' as const },
           { type: 'separator' as const },
           { role: 'hide' as const },
-          { role: 'hideothers' as const },
+          { role: 'hideOthers' as const },
           { role: 'unhide' as const },
           { type: 'separator' as const },
           { role: 'quit' as const }
@@ -112,7 +112,7 @@ export class MenuManager {
           { role: 'cut' as const },
           { role: 'copy' as const },
           { role: 'paste' as const },
-          { role: 'selectall' as const },
+          { role: 'selectAll' as const },
           { type: 'separator' },
           {
             label: 'Find',

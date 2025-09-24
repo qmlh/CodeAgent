@@ -47,14 +47,42 @@ const initialState: AppState = {
 export const initializeApp = createAsyncThunk(
   'app/initialize',
   async () => {
-    // Get system information
-    const systemInfo = await window.electronAPI?.system.getInfo();
-    const version = await window.electronAPI?.app.getVersion();
+    console.log('Initializing app with fallback values...');
     
-    return {
-      platform: systemInfo?.info?.platform || 'unknown',
-      version: version?.version || '1.0.0'
+    // Use simple fallback values to avoid hanging
+    const result = {
+      platform: (typeof process !== 'undefined' && process.platform) || 'win32',
+      version: '1.0.0'
     };
+    
+    // Try to get real values if electronAPI is available, but don't wait
+    if (window.electronAPI) {
+      try {
+        const systemInfoPromise = window.electronAPI.system?.getInfo();
+        const versionPromise = window.electronAPI.app?.getVersion();
+        
+        if (systemInfoPromise) {
+          systemInfoPromise.then(info => {
+            console.log('System info retrieved:', info);
+          }).catch(err => {
+            console.warn('Failed to get system info:', err);
+          });
+        }
+        
+        if (versionPromise) {
+          versionPromise.then(ver => {
+            console.log('Version retrieved:', ver);
+          }).catch(err => {
+            console.warn('Failed to get version:', err);
+          });
+        }
+      } catch (error) {
+        console.warn('ElectronAPI calls failed:', error);
+      }
+    }
+    
+    console.log('App initialization result:', result);
+    return result;
   }
 );
 

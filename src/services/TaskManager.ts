@@ -689,42 +689,32 @@ export class TaskManager implements ITaskManager {
   }
   
   private async wouldCreateCircularDependency(taskId: string, dependencyId: string): Promise<boolean> {
-    // Use DFS to check if adding this dependency would create a cycle
+    // Simple check: if dependencyId already depends on taskId (directly or indirectly),
+    // then adding taskId -> dependencyId would create a cycle
     const visited = new Set<string>();
-    const recursionStack = new Set<string>();
     
-    const hasCycle = (currentId: string): boolean => {
-      if (recursionStack.has(currentId)) {
-        return true; // Found cycle
+    const hasPath = (from: string, to: string): boolean => {
+      if (from === to) {
+        return true;
       }
       
-      if (visited.has(currentId)) {
-        return false; // Already processed
+      if (visited.has(from)) {
+        return false;
       }
       
-      visited.add(currentId);
-      recursionStack.add(currentId);
+      visited.add(from);
       
-      // Check all dependencies
-      const deps = this.dependencyGraph.get(currentId) || new Set();
-      for (const depId of Array.from(deps)) {
-        if (hasCycle(depId)) {
+      const deps = this.dependencyGraph.get(from) || new Set();
+      for (const dep of deps) {
+        if (hasPath(dep, to)) {
           return true;
         }
       }
       
-      // If we're checking the new dependency, also check the proposed edge
-      if (currentId === dependencyId) {
-        if (hasCycle(taskId)) {
-          return true;
-        }
-      }
-      
-      recursionStack.delete(currentId);
       return false;
     };
     
-    return hasCycle(dependencyId);
+    return hasPath(dependencyId, taskId);
   }
   
   private async checkAndUnblockDependentTasks(completedTaskId: string): Promise<void> {

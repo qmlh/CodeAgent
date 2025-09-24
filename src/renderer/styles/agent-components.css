@@ -1,0 +1,241 @@
+/**
+ * Agent Components Styles
+ */
+
+/* Agent Creation Wizard */
+.agent-type-card {
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.agent-type-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.agent-type-card.selected {
+  border-width: 2px;
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.2);
+}
+
+/* Agent List View */
+.agent-list-table .ant-table-row {
+  transition: background-color 0.2s ease;
+}
+
+.agent-list-table .ant-table-row:hover {
+  background-color: rgba(24, 144, 255, 0.05);
+}
+
+.agent-list-table .ant-table-row.ant-table-row-selected {
+  background-color: rgba(24, 144, 255, 0.1);
+}
+
+/* Agent Details Panel */
+.agent-details-panel {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.agent-details-panel .ant-card {
+  margin-bottom: 16px;
+}
+
+.agent-details-panel .ant-card:last-child {
+  margin-bottom: 0;
+}
+
+/* Performance Chart */
+.performance-chart-container {
+  background: #fafafa;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.performance-stat-card {
+  text-align: center;
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+  padding: 12px;
+  background: #fff;
+}
+
+/* Log Viewer */
+.log-viewer-container {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.log-entry {
+  font-size: 12px;
+  line-height: 1.4;
+  padding: 4px 8px;
+  border-radius: 3px;
+  margin-bottom: 2px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.log-entry.log-level-error {
+  background-color: rgba(255, 77, 79, 0.1);
+  border-left: 3px solid #ff4d4f;
+}
+
+.log-entry.log-level-warn {
+  background-color: rgba(250, 173, 20, 0.1);
+  border-left: 3px solid #faad14;
+}
+
+.log-entry.log-level-info {
+  background-color: rgba(24, 144, 255, 0.05);
+  border-left: 3px solid #1890ff;
+}
+
+.log-entry.log-level-debug {
+  background-color: rgba(82, 196, 26, 0.05);
+  border-left: 3px solid #52c41a;
+}
+
+.log-timestamp {
+  color: #8c8c8c;
+  font-size: 11px;
+  min-width: 60px;
+  font-family: inherit;
+}
+
+.log-level {
+  font-size: 11px;
+  min-width: 40px;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-family: inherit;
+}
+
+.log-source {
+  color: #595959;
+  font-size: 11px;
+  min-width: 80px;
+  font-family: inherit;
+}
+
+.log-message {
+  color: #262626;
+  font-size: 12px;
+  flex: 1;
+  font-family: inherit;
+  word-break: break-word;
+}
+
+/* Dark theme overrides */
+.dark-theme .log-message {
+  color: #f0f0f0;
+}
+
+.dark-theme .log-viewer-container {
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+}
+
+/* Agent status indicators */
+.agent-status-idle {
+  color: #52c41a;
+}
+
+.agent-status-working {
+  color: #1890ff;
+}
+
+.agent-status-waiting {
+  color: #faad14;
+}
+
+.agent-status-error {
+  color: #ff4d4f;
+}
+
+.agent-status-offline {
+  color: #8c8c8c;
+}
+
+/* Agent type colors */
+.agent-type-frontend {
+  color: #1890ff;
+}
+
+.agent-type-backend {
+  color: #52c41a;
+}
+
+.agent-type-testing {
+  color: #faad14;
+}
+
+.agent-type-documentation {
+  color: #722ed1;
+}
+
+.agent-type-code-review {
+  color: #eb2f96;
+}
+
+.agent-type-devops {
+  color: #13c2c2;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .agent-type-card {
+    margin-bottom: 8px;
+  }
+  
+  .performance-stat-card {
+    margin-bottom: 8px;
+  }
+  
+  .log-entry {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .log-timestamp,
+  .log-level,
+  .log-source {
+    min-width: auto;
+  }
+}
+
+/* Animation for agent status changes */
+@keyframes statusPulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.agent-status-working .ant-badge-status-dot {
+  animation: statusPulse 2s infinite;
+}
+
+/* Scrollbar styling for log viewer */
+.log-viewer-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.log-viewer-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.log-viewer-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.log-viewer-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

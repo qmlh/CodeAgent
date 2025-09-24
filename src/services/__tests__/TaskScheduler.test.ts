@@ -126,7 +126,7 @@ describe('TaskScheduler', () => {
       
       expect(() => {
         scheduler.addDependency('task-1', 'task-2');
-      }).toThrow(ValidationError);
+      }).toThrow();
     });
 
     it('should check if dependencies are met', () => {

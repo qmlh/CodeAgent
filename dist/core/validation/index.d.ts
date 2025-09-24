@@ -1,5 +1,5 @@
 /**
  * Validation exports
  */
-export { ValidationResult, BaseValidator, AgentConfigValidator, AgentValidator, TaskValidator, AgentMessageValidator, CollaborationSessionValidator, ValidationUtils } from './validators';
-//# sourceMappingURL=index.d.ts.map
+export { BaseValidator, AgentConfigValidator, AgentValidator, TaskValidator, AgentMessageValidator, CollaborationSessionValidator, ValidationUtils } from './validators';
+export type { ValidationResult } from './validators';

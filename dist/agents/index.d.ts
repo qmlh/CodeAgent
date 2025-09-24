@@ -1,6 +1,14 @@
 /**
  * Agent implementations export
  */
-export { BaseAgent, AgentEvents } from './BaseAgent';
+export { BaseAgent } from './BaseAgent';
+export type { AgentEvents } from './BaseAgent';
 export { TestAgent } from './TestAgent';
-//# sourceMappingURL=index.d.ts.map
+export { FrontendAgent } from './FrontendAgent';
+export type { FrontendAgentConfig } from './FrontendAgent';
+export { BackendAgent } from './BackendAgent';
+export type { BackendAgentConfig } from './BackendAgent';
+export { TestingAgent } from './TestingAgent';
+export type { TestingAgentConfig } from './TestingAgent';
+export { CodeReviewAgent } from './CodeReviewAgent';
+export type { CodeReviewAgentConfig } from './CodeReviewAgent';

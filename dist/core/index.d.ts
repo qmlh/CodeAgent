@@ -12,4 +12,4 @@ export * from '../types/task.types';
 export * from '../types/message.types';
 export * from '../types/file.types';
 export * from '../types/config.types';
-//# sourceMappingURL=index.d.ts.map
+export { ErrorType, ErrorSeverity } from '../types/error.types';

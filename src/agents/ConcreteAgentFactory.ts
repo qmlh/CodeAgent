@@ -27,7 +27,7 @@ export interface CreateAgentInstanceOptions {
 /**
  * Agent constructor type
  */
-export type AgentConstructor = new (id: string, name: string, config: AgentConfig) => BaseAgent;
+export type AgentConstructor = new (id: string, name: string, type: AgentType, config: AgentConfig) => BaseAgent;
 
 /**
  * Concrete Agent Factory for creating agent instances
@@ -76,7 +76,7 @@ export class ConcreteAgentFactory {
     const agentId = options.id || uuidv4();
 
     // Create agent instance
-    const agentInstance = new AgentClass(agentId, name, config);
+    const agentInstance = new AgentClass(agentId, name, type, config);
 
     return agentInstance;
   }

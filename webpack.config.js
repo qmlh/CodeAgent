@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
@@ -36,6 +37,15 @@ const mainConfig = {
   plugins: [
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production')
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: path.resolve(__dirname, 'assets'),
+          to: path.resolve(__dirname, 'dist/assets'),
+          noErrorOnMissing: true
+        }
+      ]
     })
   ]
 };
@@ -127,7 +137,8 @@ const rendererConfig = {
     hot: true,
     static: {
       directory: path.join(__dirname, 'dist/renderer')
-    }
+    },
+    host: 'localhost'
   } : undefined
 };
 

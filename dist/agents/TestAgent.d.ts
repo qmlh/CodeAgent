@@ -2,13 +2,13 @@
  * Test Agent implementation for testing BaseAgent functionality
  */
 import { BaseAgent } from './BaseAgent';
-import { AgentConfig, Task, TaskResult } from '../core';
+import { AgentConfig, AgentType, Task, TaskResult } from '../core';
 /**
  * Simple test agent implementation
  */
 export declare class TestAgent extends BaseAgent {
     private _initializationData;
-    constructor(id: string, name: string, config: AgentConfig);
+    constructor(id: string, name: string, type: AgentType, config: AgentConfig);
     /**
      * Initialize the test agent
      */
@@ -58,4 +58,3 @@ export declare class TestAgent extends BaseAgent {
      */
     simulateHeavyWork(duration?: number): Promise<string>;
 }
-//# sourceMappingURL=TestAgent.d.ts.map

@@ -355,7 +355,7 @@ export const fileSlice = createSlice({
       .addCase(loadWorkspace.fulfilled, (state, action) => {
         state.status = 'idle';
         state.currentWorkspace = action.payload.workspacePath;
-        state.fileTree = action.payload.files.map(file => ({
+        state.fileTree = action.payload.files.map((file: any) => ({
           ...file,
           expanded: false
         }));
@@ -373,7 +373,7 @@ export const fileSlice = createSlice({
         const updateFileTree = (items: FileItem[]): void => {
           items.forEach(item => {
             if (item.path === directoryPath && item.isDirectory) {
-              item.children = files.map(file => ({
+              item.children = files.map((file: any) => ({
                 ...file,
                 expanded: false
               }));

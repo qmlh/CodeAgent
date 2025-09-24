@@ -51,4 +51,3 @@ export interface WorkflowCondition {
     operator: 'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'contains';
     value: any;
 }
-//# sourceMappingURL=config.types.d.ts.map

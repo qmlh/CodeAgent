@@ -39,4 +39,3 @@ export declare class CommunicationError extends SystemError {
 export declare class ValidationError extends SystemError {
     constructor(message: string, context?: ErrorContext, severity?: ErrorSeverity);
 }
-//# sourceMappingURL=SystemError.d.ts.map

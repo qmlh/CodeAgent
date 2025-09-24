@@ -109,9 +109,9 @@ class ElectronApp {
 
   private onWebContentsCreated(event: Electron.Event, contents: Electron.WebContents): void {
     // Security: Prevent new window creation
-    contents.on('new-window', (event, navigationUrl) => {
-      event.preventDefault();
-      shell.openExternal(navigationUrl);
+    contents.setWindowOpenHandler(({ url }) => {
+      shell.openExternal(url);
+      return { action: 'deny' };
     });
 
     // Security: Prevent navigation to external URLs

@@ -5,7 +5,9 @@
 
 import { BrowserWindow, screen, nativeImage } from 'electron';
 import * as path from 'path';
+import * as fs from 'fs';
 import { WindowConfig, WindowState } from '../types/window.types';
+import { getAssetPath, assetExists } from '../utils/assetPaths';
 
 export class WindowManager {
   private mainWindow: BrowserWindow | null = null;
@@ -17,85 +19,110 @@ export class WindowManager {
   }
 
   async initialize(): Promise<void> {
-    console.log('WindowManager initialized');
+    try {
+      console.log('WindowManager initialized');
+    } catch (error) {
+      console.error('Failed to initialize WindowManager:', error);
+      throw error;
+    }
   }
 
   async createMainWindow(): Promise<BrowserWindow> {
-    if (this.mainWindow && !this.mainWindow.isDestroyed()) {
-      this.mainWindow.focus();
-      return this.mainWindow;
-    }
-
-    const { width, height } = screen.getPrimaryDisplay().workAreaSize;
-    
-    const windowConfig: WindowConfig = {
-      width: Math.min(1400, width * 0.9),
-      height: Math.min(900, height * 0.9),
-      minWidth: 1000,
-      minHeight: 700,
-      show: false,
-      webPreferences: {
-        nodeIntegration: false,
-        contextIsolation: true,
-        enableRemoteModule: false,
-        preload: path.join(__dirname, './preload.js'),
-        webSecurity: !this.isDevelopment,
-        allowRunningInsecureContent: this.isDevelopment
-      },
-      titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
-      icon: this.getAppIcon()
-    };
-
-    this.mainWindow = new BrowserWindow(windowConfig);
-    this.windows.set('main', this.mainWindow);
-
-    // Load the application
-    await this.loadApplication(this.mainWindow);
-
-    // Set up window events
-    this.setupWindowEvents(this.mainWindow);
-
-    // Show window when ready
-    this.mainWindow.once('ready-to-show', () => {
-      if (this.mainWindow) {
-        this.mainWindow.show();
-        
-        if (this.isDevelopment) {
-          this.mainWindow.webContents.openDevTools();
-        }
+    try {
+      if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+        this.mainWindow.focus();
+        return this.mainWindow;
       }
-    });
 
-    return this.mainWindow;
+      const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+      
+      const windowConfig: WindowConfig = {
+        width: Math.min(1400, width * 0.9),
+        height: Math.min(900, height * 0.9),
+        minWidth: 1000,
+        minHeight: 700,
+        show: false,
+        webPreferences: {
+          nodeIntegration: false,
+          contextIsolation: true,
+
+          preload: path.join(__dirname, './preload.js'),
+          webSecurity: !this.isDevelopment,
+          allowRunningInsecureContent: this.isDevelopment
+        },
+        titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
+        icon: this.getAppIcon()
+      };
+
+      this.mainWindow = new BrowserWindow(windowConfig);
+      this.windows.set('main', this.mainWindow);
+
+      // Load the application with error handling
+      try {
+        await this.loadApplication(this.mainWindow);
+      } catch (loadError) {
+        console.error('Failed to load application in main window:', loadError);
+        // Don't throw here - window can still be useful even if loading fails
+      }
+
+      // Set up window events
+      this.setupWindowEvents(this.mainWindow);
+
+      // Show window when ready
+      this.mainWindow.once('ready-to-show', () => {
+        if (this.mainWindow) {
+          this.mainWindow.show();
+          
+          if (this.isDevelopment) {
+            this.mainWindow.webContents.openDevTools();
+          }
+        }
+      });
+
+      return this.mainWindow;
+    } catch (error) {
+      console.error('Failed to create main window:', error);
+      // Clean up if window creation failed
+      if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+        this.mainWindow.destroy();
+        this.mainWindow = null;
+      }
+      throw error;
+    }
   }
 
   async createChildWindow(
     parentId: string,
     config: Partial<WindowConfig>
   ): Promise<BrowserWindow> {
-    const parent = this.windows.get(parentId);
-    
-    const childWindow = new BrowserWindow({
-      width: 800,
-      height: 600,
-      parent: parent || undefined,
-      modal: config.modal || false,
-      show: false,
-      webPreferences: {
-        nodeIntegration: false,
-        contextIsolation: true,
-        preload: path.join(__dirname, './preload.js')
-      },
-      ...config
-    });
+    try {
+      const parent = this.windows.get(parentId);
+      
+      const childWindow = new BrowserWindow({
+        width: 800,
+        height: 600,
+        parent: parent || undefined,
+        modal: config.modal || false,
+        show: false,
+        webPreferences: {
+          nodeIntegration: false,
+          contextIsolation: true,
+          preload: path.join(__dirname, './preload.js')
+        },
+        ...config
+      });
 
-    const windowId = `child-${Date.now()}`;
-    this.windows.set(windowId, childWindow);
+      const windowId = `child-${Date.now()}`;
+      this.windows.set(windowId, childWindow);
 
-    // Set up window events
-    this.setupWindowEvents(childWindow, windowId);
+      // Set up window events
+      this.setupWindowEvents(childWindow, windowId);
 
-    return childWindow;
+      return childWindow;
+    } catch (error) {
+      console.error('Failed to create child window:', error);
+      throw error;
+    }
   }
 
   getMainWindow(): BrowserWindow | null {
@@ -156,58 +183,124 @@ export class WindowManager {
   }
 
   private async loadApplication(window: BrowserWindow): Promise<void> {
-    if (this.isDevelopment) {
-      // Development: Load from dev server
-      await window.loadURL('http://localhost:3000');
-    } else {
-      // Production: Load from built files
-      await window.loadFile(path.join(__dirname, '../renderer/index.html'));
+    try {
+      if (this.isDevelopment) {
+        // Development: Load from dev server
+        await window.loadURL('http://localhost:3000');
+      } else {
+        // Production: Load from built files
+        await window.loadFile(path.join(__dirname, '../dist/renderer/index.html'));
+      }
+    } catch (error) {
+      console.error('Failed to load application content:', error);
+      throw error;
     }
   }
 
   private setupWindowEvents(window: BrowserWindow, windowId?: string): void {
-    // Window closed event
-    window.on('closed', () => {
-      if (windowId) {
-        this.windows.delete(windowId);
-      } else if (window === this.mainWindow) {
-        this.mainWindow = null;
-      }
-    });
+    try {
+      // Window closed event
+      window.on('closed', () => {
+        try {
+          if (windowId) {
+            this.windows.delete(windowId);
+          } else if (window === this.mainWindow) {
+            this.mainWindow = null;
+          }
+        } catch (error) {
+          console.error('Error handling window closed event:', error);
+        }
+      });
 
-    // Window state events
-    window.on('maximize', () => {
-      window.webContents.send('window-state-changed', { maximized: true });
-    });
+      // Window state events
+      window.on('maximize', () => {
+        try {
+          if (!window.isDestroyed()) {
+            window.webContents.send('window-state-changed', { maximized: true });
+          }
+        } catch (error) {
+          console.error('Error handling window maximize event:', error);
+        }
+      });
 
-    window.on('unmaximize', () => {
-      window.webContents.send('window-state-changed', { maximized: false });
-    });
+      window.on('unmaximize', () => {
+        try {
+          if (!window.isDestroyed()) {
+            window.webContents.send('window-state-changed', { maximized: false });
+          }
+        } catch (error) {
+          console.error('Error handling window unmaximize event:', error);
+        }
+      });
 
-    window.on('enter-full-screen', () => {
-      window.webContents.send('window-state-changed', { fullscreen: true });
-    });
+      window.on('enter-full-screen', () => {
+        try {
+          if (!window.isDestroyed()) {
+            window.webContents.send('window-state-changed', { fullscreen: true });
+          }
+        } catch (error) {
+          console.error('Error handling window enter-full-screen event:', error);
+        }
+      });
 
-    window.on('leave-full-screen', () => {
-      window.webContents.send('window-state-changed', { fullscreen: false });
-    });
+      window.on('leave-full-screen', () => {
+        try {
+          if (!window.isDestroyed()) {
+            window.webContents.send('window-state-changed', { fullscreen: false });
+          }
+        } catch (error) {
+          console.error('Error handling window leave-full-screen event:', error);
+        }
+      });
 
-    // Focus events
-    window.on('focus', () => {
-      window.webContents.send('window-focus-changed', { focused: true });
-    });
+      // Focus events
+      window.on('focus', () => {
+        try {
+          if (!window.isDestroyed()) {
+            window.webContents.send('window-focus-changed', { focused: true });
+          }
+        } catch (error) {
+          console.error('Error handling window focus event:', error);
+        }
+      });
 
-    window.on('blur', () => {
-      window.webContents.send('window-focus-changed', { focused: false });
-    });
+      window.on('blur', () => {
+        try {
+          if (!window.isDestroyed()) {
+            window.webContents.send('window-focus-changed', { focused: false });
+          }
+        } catch (error) {
+          console.error('Error handling window blur event:', error);
+        }
+      });
+    } catch (error) {
+      console.error('Failed to setup window events:', error);
+    }
   }
 
-  private getAppIcon(): nativeImage | undefined {
+  private getAppIcon(): Electron.NativeImage | undefined {
     try {
-      const iconPath = path.join(__dirname, '../../assets/icons/app-icon.png');
-      return nativeImage.createFromPath(iconPath);
+      const iconAssetPath = 'icons/app-icon.png';
+      
+      // Check if the icon file exists before attempting to load it
+      if (!assetExists(iconAssetPath)) {
+        const iconPath = getAssetPath(iconAssetPath);
+        console.warn(`App icon not found at path: ${iconPath}. Using system default icon.`);
+        return undefined;
+      }
+      
+      const iconPath = getAssetPath(iconAssetPath);
+      const icon = nativeImage.createFromPath(iconPath);
+      
+      // Verify the icon was loaded successfully
+      if (icon.isEmpty()) {
+        console.warn(`Failed to load app icon from path: ${iconPath}. Using system default icon.`);
+        return undefined;
+      }
+      
+      return icon;
     } catch (error) {
-      console.warn('App icon not found:', error);
+      console.warn(`Error loading app icon: ${error instanceof Error ? error.message : 'Unknown error'}. Using system default icon.`);
       return undefined;
     }
   }

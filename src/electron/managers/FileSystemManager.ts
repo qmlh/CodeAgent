@@ -345,10 +345,13 @@ export class FileSystemManager {
   }
 
   async getFilePreview(filePath: string): Promise<{
-    type: 'text' | 'image' | 'binary';
+    type: 'text' | 'image' | 'binary' | 'code';
     content?: string;
     size: number;
     mtime: Date;
+    language?: string;
+    encoding?: string;
+    lineCount?: number;
   }> {
     try {
       const stats = await this.getFileStats(filePath);
@@ -363,11 +366,18 @@ export class FileSystemManager {
       
       if (await this.isTextFile(filePath) && stats.size < 1024 * 1024) { // Max 1MB for preview
         const content = await this.readFile(filePath);
+        const lines = content.split('\n');
+        const previewContent = content.substring(0, 10000); // Limit preview to 10k chars
+        const language = this.getLanguageFromExtension(filePath);
+        
         return {
-          type: 'text',
-          content: content.substring(0, 10000), // Limit preview to 10k chars
+          type: this.isCodeFile(filePath) ? 'code' : 'text',
+          content: previewContent,
           size: stats.size,
-          mtime: stats.mtime
+          mtime: stats.mtime,
+          language,
+          encoding: 'utf-8',
+          lineCount: lines.length
         };
       }
       
@@ -379,6 +389,53 @@ export class FileSystemManager {
     } catch (error) {
       throw new Error(`Failed to get file preview for ${filePath}: ${(error as Error).message}`);
     }
+  }
+
+  private isCodeFile(filePath: string): boolean {
+    const codeExtensions = [
+      '.js', '.jsx', '.ts', '.tsx', '.py', '.java', '.cpp', '.c', '.h', '.cs', '.php', '.rb', '.go', '.rs',
+      '.html', '.css', '.scss', '.sass', '.less', '.json', '.xml', '.yaml', '.yml', '.sql', '.sh', '.bat', '.ps1'
+    ];
+    const ext = path.extname(filePath).toLowerCase();
+    return codeExtensions.includes(ext);
+  }
+
+  private getLanguageFromExtension(filePath: string): string {
+    const extension = path.extname(filePath).toLowerCase();
+    
+    const languageMap: Record<string, string> = {
+      '.js': 'javascript',
+      '.jsx': 'javascript',
+      '.ts': 'typescript',
+      '.tsx': 'typescript',
+      '.py': 'python',
+      '.java': 'java',
+      '.cpp': 'cpp',
+      '.c': 'c',
+      '.cs': 'csharp',
+      '.php': 'php',
+      '.rb': 'ruby',
+      '.go': 'go',
+      '.rs': 'rust',
+      '.html': 'html',
+      '.css': 'css',
+      '.scss': 'scss',
+      '.sass': 'sass',
+      '.less': 'less',
+      '.json': 'json',
+      '.xml': 'xml',
+      '.yaml': 'yaml',
+      '.yml': 'yaml',
+      '.md': 'markdown',
+      '.sql': 'sql',
+      '.sh': 'shell',
+      '.bash': 'shell',
+      '.zsh': 'shell',
+      '.bat': 'batch',
+      '.ps1': 'powershell'
+    };
+    
+    return languageMap[extension] || 'plaintext';
   }
 
   async validateFileName(fileName: string): Promise<{ valid: boolean; error?: string }> {

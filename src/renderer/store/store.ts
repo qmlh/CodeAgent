@@ -8,6 +8,7 @@ import { uiSlice } from './slices/uiSlice';
 import { fileSlice } from './slices/fileSlice';
 import { agentSlice } from './slices/agentSlice';
 import { taskSlice } from './slices/taskSlice';
+import { themeSlice } from './slices/themeSlice';
 
 export const store = configureStore({
   reducer: {
@@ -15,7 +16,8 @@ export const store = configureStore({
     ui: uiSlice.reducer,
     file: fileSlice.reducer,
     agent: agentSlice.reducer,
-    task: taskSlice.reducer
+    task: taskSlice.reducer,
+    theme: themeSlice.reducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

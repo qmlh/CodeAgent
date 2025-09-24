@@ -12,8 +12,8 @@ import {
   ReloadOutlined,
   FilterOutlined
 } from '@ant-design/icons';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
+// import { DndProvider } from 'react-dnd';
+// import { HTML5Backend } from 'react-dnd-html5-backend';
 import { FileTreeNode } from './FileTreeNode';
 import { FileItem } from '../../store/slices/fileSlice';
 
@@ -182,6 +182,62 @@ export const FileTree: React.FC<FileTreeProps> = ({
     form.resetFields();
   };
 
+  const handleImportFiles = async () => {
+    try {
+      const result = await window.electronAPI?.app.showOpenDialog({
+        title: 'Import Files',
+        properties: ['openFile', 'multiSelections'],
+        filters: [
+          { name: 'All Files', extensions: ['*'] },
+          { name: 'Text Files', extensions: ['txt', 'md', 'json', 'xml', 'csv'] },
+          { name: 'Code Files', extensions: ['js', 'ts', 'jsx', 'tsx', 'py', 'java', 'cpp', 'c', 'cs', 'php', 'rb', 'go', 'rs'] },
+          { name: 'Web Files', extensions: ['html', 'css', 'scss', 'sass', 'less'] },
+          { name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp', 'ico'] }
+        ]
+      });
+
+      if (result?.success && !result.canceled && result.filePaths && workspacePath) {
+        for (const filePath of result.filePaths) {
+          const fileName = await window.electronAPI?.fs.getFileName(filePath);
+          if (fileName?.success) {
+            const targetPath = await window.electronAPI?.fs.joinPath(workspacePath, fileName.fileName);
+            if (targetPath?.success) {
+              await window.electronAPI?.fs.copy(filePath, targetPath.path);
+            }
+          }
+        }
+        message.success(`Imported ${result.filePaths.length} file(s)`);
+        onRefresh();
+      }
+    } catch (error) {
+      message.error('Failed to import files');
+    }
+  };
+
+  const handleImportFolder = async () => {
+    try {
+      const result = await window.electronAPI?.app.showOpenDialog({
+        title: 'Import Folder',
+        properties: ['openDirectory']
+      });
+
+      if (result?.success && !result.canceled && result.filePaths && result.filePaths[0] && workspacePath) {
+        const sourcePath = result.filePaths[0];
+        const folderName = await window.electronAPI?.fs.getFileName(sourcePath);
+        if (folderName?.success) {
+          const targetPath = await window.electronAPI?.fs.joinPath(workspacePath, folderName.fileName);
+          if (targetPath?.success) {
+            await window.electronAPI?.fs.copy(sourcePath, targetPath.path);
+            message.success('Folder imported successfully');
+            onRefresh();
+          }
+        }
+      }
+    } catch (error) {
+      message.error('Failed to import folder');
+    }
+  };
+
   const handleCreateSubmit = async (values: { name: string }) => {
     if (!createParent) return;
 
@@ -211,6 +267,49 @@ export const FileTree: React.FC<FileTreeProps> = ({
     } catch (error) {
       message.error('Failed to show in file explorer');
     }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!workspacePath) return;
+
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length === 0) return;
+
+    try {
+      for (const file of files) {
+        const content = await readFileContent(file);
+        const targetPath = await window.electronAPI?.fs.joinPath(workspacePath, file.name);
+        
+        if (targetPath?.success) {
+          const result = await window.electronAPI?.fs.writeFile(targetPath.path, content);
+          if (!result?.success) {
+            message.error(`Failed to import ${file.name}: ${result?.error}`);
+          }
+        }
+      }
+      
+      message.success(`Imported ${files.length} file(s) to workspace`);
+      onRefresh();
+    } catch (error) {
+      message.error('Failed to import files');
+    }
+  };
+
+  const readFileContent = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target?.result as string);
+      reader.onerror = (e) => reject(e);
+      reader.readAsText(file);
+    });
   };
 
   const renderFileTree = (items: FileItem[], level: number = 0): React.ReactNode[] => {
@@ -243,11 +342,11 @@ export const FileTree: React.FC<FileTreeProps> = ({
   };
 
   return (
-    <DndProvider backend={HTML5Backend}>
+    <div>
       <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
         {/* Toolbar */}
         <div style={{ padding: '8px', borderBottom: '1px solid #333' }}>
-          <div style={{ display: 'flex', gap: '4px', marginBottom: '8px' }}>
+          <div style={{ display: 'flex', gap: '4px', marginBottom: '8px', flexWrap: 'wrap' }}>
             <Button
               size="small"
               icon={<PlusOutlined />}
@@ -269,6 +368,22 @@ export const FileTree: React.FC<FileTreeProps> = ({
               disabled={!workspacePath}
               title="Refresh"
             />
+            <Button
+              size="small"
+              onClick={handleImportFiles}
+              disabled={!workspacePath}
+              title="Import Files"
+            >
+              Import
+            </Button>
+            <Button
+              size="small"
+              onClick={handleImportFolder}
+              disabled={!workspacePath}
+              title="Import Folder"
+            >
+              Folder
+            </Button>
           </div>
 
           <Search
@@ -281,7 +396,11 @@ export const FileTree: React.FC<FileTreeProps> = ({
         </div>
 
         {/* File Tree */}
-        <div style={{ flex: 1, overflow: 'auto', padding: '4px 0' }}>
+        <div 
+          style={{ flex: 1, overflow: 'auto', padding: '4px 0' }}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+        >
           {workspacePath ? (
             filteredFiles.length > 0 ? (
               renderFileTree(filteredFiles)
@@ -294,6 +413,9 @@ export const FileTree: React.FC<FileTreeProps> = ({
             <div style={{ padding: '20px', textAlign: 'center', color: '#888' }}>
               <p>No workspace opened</p>
               <p style={{ fontSize: '12px' }}>Open a folder to start working with files</p>
+              <p style={{ fontSize: '12px', marginTop: '8px' }}>
+                You can also drag and drop files here to import them
+              </p>
             </div>
           )}
         </div>
@@ -327,6 +449,6 @@ export const FileTree: React.FC<FileTreeProps> = ({
           </Form>
         </Modal>
       </div>
-    </DndProvider>
+    </div>
   );
 };

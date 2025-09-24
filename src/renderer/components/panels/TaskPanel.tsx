@@ -14,7 +14,8 @@ import {
   Tag, 
   Input,
   Select,
-  Space
+  Space,
+  Modal
 } from 'antd';
 import { 
   PlusOutlined, 
@@ -23,10 +24,12 @@ import {
   PauseCircleOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
-  ExclamationCircleOutlined
+  ExclamationCircleOutlined,
+  AppstoreOutlined
 } from '@ant-design/icons';
 import { useAppSelector, useAppDispatch } from '../../hooks/redux';
 import { updateTaskStatus, Task } from '../../store/slices/taskSlice';
+import { TaskManagementView } from '../tasks/TaskManagementView';
 
 type TaskStatus = Task['status'];
 type TaskPriority = Task['priority'];
@@ -40,6 +43,7 @@ export const TaskPanel: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<TaskStatus | 'all'>('all');
   const [filterPriority, setFilterPriority] = useState<TaskPriority | 'all'>('all');
+  const [showTaskManagement, setShowTaskManagement] = useState(false);
 
   // Filter tasks based on search and filters
   const filteredTasks = tasks.filter(task => {
@@ -150,8 +154,11 @@ export const TaskPanel: React.FC = () => {
   );
 
   const handleCreateTask = () => {
-    // TODO: Open task creation modal
-    console.log('Create new task');
+    setShowTaskManagement(true);
+  };
+
+  const handleOpenTaskManagement = () => {
+    setShowTaskManagement(true);
   };
 
   return (
@@ -162,13 +169,22 @@ export const TaskPanel: React.FC = () => {
           Tasks
           <Badge count={tasks.length} style={{ marginLeft: 8 }} />
         </div>
-        <Button 
-          type="text" 
-          size="small" 
-          icon={<PlusOutlined />}
-          onClick={handleCreateTask}
-          title="Create Task"
-        />
+        <Space>
+          <Button 
+            type="text" 
+            size="small" 
+            icon={<PlusOutlined />}
+            onClick={handleCreateTask}
+            title="Create Task"
+          />
+          <Button 
+            type="text" 
+            size="small" 
+            icon={<AppstoreOutlined />}
+            onClick={handleOpenTaskManagement}
+            title="Open Task Management"
+          />
+        </Space>
       </div>
 
       {/* Filters */}
@@ -262,6 +278,20 @@ export const TaskPanel: React.FC = () => {
           )}
         />
       </div>
+
+      {/* Task Management Modal */}
+      <Modal
+        title="Task Management"
+        open={showTaskManagement}
+        onCancel={() => setShowTaskManagement(false)}
+        footer={null}
+        width="95vw"
+        style={{ top: 20 }}
+        bodyStyle={{ height: '80vh', padding: 0 }}
+        destroyOnClose
+      >
+        <TaskManagementView />
+      </Modal>
     </div>
   );
 };

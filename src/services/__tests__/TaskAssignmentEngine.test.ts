@@ -4,7 +4,7 @@
 
 import { TaskAssignmentEngine, DEFAULT_ASSIGNMENT_CRITERIA } from '../TaskAssignmentEngine';
 import { Task, TaskStatus, TaskPriority } from '../../types/task.types';
-import { AgentType } from '../../types/agent.types';
+import { AgentType, AgentStatus } from '../../types/agent.types';
 import { AgentInfo } from '../TaskScheduler';
 
 describe('TaskAssignmentEngine', () => {
@@ -189,6 +189,7 @@ describe('TaskAssignmentEngine', () => {
 
     it('should detect timeout conditions', (done) => {
       // Wait for timeout to occur (need to exceed 150% of estimated time)
+      // For a 500ms task, 150% would be 750ms, so we wait 1000ms to be sure
       setTimeout(() => {
         const triggers = engine.checkForReassignment();
         
@@ -196,8 +197,8 @@ describe('TaskAssignmentEngine', () => {
         expect(triggers[0].type).toBe('timeout');
         expect(triggers[0].taskId).toBe('timeout-task');
         done();
-      }, 1000); // Wait 1 second for a 0.5 second task (200% > 150%)
-    }, 2000);
+      }, 1200); // Wait 1.2 seconds for a 0.5 second task (240% > 150%)
+    }, 3000);
 
     it('should reassign task to different agent', () => {
       const result = engine.reassignTask(
@@ -231,7 +232,7 @@ describe('TaskAssignmentEngine', () => {
   describe('Performance Tracking', () => {
     it('should track agent performance metrics', () => {
       // Initialize agent info first
-      engine.addAgentInfo({
+      engine.updateAgentInfo('frontend-agent', {
         agentId: 'frontend-agent',
         type: AgentType.FRONTEND,
         capabilities: ['html', 'css'],
@@ -242,9 +243,22 @@ describe('TaskAssignmentEngine', () => {
       
       // Complete some tasks to build performance history
       engine.startTaskExecution('perf-task-1', 'frontend-agent', mockTask);
+      
+      // Manually adjust the start time to simulate elapsed time
+      const execution1 = (engine as any).taskExecutions.get('perf-task-1');
+      if (execution1) {
+        execution1.startTime = new Date(Date.now() - 1000); // 1 second ago
+      }
+      
       engine.completeTaskExecution('perf-task-1', true, 0.8);
       
       engine.startTaskExecution('perf-task-2', 'frontend-agent', mockTask);
+      
+      const execution2 = (engine as any).taskExecutions.get('perf-task-2');
+      if (execution2) {
+        execution2.startTime = new Date(Date.now() - 500); // 0.5 seconds ago
+      }
+      
       engine.completeTaskExecution('perf-task-2', false, 0.3);
       
       const performance = engine.getAgentPerformance('frontend-agent');

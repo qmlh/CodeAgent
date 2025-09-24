@@ -19,4 +19,3 @@ export interface IErrorRecoveryStrategy {
         escalatedErrors: number;
     }>;
 }
-//# sourceMappingURL=IErrorRecoveryStrategy.d.ts.map

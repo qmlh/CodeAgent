@@ -26,4 +26,4 @@ export * from '../types/task.types';
 export * from '../types/message.types';
 export * from '../types/file.types';
 export * from '../types/config.types';
-// Note: error.types excluded to avoid SystemError conflict
+export { ErrorType, ErrorSeverity } from '../types/error.types';
