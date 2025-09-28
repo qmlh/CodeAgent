@@ -215,7 +215,7 @@ export const AgentListView: React.FC<AgentListViewProps> = ({
       render: (_, agent) => (
         <Space>
           <Badge status={getStatusColor(agent.status) as any} dot>
-            <Avatar size="small" style={{ backgroundColor: '#1890ff' }}>
+            <Avatar  style={{ backgroundColor: '#1890ff' }}>
               {getAgentTypeIcon(agent.type)}
             </Avatar>
           </Badge>
@@ -263,7 +263,7 @@ export const AgentListView: React.FC<AgentListViewProps> = ({
             </Text>
             <Progress
               percent={agent.performance.successRate * 100}
-              size="small"
+              
               showInfo={false}
               strokeColor={agent.performance.successRate > 0.8 ? '#52c41a' : '#faad14'}
             />
@@ -284,7 +284,7 @@ export const AgentListView: React.FC<AgentListViewProps> = ({
           <Text type="secondary">/{agent.config.maxConcurrentTasks}</Text>
           <Progress
             percent={(agent.workload / agent.config.maxConcurrentTasks) * 100}
-            size="small"
+            
             showInfo={false}
             strokeColor={agent.workload >= agent.config.maxConcurrentTasks ? '#ff4d4f' : '#1890ff'}
           />
@@ -314,7 +314,7 @@ export const AgentListView: React.FC<AgentListViewProps> = ({
       width: 120,
       render: (_, agent) => (
         <Text type="secondary" style={{ fontSize: '12px' }}>
-          {new Date(agent.performance.lastActive).toLocaleString([], {
+          {new Date(agent.lastActive).toLocaleString([], {
             month: 'short',
             day: 'numeric',
             hour: '2-digit',
@@ -329,11 +329,11 @@ export const AgentListView: React.FC<AgentListViewProps> = ({
       width: 120,
       fixed: 'right',
       render: (_, agent) => (
-        <Space size="small">
+        <Space >
           <Tooltip title={agent.status === 'offline' ? 'Start Agent' : 'Stop Agent'}>
             <Button
               type="text"
-              size="small"
+              
               icon={agent.status === 'offline' ? <PlayCircleOutlined /> : <PauseCircleOutlined />}
               onClick={() => {
                 if (agent.status === 'offline') {
@@ -345,7 +345,7 @@ export const AgentListView: React.FC<AgentListViewProps> = ({
             />
           </Tooltip>
           <Dropdown overlay={getActionMenu(agent)} trigger={['click']}>
-            <Button type="text" size="small" icon={<MoreOutlined />} />
+            <Button type="text"  icon={<MoreOutlined />} />
           </Dropdown>
         </Space>
       )
@@ -370,7 +370,7 @@ export const AgentListView: React.FC<AgentListViewProps> = ({
       {/* Header Stats */}
       <Row gutter={16} style={{ marginBottom: '16px' }}>
         <Col span={6}>
-          <Card size="small">
+          <Card >
             <Statistic
               title="Total Agents"
               value={statusCounts.total}
@@ -379,7 +379,7 @@ export const AgentListView: React.FC<AgentListViewProps> = ({
           </Card>
         </Col>
         <Col span={6}>
-          <Card size="small">
+          <Card >
             <Statistic
               title="Active"
               value={statusCounts.idle + statusCounts.working}
@@ -388,7 +388,7 @@ export const AgentListView: React.FC<AgentListViewProps> = ({
           </Card>
         </Col>
         <Col span={6}>
-          <Card size="small">
+          <Card >
             <Statistic
               title="Working"
               value={statusCounts.working}
@@ -397,7 +397,7 @@ export const AgentListView: React.FC<AgentListViewProps> = ({
           </Card>
         </Col>
         <Col span={6}>
-          <Card size="small">
+          <Card >
             <Statistic
               title="Offline"
               value={statusCounts.offline}

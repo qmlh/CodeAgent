@@ -3,8 +3,8 @@
  * Comprehensive agent management interface with creation wizard, details panel, and list view
  */
 
-import React, { useState } from 'react';
-import { Tabs, Button, Space } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Tabs, Button, Space, message } from 'antd';
 import { 
   RobotOutlined, 
   PlusOutlined,
@@ -12,20 +12,32 @@ import {
   EyeOutlined
 } from '@ant-design/icons';
 import { useAppSelector, useAppDispatch } from '../../hooks/redux';
-import { setSelectedAgent } from '../../store/slices/agentSlice';
+import { setSelectedAgent, loadAgents } from '../../store/slices/agentSlice';
 import { AgentCreationWizard } from '../agents/AgentCreationWizard';
 import { AgentListView } from '../agents/AgentListView';
 import { AgentDetailsPanel } from '../agents/AgentDetailsPanel';
+import { serviceIntegrationManager } from '../../services/ServiceIntegrationManager';
 
 const { TabPane } = Tabs;
 
 export const AgentPanel: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { selectedAgent } = useAppSelector(state => state.agent);
+  const { selectedAgent, agents, status } = useAppSelector(state => state.agent);
   const [showCreateWizard, setShowCreateWizard] = useState(false);
   const [activeTab, setActiveTab] = useState('list');
 
+  // Load agents on component mount
+  useEffect(() => {
+    if (serviceIntegrationManager.isReady()) {
+      dispatch(loadAgents());
+    }
+  }, [dispatch]);
+
   const handleCreateAgent = () => {
+    if (!serviceIntegrationManager.isReady()) {
+      message.warning('Service integration not ready. Please wait...');
+      return;
+    }
     setShowCreateWizard(true);
   };
 
@@ -54,7 +66,7 @@ export const AgentPanel: React.FC = () => {
         </Space>
         <Button 
           type="primary" 
-          size="small"
+          
           icon={<PlusOutlined />}
           onClick={handleCreateAgent}
         >
@@ -67,7 +79,7 @@ export const AgentPanel: React.FC = () => {
         <Tabs
           activeKey={activeTab}
           onChange={setActiveTab}
-          size="small"
+          
           style={{ height: '100%' }}
           tabBarStyle={{ 
             margin: 0, 
@@ -77,7 +89,7 @@ export const AgentPanel: React.FC = () => {
         >
           <TabPane
             tab={
-              <Space size="small">
+              <Space >
                 <UnorderedListOutlined />
                 Agent List
               </Space>
@@ -93,7 +105,7 @@ export const AgentPanel: React.FC = () => {
 
           <TabPane
             tab={
-              <Space size="small">
+              <Space >
                 <EyeOutlined />
                 Agent Details
               </Space>

@@ -52,6 +52,8 @@ export interface UIState {
     about: boolean;
     createAgent: boolean;
     createTask: boolean;
+    shortcuts: boolean;
+    plugins: boolean;
   };
   notifications: Array<{
     id: string;
@@ -79,6 +81,8 @@ const initialState: UIState = {
         { id: 'agents', title: 'Agents', visible: true },
         { id: 'tasks', title: 'Tasks', visible: true },
         { id: 'collaboration', title: 'Collaboration', visible: true },
+        { id: 'git', title: 'Git', visible: true },
+        { id: 'plugins', title: 'Plugins', visible: true },
         { id: 'settings', title: 'Settings', visible: true }
       ]
     },
@@ -101,7 +105,8 @@ const initialState: UIState = {
         { id: 'terminal', title: 'Terminal', visible: true },
         { id: 'output', title: 'Output', visible: true },
         { id: 'problems', title: 'Problems', visible: true },
-        { id: 'debug', title: 'Debug Console', visible: true }
+        { id: 'debug', title: 'Debug Console', visible: true },
+        { id: 'git', title: 'Git', visible: true }
       ]
     },
     statusBar: {
@@ -113,7 +118,9 @@ const initialState: UIState = {
     settings: false,
     about: false,
     createAgent: false,
-    createTask: false
+    createTask: false,
+    shortcuts: false,
+    plugins: false
   },
   notifications: []
 };

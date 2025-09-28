@@ -48,63 +48,63 @@ export class MenuManager {
         ]
       }] : []),
 
-      // File Menu
+      // 文件菜单
       {
-        label: 'File',
+        label: '文件',
         submenu: [
           {
-            label: 'New Project',
+            label: '新建项目',
             accelerator: 'CmdOrCtrl+N',
             click: () => this.handleNewProject()
           },
           {
-            label: 'Open Project',
+            label: '打开项目',
             accelerator: 'CmdOrCtrl+O',
             click: () => this.handleOpenProject()
           },
           {
-            label: 'Open Recent',
+            label: '最近打开',
             submenu: this.getRecentProjectsMenu()
           },
           { type: 'separator' },
           {
-            label: 'Save',
+            label: '保存',
             accelerator: 'CmdOrCtrl+S',
             click: () => this.handleSave()
           },
           {
-            label: 'Save As...',
+            label: '另存为...',
             accelerator: 'CmdOrCtrl+Shift+S',
             click: () => this.handleSaveAs()
           },
           {
-            label: 'Save All',
+            label: '全部保存',
             accelerator: 'CmdOrCtrl+Alt+S',
             click: () => this.handleSaveAll()
           },
           { type: 'separator' },
           {
-            label: 'Close File',
+            label: '关闭文件',
             accelerator: 'CmdOrCtrl+W',
             click: () => this.handleCloseFile()
           },
           {
-            label: 'Close Project',
+            label: '关闭项目',
             accelerator: 'CmdOrCtrl+Shift+W',
             click: () => this.handleCloseProject()
           },
           { type: 'separator' },
           ...(isMac ? [] : [{
-            label: 'Exit',
+            label: '退出',
             accelerator: 'CmdOrCtrl+Q',
             click: () => app.quit()
           }])
         ]
       },
 
-      // Edit Menu
+      // 编辑菜单
       {
-        label: 'Edit',
+        label: '编辑',
         submenu: [
           { role: 'undo' as const },
           { role: 'redo' as const },
@@ -115,61 +115,61 @@ export class MenuManager {
           { role: 'selectAll' as const },
           { type: 'separator' },
           {
-            label: 'Find',
+            label: '查找',
             accelerator: 'CmdOrCtrl+F',
             click: () => this.handleFind()
           },
           {
-            label: 'Find and Replace',
+            label: '查找和替换',
             accelerator: 'CmdOrCtrl+H',
             click: () => this.handleFindReplace()
           },
           {
-            label: 'Find in Files',
+            label: '在文件中查找',
             accelerator: 'CmdOrCtrl+Shift+F',
             click: () => this.handleFindInFiles()
           }
         ]
       },
 
-      // View Menu
+      // 视图菜单
       {
-        label: 'View',
+        label: '视图',
         submenu: [
           {
-            label: 'Command Palette',
+            label: '命令面板',
             accelerator: 'CmdOrCtrl+Shift+P',
             click: () => this.handleCommandPalette()
           },
           { type: 'separator' },
           {
-            label: 'Explorer',
+            label: '资源管理器',
             accelerator: 'CmdOrCtrl+Shift+E',
             click: () => this.handleToggleExplorer()
           },
           {
-            label: 'Agent Panel',
+            label: 'Agent面板',
             accelerator: 'CmdOrCtrl+Shift+A',
             click: () => this.handleToggleAgentPanel()
           },
           {
-            label: 'Task Panel',
+            label: '任务面板',
             accelerator: 'CmdOrCtrl+Shift+T',
             click: () => this.handleToggleTaskPanel()
           },
           {
-            label: 'Terminal',
+            label: '终端',
             accelerator: 'CmdOrCtrl+`',
             click: () => this.handleToggleTerminal()
           },
           { type: 'separator' },
           {
-            label: 'Split Editor Right',
+            label: '向右拆分编辑器',
             accelerator: 'CmdOrCtrl+\\',
             click: () => this.handleSplitEditor('right')
           },
           {
-            label: 'Split Editor Down',
+            label: '向下拆分编辑器',
             accelerator: 'CmdOrCtrl+Shift+\\',
             click: () => this.handleSplitEditor('down')
           },
@@ -186,55 +186,55 @@ export class MenuManager {
         ]
       },
 
-      // Agents Menu
+      // Agent菜单
       {
-        label: 'Agents',
+        label: 'Agent',
         submenu: [
           {
-            label: 'Create New Agent',
+            label: '创建新Agent',
             accelerator: 'CmdOrCtrl+Shift+N',
             click: () => this.handleCreateAgent()
           },
           {
-            label: 'Start All Agents',
+            label: '启动所有Agent',
             click: () => this.handleStartAllAgents()
           },
           {
-            label: 'Stop All Agents',
+            label: '停止所有Agent',
             click: () => this.handleStopAllAgents()
           },
           { type: 'separator' },
           {
-            label: 'Agent Settings',
+            label: 'Agent设置',
             click: () => this.handleAgentSettings()
           }
         ]
       },
 
-      // Tasks Menu
+      // 任务菜单
       {
-        label: 'Tasks',
+        label: '任务',
         submenu: [
           {
-            label: 'Create Task',
+            label: '创建任务',
             accelerator: 'CmdOrCtrl+Shift+K',
             click: () => this.handleCreateTask()
           },
           {
-            label: 'Task Board',
+            label: '任务看板',
             accelerator: 'CmdOrCtrl+Shift+B',
             click: () => this.handleTaskBoard()
           },
           {
-            label: 'Task Timeline',
+            label: '任务时间线',
             click: () => this.handleTaskTimeline()
           }
         ]
       },
 
-      // Window Menu
+      // 窗口菜单
       {
-        label: 'Window',
+        label: '窗口',
         submenu: [
           { role: 'minimize' as const },
           { role: 'close' as const },
@@ -245,30 +245,30 @@ export class MenuManager {
         ]
       },
 
-      // Help Menu
+      // 帮助菜单
       {
-        label: 'Help',
+        label: '帮助',
         submenu: [
           {
-            label: 'Documentation',
+            label: '文档',
             click: () => shell.openExternal('https://github.com/multi-agent-ide/docs')
           },
           {
-            label: 'Keyboard Shortcuts',
+            label: '键盘快捷键',
             accelerator: 'CmdOrCtrl+K CmdOrCtrl+S',
             click: () => this.handleKeyboardShortcuts()
           },
           {
-            label: 'Report Issue',
+            label: '报告问题',
             click: () => shell.openExternal('https://github.com/multi-agent-ide/issues')
           },
           { type: 'separator' },
           {
-            label: 'Check for Updates',
+            label: '检查更新',
             click: () => this.handleCheckUpdates()
           },
           ...(isMac ? [] : [{
-            label: 'About',
+            label: '关于',
             click: () => this.handleAbout()
           }])
         ]
@@ -282,7 +282,7 @@ export class MenuManager {
     // TODO: Implement recent projects from storage
     return [
       {
-        label: 'No recent projects',
+        label: '没有最近的项目',
         enabled: false
       }
     ];
@@ -299,7 +299,7 @@ export class MenuManager {
   private async handleOpenProject(): Promise<void> {
     const result = await dialog.showOpenDialog({
       properties: ['openDirectory'],
-      title: 'Open Project Folder'
+      title: '打开项目文件夹'
     });
 
     if (!result.canceled && result.filePaths.length > 0) {
@@ -480,9 +480,9 @@ export class MenuManager {
   private handleAbout(): void {
     dialog.showMessageBox({
       type: 'info',
-      title: 'About Multi-Agent IDE',
-      message: 'Multi-Agent IDE',
-      detail: 'A collaborative IDE with multiple AI agents\nVersion 1.0.0'
+      title: '关于多Agent IDE',
+      message: '多Agent IDE',
+      detail: '一个支持多个AI Agent协作的集成开发环境\n版本 1.0.0'
     });
   }
 }

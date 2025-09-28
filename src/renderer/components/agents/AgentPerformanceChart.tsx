@@ -128,7 +128,7 @@ export const AgentPerformanceChart: React.FC<AgentPerformanceChartProps> = ({ ag
         <Select
           value={timeRange}
           onChange={setTimeRange}
-          size="small"
+          
           style={{ width: 100 }}
         >
           <Option value="1h">1 Hour</Option>
@@ -141,7 +141,7 @@ export const AgentPerformanceChart: React.FC<AgentPerformanceChartProps> = ({ ag
       {/* Current Stats */}
       <Row gutter={16} style={{ marginBottom: '16px' }}>
         <Col span={8}>
-          <Card size="small">
+          <Card >
             <Statistic
               title="CPU Usage"
               value={stats.cpu}
@@ -155,7 +155,7 @@ export const AgentPerformanceChart: React.FC<AgentPerformanceChartProps> = ({ ag
           </Card>
         </Col>
         <Col span={8}>
-          <Card size="small">
+          <Card >
             <Statistic
               title="Memory Usage"
               value={stats.memory}
@@ -169,7 +169,7 @@ export const AgentPerformanceChart: React.FC<AgentPerformanceChartProps> = ({ ag
           </Card>
         </Col>
         <Col span={8}>
-          <Card size="small">
+          <Card >
             <Statistic
               title="Avg Response"
               value={stats.avgResponse}
@@ -182,7 +182,7 @@ export const AgentPerformanceChart: React.FC<AgentPerformanceChartProps> = ({ ag
       </Row>
 
       {/* Resource Usage Chart */}
-      <Card size="small" title="Resource Usage" style={{ marginBottom: '16px' }}>
+      <Card  title="Resource Usage" style={{ marginBottom: '16px' }}>
         <ResponsiveContainer width="100%" height={200}>
           <AreaChart data={performanceData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -219,7 +219,7 @@ export const AgentPerformanceChart: React.FC<AgentPerformanceChartProps> = ({ ag
       <Row gutter={16}>
         {/* Task Activity */}
         <Col span={12}>
-          <Card size="small" title="Task Activity">
+          <Card  title="Task Activity">
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={performanceData.slice(-10)}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -238,7 +238,7 @@ export const AgentPerformanceChart: React.FC<AgentPerformanceChartProps> = ({ ag
 
         {/* Task Type Distribution */}
         <Col span={12}>
-          <Card size="small" title="Task Distribution">
+          <Card  title="Task Distribution">
             <ResponsiveContainer width="100%" height={180}>
               <PieChart>
                 <Pie
@@ -280,7 +280,7 @@ export const AgentPerformanceChart: React.FC<AgentPerformanceChartProps> = ({ ag
       </Row>
 
       {/* Response Time Trend */}
-      <Card size="small" title="Response Time Trend" style={{ marginTop: '16px' }}>
+      <Card  title="Response Time Trend" style={{ marginTop: '16px' }}>
         <ResponsiveContainer width="100%" height={150}>
           <LineChart data={performanceData}>
             <CartesianGrid strokeDasharray="3 3" />

@@ -31,7 +31,7 @@ import {
   MobileOutlined
 } from '@ant-design/icons';
 import { useAppSelector } from '../../hooks/redux';
-import { AgentStatus } from '../../../types/agent.types';
+import { Agent } from '../../store/slices/agentSlice';
 import { MessageType } from '../../../types/message.types';
 
 interface Notification {
@@ -50,7 +50,8 @@ interface Notification {
 interface NotificationAction {
   label: string;
   action: string;
-  type?: 'primary' | 'default' | 'danger';
+  type?: 'primary' | 'default';
+  danger?: boolean;
 }
 
 interface NotificationSettings {
@@ -95,7 +96,7 @@ export const NotificationManager: React.FC = () => {
 
       // Agent status notifications
       agents.forEach(agent => {
-        if (agent.status === AgentStatus.ERROR) {
+        if (agent.status === 'error') {
           newNotifications.push({
             id: `agent-error-${agent.id}-${Date.now()}`,
             type: 'error',
@@ -113,7 +114,7 @@ export const NotificationManager: React.FC = () => {
           });
         }
 
-        if (agent.status === AgentStatus.WORKING && agent.currentTask) {
+        if (agent.status === 'working' && agent.currentTask) {
           newNotifications.push({
             id: `agent-task-${agent.id}-${Date.now()}`,
             type: 'info',
@@ -163,7 +164,7 @@ export const NotificationManager: React.FC = () => {
       });
 
       // System notifications
-      const activeAgents = agents.filter(a => a.status !== AgentStatus.OFFLINE);
+      const activeAgents = agents.filter(a => a.status !== 'offline');
       if (activeAgents.length === 0) {
         newNotifications.push({
           id: `system-no-agents-${Date.now()}`,
@@ -348,20 +349,20 @@ export const NotificationManager: React.FC = () => {
           <BellOutlined />
           Notifications
           {unreadCount > 0 && (
-            <Badge count={unreadCount} size="small" />
+            <Badge count={unreadCount}  />
           )}
         </div>
         <div style={{ display: 'flex', gap: '4px' }}>
           <Tooltip title="Notification Settings">
             <Button
-              size="small"
+              
               icon={<SettingOutlined />}
               onClick={() => setShowSettings(true)}
             />
           </Tooltip>
           <Tooltip title="Mark All Read">
             <Button
-              size="small"
+              
               icon={<EyeOutlined />}
               onClick={markAllAsRead}
               disabled={unreadCount === 0}
@@ -369,7 +370,7 @@ export const NotificationManager: React.FC = () => {
           </Tooltip>
           <Tooltip title="Clear All">
             <Button
-              size="small"
+              
               icon={<ClearOutlined />}
               onClick={clearNotifications}
               disabled={notifications.length === 0}
@@ -385,21 +386,21 @@ export const NotificationManager: React.FC = () => {
         marginBottom: '12px'
       }}>
         <Button
-          size="small"
+          
           type={filter === 'all' ? 'primary' : 'default'}
           onClick={() => setFilter('all')}
         >
           All ({notifications.length})
         </Button>
         <Button
-          size="small"
+          
           type={filter === 'unread' ? 'primary' : 'default'}
           onClick={() => setFilter('unread')}
         >
           Unread ({unreadCount})
         </Button>
         <Button
-          size="small"
+          
           type={filter === 'high' ? 'primary' : 'default'}
           onClick={() => setFilter('high')}
         >
@@ -411,7 +412,7 @@ export const NotificationManager: React.FC = () => {
       <div style={{ flex: 1, overflow: 'auto' }}>
         {filteredNotifications.length > 0 ? (
           <List
-            size="small"
+            
             dataSource={filteredNotifications}
             renderItem={(notification) => (
               <List.Item 
@@ -425,14 +426,14 @@ export const NotificationManager: React.FC = () => {
                 actions={[
                   !notification.read && (
                     <Button
-                      size="small"
+                      
                       type="text"
                       icon={<EyeOutlined />}
                       onClick={() => markAsRead(notification.id)}
                     />
                   ),
                   <Button
-                    size="small"
+                    
                     type="text"
                     icon={<DeleteOutlined />}
                     onClick={() => deleteNotification(notification.id)}
@@ -454,10 +455,10 @@ export const NotificationManager: React.FC = () => {
                       }}>
                         {notification.title}
                       </span>
-                      <Tag size="small" color={getPriorityColor(notification.priority)}>
+                      <Tag color={getPriorityColor(notification.priority)} style={{ fontSize: '10px', padding: '0 4px', lineHeight: '16px' }}>
                         {notification.priority}
                       </Tag>
-                      <Tag size="small" color="blue">
+                      <Tag color="blue" style={{ fontSize: '10px', padding: '0 4px', lineHeight: '16px' }}>
                         {notification.source}
                       </Tag>
                     </div>
@@ -483,8 +484,9 @@ export const NotificationManager: React.FC = () => {
                           {notification.actions.map((action, index) => (
                             <Button
                               key={index}
-                              size="small"
+                              
                               type={action.type || 'default'}
+                              danger={action.danger}
                               onClick={() => handleNotificationAction(notification, action.action)}
                             >
                               {action.label}

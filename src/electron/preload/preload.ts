@@ -91,6 +91,32 @@ const electronAPI = {
     getEnv: (key?: string) => ipcRenderer.invoke('system:get-env', key)
   },
 
+  // Settings operations
+  settings: {
+    load: () => ipcRenderer.invoke('settings:load'),
+    save: (settings: any) => ipcRenderer.invoke('settings:save', settings),
+    export: (filePath: string, settings: any) => ipcRenderer.invoke('settings:export', filePath, settings),
+    import: (filePath: string) => ipcRenderer.invoke('settings:import', filePath),
+    createBackup: (name: string) => ipcRenderer.invoke('settings:create-backup', name),
+    restoreBackup: (backupId: string) => ipcRenderer.invoke('settings:restore-backup', backupId),
+    listBackups: () => ipcRenderer.invoke('settings:list-backups'),
+    deleteBackup: (backupId: string) => ipcRenderer.invoke('settings:delete-backup', backupId)
+  },
+
+  // Update operations
+  updates: {
+    check: () => ipcRenderer.invoke('updates:check'),
+    download: (updateInfo: any) => ipcRenderer.invoke('updates:download', updateInfo),
+    install: (updateInfo: any) => ipcRenderer.invoke('updates:install', updateInfo)
+  },
+
+  // Dialog operations
+  dialog: {
+    showOpenDialog: (options: any) => ipcRenderer.invoke('dialog:show-open-dialog', options),
+    showSaveDialog: (options: any) => ipcRenderer.invoke('dialog:show-save-dialog', options),
+    showMessageBox: (options: any) => ipcRenderer.invoke('dialog:show-message-box', options)
+  },
+
   // Menu and tray events
   onMenuAction: (callback: (action: any) => void) => {
     ipcRenderer.on('menu-action', (event, action) => callback(action));

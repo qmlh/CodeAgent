@@ -5,8 +5,8 @@
 // Interfaces
 export * from './interfaces';
 
-// Error classes
-export * from './errors/SystemError';
+// Error handling system
+export * from './errors';
 
 // Constants
 export * from './constants';
@@ -19,6 +19,15 @@ export * from './validation';
 
 // Utilities
 export * from './utils';
+
+// System initialization and configuration
+export * from './system';
+
+// Recovery system
+export * from './recovery';
+
+// Plugin and extension system
+export * from './plugins';
 
 // Types (re-export for convenience, excluding conflicting names)
 export * from '../types/agent.types';

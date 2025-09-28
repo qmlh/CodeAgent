@@ -61,6 +61,26 @@ declare const electronAPI: {
         executeCommand: (command: string, options?: any) => Promise<any>;
         getEnv: (key?: string) => Promise<any>;
     };
+    settings: {
+        load: () => Promise<any>;
+        save: (settings: any) => Promise<any>;
+        export: (filePath: string, settings: any) => Promise<any>;
+        import: (filePath: string) => Promise<any>;
+        createBackup: (name: string) => Promise<any>;
+        restoreBackup: (backupId: string) => Promise<any>;
+        listBackups: () => Promise<any>;
+        deleteBackup: (backupId: string) => Promise<any>;
+    };
+    updates: {
+        check: () => Promise<any>;
+        download: (updateInfo: any) => Promise<any>;
+        install: (updateInfo: any) => Promise<any>;
+    };
+    dialog: {
+        showOpenDialog: (options: any) => Promise<any>;
+        showSaveDialog: (options: any) => Promise<any>;
+        showMessageBox: (options: any) => Promise<any>;
+    };
     onMenuAction: (callback: (action: any) => void) => void;
     onTrayAction: (callback: (action: any) => void) => void;
     removeAllListeners: (channel: string) => void;

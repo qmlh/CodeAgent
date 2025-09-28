@@ -23,6 +23,7 @@ export declare class ConflictResolver extends EventEmitter {
     private detectionRules;
     private resolutionStrategies;
     constructor();
+    initialize(): Promise<void>;
     /**
      * Register a conflict detection rule
      */

@@ -61,7 +61,7 @@ export const CollaborationPanel: React.FC = () => {
         </div>
         
         <List
-          size="small"
+          
           dataSource={activeAgents}
           renderItem={(agent) => (
             <List.Item style={{ padding: '4px 0' }}>
@@ -71,7 +71,7 @@ export const CollaborationPanel: React.FC = () => {
                     status={agent.status === 'working' ? 'processing' : 'success'}
                     dot
                   >
-                    <Avatar size="small" style={{ backgroundColor: '#1890ff' }}>
+                    <Avatar  style={{ backgroundColor: '#1890ff' }}>
                       {agent.name.charAt(0).toUpperCase()}
                     </Avatar>
                   </Badge>
@@ -122,8 +122,8 @@ export const CollaborationPanel: React.FC = () => {
                   <div style={{ color: '#cccccc', marginBottom: '2px' }}>
                     <strong>{getAgentName(message.from)}</strong>
                     {Array.isArray(message.to) ? 
-                      ` â†’ ${message.to.map(getAgentName).join(', ')}` :
-                      ` â†’ ${getAgentName(message.to)}`
+                      ` â†?${message.to.map(getAgentName).join(', ')}` :
+                      ` â†?${getAgentName(message.to)}`
                     }
                   </div>
                   <div style={{ color: '#888', marginBottom: '2px' }}>
@@ -168,7 +168,7 @@ export const CollaborationPanel: React.FC = () => {
 
         {collaborationSessions.filter(s => s.status === 'active').length > 0 ? (
           <List
-            size="small"
+            
             dataSource={collaborationSessions.filter(s => s.status === 'active')}
             renderItem={(session) => (
               <List.Item style={{ padding: '4px 0' }}>

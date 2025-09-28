@@ -1,33 +1,18 @@
 /**
- * Electron Main Process
- * Handles application lifecycle, window management, and system integration
+ * Enhanced Electron Main Process
+ * Handles application lifecycle with optimized startup and advanced features
  */
 
-import { app, BrowserWindow, Menu, Tray, ipcMain, dialog, shell } from 'electron';
-import { autoUpdater } from 'electron-updater';
-import * as path from 'path';
-import * as fs from 'fs-extra';
-import { WindowManager } from './managers/WindowManager';
-import { MenuManager } from './managers/MenuManager';
-import { TrayManager } from './managers/TrayManager';
-import { IPCManager } from './managers/IPCManager';
-import { FileSystemManager } from './managers/FileSystemManager';
+import { app, BrowserWindow, shell } from 'electron';
+import { StartupManager } from './managers/StartupManager';
 
 class ElectronApp {
-  private windowManager: WindowManager;
-  private menuManager: MenuManager;
-  private trayManager: TrayManager;
-  private ipcManager: IPCManager;
-  private fileSystemManager: FileSystemManager;
+  private startupManager: StartupManager;
   private isDevelopment: boolean;
 
   constructor() {
     this.isDevelopment = process.env.NODE_ENV === 'development';
-    this.windowManager = new WindowManager();
-    this.menuManager = new MenuManager();
-    this.trayManager = new TrayManager();
-    this.ipcManager = new IPCManager();
-    this.fileSystemManager = new FileSystemManager();
+    this.startupManager = new StartupManager();
   }
 
   async initialize(): Promise<void> {
@@ -36,10 +21,6 @@ class ElectronApp {
 
     // Set up event listeners
     this.setupAppEvents();
-    this.setupAutoUpdater();
-
-    // Initialize managers
-    await this.initializeManagers();
   }
 
   private configureApp(): void {
@@ -51,12 +32,48 @@ class ElectronApp {
     // Configure security
     app.commandLine.appendSwitch('disable-web-security');
     app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
+    
+    // GPU crash prevention
+    app.commandLine.appendSwitch('disable-gpu-sandbox');
+    app.commandLine.appendSwitch('disable-software-rasterizer');
+    app.commandLine.appendSwitch('disable-gpu-process-crash-limit');
+    
+    // Additional stability switches for Windows
+    if (process.platform === 'win32') {
+      app.commandLine.appendSwitch('disable-gpu');
+      app.commandLine.appendSwitch('disable-gpu-compositing');
+      app.commandLine.appendSwitch('disable-hardware-acceleration');
+    }
   }
 
   private setupAppEvents(): void {
+    // Handle child process crashes
+    app.on('child-process-gone', (event, details) => {
+      console.log('Child process gone:', details);
+      if (details.type === 'GPU') {
+        console.log('GPU process crashed, continuing with software rendering');
+        // Don't quit the app, just log the GPU crash
+      }
+    });
+
+    // Handle renderer process crashes
+    app.on('render-process-gone', (event, webContents, details) => {
+      console.log('Renderer process gone:', details);
+      // Optionally reload the window or show an error dialog
+    });
+
     // App ready event
     app.whenReady().then(async () => {
-      await this.onAppReady();
+      try {
+        await this.startupManager.startApplication({
+          showSplash: false, // Disable splash for now to test main window
+          enableCrashRecovery: true,
+          enableAutoUpdater: !this.isDevelopment
+        });
+      } catch (error) {
+        console.error('Failed to start application:', error);
+        app.quit();
+      }
     });
 
     // Window events
@@ -66,25 +83,6 @@ class ElectronApp {
 
     // Security events
     app.on('web-contents-created', this.onWebContentsCreated.bind(this));
-  }
-
-  private async onAppReady(): Promise<void> {
-    // Create main window
-    await this.windowManager.createMainWindow();
-
-    // Set up application menu
-    this.menuManager.createApplicationMenu();
-
-    // Create system tray
-    this.trayManager.createTray();
-
-    // Set up IPC handlers
-    this.ipcManager.setupHandlers();
-
-    // Initialize file system watchers
-    this.fileSystemManager.initialize();
-
-    console.log('Multi-Agent IDE Desktop Application Ready');
   }
 
   private onWindowAllClosed(): void {
@@ -97,14 +95,25 @@ class ElectronApp {
   private async onActivate(): Promise<void> {
     // On macOS, re-create window when dock icon is clicked
     if (BrowserWindow.getAllWindows().length === 0) {
-      await this.windowManager.createMainWindow();
+      // Use startup manager to recreate window
+      await this.startupManager.startApplication({
+        showSplash: false,
+        enableCrashRecovery: false,
+        enableAutoUpdater: false
+      });
     }
   }
 
-  private onBeforeQuit(): void {
-    // Cleanup before quitting
-    this.fileSystemManager.cleanup();
-    this.trayManager.cleanup();
+  private async onBeforeQuit(): Promise<void> {
+    console.log('Application shutting down...');
+    
+    try {
+      // Ensure proper cleanup of all managers
+      await this.startupManager.cleanup();
+      console.log('Application cleanup completed');
+    } catch (error) {
+      console.error('Error during application cleanup:', error);
+    }
   }
 
   private onWebContentsCreated(event: Electron.Event, contents: Electron.WebContents): void {
@@ -123,42 +132,18 @@ class ElectronApp {
       }
     });
   }
-
-  private async initializeManagers(): Promise<void> {
-    // Initialize all managers
-    await Promise.all([
-      this.windowManager.initialize(),
-      this.menuManager.initialize(),
-      this.trayManager.initialize(),
-      this.ipcManager.initialize(),
-      this.fileSystemManager.initialize()
-    ]);
-  }
-
-  private setupAutoUpdater(): void {
-    if (!this.isDevelopment) {
-      autoUpdater.checkForUpdatesAndNotify();
-      
-      autoUpdater.on('update-available', () => {
-        console.log('Update available');
-      });
-
-      autoUpdater.on('update-downloaded', () => {
-        console.log('Update downloaded');
-        autoUpdater.quitAndInstall();
-      });
-    }
-  }
 }
 
 // Initialize and start the application
 const electronApp = new ElectronApp();
 
 // Handle app initialization
-electronApp.initialize().catch((error) => {
+try {
+  electronApp.initialize();
+} catch (error) {
   console.error('Failed to initialize Electron app:', error);
   app.quit();
-});
+}
 
 // Export for testing
 export { ElectronApp };

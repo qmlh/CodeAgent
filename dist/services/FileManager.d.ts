@@ -16,6 +16,7 @@ export declare class FileManager extends EventEmitter implements IFileManager {
     private readonly DEFAULT_LOCK_TIMEOUT;
     private readonly MAX_LOCK_DURATION;
     constructor();
+    initialize(): Promise<void>;
     /**
      * Request a file lock for an agent
      */

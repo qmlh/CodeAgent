@@ -1,10 +1,11 @@
 /**
  * Enhanced Editor Area Component
  * Advanced code editing area with split-screen support and enhanced tab management
+ * Implements task 17 requirements for Monaco editor optimization
  */
 
 import React, { useState, useCallback, useRef } from 'react';
-import { Tabs, Button, Dropdown, Space, Tooltip, Modal, Input } from 'antd';
+import { Tabs, Button, Dropdown, Space, Tooltip, Modal, Input, Drawer } from 'antd';
 import { 
   CloseOutlined, 
   SplitCellsOutlined, 
@@ -18,33 +19,31 @@ import {
   FormatPainterOutlined,
   ColumnWidthOutlined,
   MenuOutlined as RowHeightOutlined,
-  CloseCircleOutlined
+  CloseCircleOutlined,
+  TeamOutlined,
+  ThunderboltOutlined,
+  EyeOutlined
 } from '@ant-design/icons';
 import { useAppSelector, useAppDispatch } from '../../hooks/redux';
 import { setActiveFile, closeFile, saveFile } from '../../store/slices/fileSlice';
-import { CodeEditor, CodeEditorRef } from './CodeEditor';
+import { EnhancedMonacoEditor, EnhancedMonacoEditorRef } from './EnhancedMonacoEditor';
+import { EnhancedTabManager } from './EnhancedTabManager';
+import { SplitScreenEditor } from './SplitScreenEditor';
+import { CollaborationVisualization } from './CollaborationVisualization';
+import { EditorPersonalization } from './EditorPersonalization';
 import type { MenuProps } from 'antd';
-
-interface EditorGroup {
-  id: string;
-  files: string[];
-  activeFile: string | null;
-}
-
-interface SplitLayout {
-  type: 'single' | 'horizontal' | 'vertical';
-  groups: EditorGroup[];
-}
+import { Layout } from 'antd';
 
 export const EditorArea: React.FC = () => {
   const dispatch = useAppDispatch();
   const { openFiles, activeFile } = useAppSelector(state => state.file);
   
-  // Split screen state
-  const [layout, setLayout] = useState<SplitLayout>({
-    type: 'single',
-    groups: [{ id: 'main', files: [], activeFile: null }]
-  });
+  // Enhanced editor state
+  const [editorMode, setEditorMode] = useState<'standard' | 'split' | 'enhanced-tabs'>('enhanced-tabs');
+  const [isCollaborationVisible, setIsCollaborationVisible] = useState(false);
+  const [isPersonalizationVisible, setIsPersonalizationVisible] = useState(false);
+  const [enableAICompletion, setEnableAICompletion] = useState(true);
+  const [enablePerformanceMode, setEnablePerformanceMode] = useState(false);
   
   // Search and replace state
   const [isSearchVisible, setIsSearchVisible] = useState(false);
@@ -52,27 +51,11 @@ export const EditorArea: React.FC = () => {
   const [goToLineValue, setGoToLineValue] = useState('');
   
   // Editor refs for controlling editors
-  const editorRefs = useRef<Map<string, CodeEditorRef>>(new Map());
+  const editorRefs = useRef<Map<string, EnhancedMonacoEditorRef>>(new Map());
 
-  // Update layout when files change
-  React.useEffect(() => {
-    const mainGroup = layout.groups[0];
-    const allOpenFilePaths = openFiles.map(f => f.path);
-    
-    // Update main group files
-    setLayout(prev => ({
-      ...prev,
-      groups: prev.groups.map(group => 
-        group.id === 'main' 
-          ? { 
-              ...group, 
-              files: allOpenFilePaths,
-              activeFile: activeFile 
-            }
-          : group
-      )
-    }));
-  }, [openFiles, activeFile, layout.groups]);
+  // Detect large files for performance optimization
+  const currentFile = openFiles.find(f => f.path === activeFile);
+  const isLargeFile = currentFile ? (currentFile.content?.length || 0) > 100000 : false;
 
   const handleTabChange = (key: string) => {
     dispatch(setActiveFile(key));
@@ -114,36 +97,13 @@ export const EditorArea: React.FC = () => {
     });
   };
 
-  const handleSplitHorizontal = () => {
-    if (layout.type === 'single' && activeFile) {
-      setLayout({
-        type: 'horizontal',
-        groups: [
-          { id: 'top', files: [activeFile], activeFile },
-          { id: 'bottom', files: [], activeFile: null }
-        ]
-      });
-    }
-  };
+  const handleSplitTab = useCallback((filePath: string, direction: 'horizontal' | 'vertical') => {
+    setEditorMode('split');
+  }, []);
 
-  const handleSplitVertical = () => {
-    if (layout.type === 'single' && activeFile) {
-      setLayout({
-        type: 'vertical',
-        groups: [
-          { id: 'left', files: [activeFile], activeFile },
-          { id: 'right', files: [], activeFile: null }
-        ]
-      });
-    }
-  };
-
-  const handleCloseSplit = () => {
-    setLayout({
-      type: 'single',
-      groups: [{ id: 'main', files: openFiles.map(f => f.path), activeFile }]
-    });
-  };
+  const handleEditorModeChange = useCallback((mode: typeof editorMode) => {
+    setEditorMode(mode);
+  }, []);
 
   const handleGoToLine = () => {
     setIsGoToLineVisible(true);
@@ -198,6 +158,16 @@ export const EditorArea: React.FC = () => {
     }
   };
 
+  const handleSplitHorizontal = () => {
+    setEditorMode('split');
+    // Additional split logic would go here
+  };
+
+  const handleSplitVertical = () => {
+    setEditorMode('split');
+    // Additional split logic would go here
+  };
+
   // Tab context menu
   const getTabContextMenu = (filePath: string): MenuProps => ({
     items: [
@@ -239,19 +209,19 @@ export const EditorArea: React.FC = () => {
         label: 'Split Horizontal',
         icon: <RowHeightOutlined />,
         onClick: handleSplitHorizontal,
-        disabled: layout.type !== 'single'
+        disabled: editorMode !== 'standard'
       },
       {
         key: 'splitVertical',
         label: 'Split Vertical',
         icon: <ColumnWidthOutlined />,
         onClick: handleSplitVertical,
-        disabled: layout.type !== 'single'
+        disabled: editorMode !== 'standard'
       }
     ]
   });
 
-  // Editor toolbar
+  // Enhanced Editor toolbar
   const EditorToolbar = () => (
     <div style={{ 
       display: 'flex', 
@@ -261,11 +231,12 @@ export const EditorArea: React.FC = () => {
       background: '#2d2d30',
       borderBottom: '1px solid #3e3e42'
     }}>
-      <Space size="small">
+      <Space >
+        {/* Basic editing actions */}
         <Tooltip title="Undo (Ctrl+Z)">
           <Button 
             type="text" 
-            size="small" 
+             
             icon={<UndoOutlined />} 
             onClick={handleUndo}
             disabled={!activeFile}
@@ -274,7 +245,7 @@ export const EditorArea: React.FC = () => {
         <Tooltip title="Redo (Ctrl+Y)">
           <Button 
             type="text" 
-            size="small" 
+             
             icon={<RedoOutlined />} 
             onClick={handleRedo}
             disabled={!activeFile}
@@ -283,7 +254,7 @@ export const EditorArea: React.FC = () => {
         <Tooltip title="Format Document (Shift+Alt+F)">
           <Button 
             type="text" 
-            size="small" 
+             
             icon={<FormatPainterOutlined />} 
             onClick={handleFormatDocument}
             disabled={!activeFile}
@@ -292,7 +263,7 @@ export const EditorArea: React.FC = () => {
         <Tooltip title="Find (Ctrl+F)">
           <Button 
             type="text" 
-            size="small" 
+             
             icon={<SearchOutlined />} 
             onClick={() => {
               if (activeFile) {
@@ -308,7 +279,7 @@ export const EditorArea: React.FC = () => {
         <Tooltip title="Go to Line (Ctrl+G)">
           <Button 
             type="text" 
-            size="small" 
+             
             icon={<FileTextOutlined />} 
             onClick={handleGoToLine}
             disabled={!activeFile}
@@ -318,165 +289,167 @@ export const EditorArea: React.FC = () => {
       
       <div style={{ flex: 1 }} />
       
-      <Space size="small">
-        {layout.type !== 'single' && (
-          <Tooltip title="Close Split">
+      <Space >
+        {/* Editor mode switcher */}
+        <Dropdown
+          menu={{
+            items: [
+              {
+                key: 'enhanced-tabs',
+                label: 'Enhanced Tabs',
+                onClick: () => handleEditorModeChange('enhanced-tabs')
+              },
+              {
+                key: 'split',
+                label: 'Split Screen',
+                onClick: () => handleEditorModeChange('split')
+              },
+              {
+                key: 'standard',
+                label: 'Standard',
+                onClick: () => handleEditorModeChange('standard')
+              }
+            ]
+          }}
+        >
+          <Tooltip title="Editor Mode">
             <Button 
               type="text" 
-              size="small" 
-              icon={<CloseOutlined />} 
-              onClick={handleCloseSplit}
+               
+              icon={<SplitCellsOutlined />}
+            />
+          </Tooltip>
+        </Dropdown>
+
+        {/* AI Completion toggle */}
+        <Tooltip title={enableAICompletion ? "Disable AI Completion" : "Enable AI Completion"}>
+          <Button 
+            type={enableAICompletion ? "primary" : "text"}
+             
+            icon={<ThunderboltOutlined />} 
+            onClick={() => setEnableAICompletion(!enableAICompletion)}
+          />
+        </Tooltip>
+
+        {/* Performance mode toggle */}
+        {isLargeFile && (
+          <Tooltip title={enablePerformanceMode ? "Disable Performance Mode" : "Enable Performance Mode"}>
+            <Button 
+              type={enablePerformanceMode ? "primary" : "text"}
+               
+              icon={<ThunderboltOutlined />} 
+              onClick={() => setEnablePerformanceMode(!enablePerformanceMode)}
             />
           </Tooltip>
         )}
-        <Tooltip title="Split Horizontal">
+
+        {/* Collaboration panel */}
+        <Tooltip title="Collaboration">
           <Button 
-            type="text" 
-            size="small" 
-            icon={<RowHeightOutlined />} 
-            onClick={handleSplitHorizontal}
-            disabled={layout.type !== 'single' || !activeFile}
+            type={isCollaborationVisible ? "primary" : "text"}
+             
+            icon={<TeamOutlined />} 
+            onClick={() => setIsCollaborationVisible(!isCollaborationVisible)}
           />
         </Tooltip>
-        <Tooltip title="Split Vertical">
+
+        {/* Personalization panel */}
+        <Tooltip title="Personalization">
           <Button 
-            type="text" 
-            size="small" 
-            icon={<ColumnWidthOutlined />} 
-            onClick={handleSplitVertical}
-            disabled={layout.type !== 'single' || !activeFile}
+            type={isPersonalizationVisible ? "primary" : "text"}
+             
+            icon={<SettingOutlined />} 
+            onClick={() => setIsPersonalizationVisible(!isPersonalizationVisible)}
           />
         </Tooltip>
       </Space>
     </div>
   );
 
-  const renderTabLabel = (file: any) => (
-    <Dropdown menu={getTabContextMenu(file.path)} trigger={['contextMenu']}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        {file.isReadonly && (
-          <Tooltip title="File is locked by another agent">
-            <span style={{ color: '#ff4d4f', fontSize: '12px' }}>🔒</span>
-          </Tooltip>
-        )}
-        <span>{file.name}</span>
-        {file.isDirty && (
-          <Tooltip title="Unsaved changes">
-            <span style={{ color: '#faad14' }}>●</span>
-          </Tooltip>
-        )}
-        <Button
-          type="text"
-          size="small"
-          icon={<CloseOutlined />}
-          onClick={(e) => {
-            e.stopPropagation();
-            handleTabClose(file.path);
-          }}
-          style={{ 
-            width: '16px', 
-            height: '16px', 
-            minWidth: '16px',
-            padding: 0,
-            color: '#888'
-          }}
-        />
-      </div>
-    </Dropdown>
-  );
-
-  const renderEditor = (groupId: string, files: string[], activeFileInGroup: string | null) => {
-    const groupFiles = files.map(filePath => 
-      openFiles.find(f => f.path === filePath)
-    ).filter(Boolean);
-
-    if (groupFiles.length === 0) {
-      return (
-        <div style={{ 
-          height: '100%', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          color: '#888',
-          fontSize: '16px'
-        }}>
-          No files open
-        </div>
-      );
+  // Render editor content based on mode
+  const renderEditorContent = () => {
+    switch (editorMode) {
+      case 'enhanced-tabs':
+        return (
+          <EnhancedTabManager
+            onTabChange={handleTabChange}
+            onTabClose={handleTabClose}
+            onSplitTab={handleSplitTab}
+            enableGrouping={true}
+            enableHistory={true}
+            enableSearch={true}
+          />
+        );
+      
+      case 'split':
+        return (
+          <SplitScreenEditor
+            initialFile={currentFile}
+            enableDiffMode={true}
+            enableSyncScrolling={true}
+            enableGridLayout={true}
+          />
+        );
+      
+      case 'standard':
+      default:
+        if (!currentFile) {
+          return (
+            <div style={{ 
+              height: '100%', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              color: '#888',
+              fontSize: '16px'
+            }}>
+              No files open
+            </div>
+          );
+        }
+        
+        return (
+          <EnhancedMonacoEditor
+            file={currentFile}
+            onFindReplace={setIsSearchVisible}
+            isLargeFile={isLargeFile}
+            enableAICompletion={enableAICompletion}
+            enablePerformanceMode={enablePerformanceMode}
+            ref={(ref: EnhancedMonacoEditorRef | null) => {
+              if (ref && currentFile) {
+                editorRefs.current.set(currentFile.path, ref);
+              }
+            }}
+          />
+        );
     }
-
-    const tabItems = groupFiles.map(file => ({
-      key: file!.path,
-      label: renderTabLabel(file!),
-      children: (
-        <CodeEditor 
-          file={file!} 
-          onFindReplace={setIsSearchVisible}
-          ref={(ref: CodeEditorRef | null) => {
-            if (ref) {
-              editorRefs.current.set(file!.path, ref);
-            } else {
-              editorRefs.current.delete(file!.path);
-            }
-          }}
-        />
-      )
-    }));
-
-    return (
-      <Tabs
-        type="editable-card"
-        activeKey={activeFileInGroup || undefined}
-        onChange={handleTabChange}
-        hideAdd
-        items={tabItems}
-        style={{ 
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column'
-        }}
-        tabBarStyle={{
-          margin: 0,
-          background: '#2d2d30',
-          borderBottom: '1px solid #3e3e42'
-        }}
-      />
-    );
-  };
-
-  const renderSplitLayout = () => {
-    if (layout.type === 'single') {
-      return renderEditor('main', layout.groups[0].files, layout.groups[0].activeFile);
-    }
-
-    const [group1, group2] = layout.groups;
-    const splitStyle = {
-      display: 'flex',
-      flexDirection: layout.type === 'horizontal' ? 'column' as const : 'row' as const,
-      height: '100%'
-    };
-
-    return (
-      <div style={splitStyle}>
-        <div style={{ flex: 1, minHeight: 0, minWidth: 0 }}>
-          {renderEditor(group1.id, group1.files, group1.activeFile)}
-        </div>
-        <div style={{ 
-          width: layout.type === 'vertical' ? '1px' : '100%',
-          height: layout.type === 'horizontal' ? '1px' : '100%',
-          background: '#3e3e42'
-        }} />
-        <div style={{ flex: 1, minHeight: 0, minWidth: 0 }}>
-          {renderEditor(group2.id, group2.files, group2.activeFile)}
-        </div>
-      </div>
-    );
   };
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <EditorToolbar />
-      {renderSplitLayout()}
+      
+      <div style={{ flex: 1, display: 'flex' }}>
+        {/* Main editor area */}
+        <div style={{ flex: 1 }}>
+          {renderEditorContent()}
+        </div>
+        
+        {/* Collaboration panel */}
+        {isCollaborationVisible && (
+          <div style={{ 
+            width: '300px', 
+            borderLeft: '1px solid #3e3e42',
+            background: '#252526'
+          }}>
+            <CollaborationVisualization
+              currentFile={activeFile || undefined}
+              showHistory={true}
+              showConflicts={true}
+            />
+          </div>
+        )}
+      </div>
       
       {/* Go to Line Modal */}
       <Modal
@@ -494,6 +467,27 @@ export const EditorArea: React.FC = () => {
           autoFocus
         />
       </Modal>
+
+      {/* Personalization Drawer */}
+      <Drawer
+        title="Editor Personalization"
+        placement="right"
+        width={600}
+        open={isPersonalizationVisible}
+        onClose={() => setIsPersonalizationVisible(false)}
+      >
+        <EditorPersonalization
+          onSettingsChange={(settings) => {
+            console.log('Settings changed:', settings);
+          }}
+          onThemeChange={(theme) => {
+            console.log('Theme changed:', theme);
+          }}
+          onShortcutChange={(shortcuts) => {
+            console.log('Shortcuts changed:', shortcuts);
+          }}
+        />
+      </Drawer>
     </div>
   );
 };

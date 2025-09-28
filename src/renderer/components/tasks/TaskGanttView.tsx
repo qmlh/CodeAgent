@@ -320,7 +320,7 @@ export const TaskGanttView: React.FC<TaskGanttViewProps> = ({ tasks, onAssignTas
                     </Tooltip>
                   </div>
                   <div className="task-meta">
-                    {task.type} â€¢ {task.duration}d
+                    {task.type} â€?{task.duration}d
                   </div>
                 </div>
                 
@@ -333,7 +333,7 @@ export const TaskGanttView: React.FC<TaskGanttViewProps> = ({ tasks, onAssignTas
                     </Tooltip>
                   ) : (
                     <Button 
-                      size="small" 
+                       
                       type="dashed"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -357,7 +357,7 @@ export const TaskGanttView: React.FC<TaskGanttViewProps> = ({ tasks, onAssignTas
                 <div className="task-progress">
                   <Progress 
                     percent={task.progress} 
-                    size="small"
+                    
                     strokeColor={getStatusColor(task.status)}
                   />
                 </div>
@@ -366,7 +366,7 @@ export const TaskGanttView: React.FC<TaskGanttViewProps> = ({ tasks, onAssignTas
                   <Dropdown overlay={getTaskMenu(task)} trigger={['click']}>
                     <Button 
                       type="text" 
-                      size="small" 
+                       
                       icon={<MoreOutlined />}
                       onClick={(e) => e.stopPropagation()}
                     />

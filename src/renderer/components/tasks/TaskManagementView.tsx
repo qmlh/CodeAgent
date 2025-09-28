@@ -83,13 +83,13 @@ export const TaskManagementView: React.FC<TaskManagementViewProps> = ({ classNam
   const viewMenu = (
     <Menu>
       <Menu.Item key="kanban" icon={<AppstoreOutlined />} onClick={() => setActiveTab('kanban')}>
-        Kanban Board
+        看板视图
       </Menu.Item>
       <Menu.Item key="gantt" icon={<BarsOutlined />} onClick={() => setActiveTab('gantt')}>
-        Gantt Chart
+        甘特图
       </Menu.Item>
       <Menu.Item key="list" icon={<BarsOutlined />} onClick={() => setActiveTab('list')}>
-        List View
+        列表视图
       </Menu.Item>
     </Menu>
   );
@@ -97,14 +97,14 @@ export const TaskManagementView: React.FC<TaskManagementViewProps> = ({ classNam
   const actionMenu = (
     <Menu>
       <Menu.Item key="filter" icon={<FilterOutlined />} onClick={() => setShowFilterPanel(true)}>
-        Advanced Filters
+        高级筛选
       </Menu.Item>
       <Menu.Item key="sort" icon={<SortAscendingOutlined />}>
-        Sort Options
+        排序选项
       </Menu.Item>
       <Menu.Divider />
       <Menu.Item key="settings" icon={<SettingOutlined />}>
-        View Settings
+        视图设置
       </Menu.Item>
     </Menu>
   );
@@ -114,8 +114,8 @@ export const TaskManagementView: React.FC<TaskManagementViewProps> = ({ classNam
       {/* Header */}
       <div className="task-management-header">
         <div className="header-left">
-          <h2>Task Management</h2>
-          <span className="task-count">{tasks.length} tasks</span>
+          <h2>任务管理</h2>
+          <span className="task-count">{tasks.length} 个任务</span>
         </div>
         
         <div className="header-right">
@@ -125,18 +125,28 @@ export const TaskManagementView: React.FC<TaskManagementViewProps> = ({ classNam
               icon={<PlusOutlined />}
               onClick={() => setShowCreateModal(true)}
             >
-              Create Task
+              创建任务
             </Button>
             
-            <Dropdown overlay={viewMenu} placement="bottomRight">
+            <Dropdown menu={{ items: viewMenu.props.children.map((item: any) => ({
+              key: item.key,
+              icon: item.props.icon,
+              label: item.props.children,
+              onClick: item.props.onClick
+            })) }} placement="bottomRight">
               <Button icon={<AppstoreOutlined />}>
-                View
+                视图
               </Button>
             </Dropdown>
             
-            <Dropdown overlay={actionMenu} placement="bottomRight">
+            <Dropdown menu={{ items: actionMenu.props.children.filter((item: any) => item.type !== Menu.Divider).map((item: any) => ({
+              key: item.key,
+              icon: item.props.icon,
+              label: item.props.children,
+              onClick: item.props.onClick
+            })) }} placement="bottomRight">
               <Button icon={<SettingOutlined />}>
-                Actions
+                操作
               </Button>
             </Dropdown>
           </Space>
@@ -145,52 +155,52 @@ export const TaskManagementView: React.FC<TaskManagementViewProps> = ({ classNam
 
       {/* Main Content */}
       <div className="task-management-content">
-        <Tabs 
+        <Tabs
           activeKey={activeTab} 
           onChange={setActiveTab}
           className="task-management-tabs"
           tabBarStyle={{ marginBottom: 0 }}
         >
-          <TabPane 
+          <TabPane
             tab={
               <span>
                 <AppstoreOutlined />
-                Kanban Board
+                看板视图
               </span>
             } 
             key="kanban"
           >
-            <TaskKanbanView 
+            <TaskKanbanView
               tasks={tasks}
               onAssignTask={handleAssignTask}
             />
           </TabPane>
           
-          <TabPane 
+          <TabPane
             tab={
               <span>
                 <BarsOutlined />
-                Gantt Chart
+                甘特图
               </span>
             } 
             key="gantt"
           >
-            <TaskGanttView 
+            <TaskGanttView
               tasks={tasks}
               onAssignTask={handleAssignTask}
             />
           </TabPane>
           
-          <TabPane 
+          <TabPane
             tab={
               <span>
                 <BarsOutlined />
-                List View
+                列表视图
               </span>
             } 
             key="list"
           >
-            <TaskListView 
+            <TaskListView
               tasks={tasks}
               onAssignTask={handleAssignTask}
             />
@@ -200,12 +210,12 @@ export const TaskManagementView: React.FC<TaskManagementViewProps> = ({ classNam
 
       {/* Modals */}
       <Modal
-        title="Create New Task"
+        title="创建新任务"
         open={showCreateModal}
         onCancel={() => setShowCreateModal(false)}
         footer={null}
         width={800}
-        destroyOnClose
+
       >
         <TaskCreateForm
           onSubmit={handleCreateTask}
@@ -221,7 +231,7 @@ export const TaskManagementView: React.FC<TaskManagementViewProps> = ({ classNam
       />
 
       <Modal
-        title="Advanced Filters"
+        title="高级筛选"
         open={showFilterPanel}
         onCancel={() => setShowFilterPanel(false)}
         footer={null}

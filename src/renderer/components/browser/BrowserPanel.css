@@ -1,0 +1,254 @@
+/* Browser Panel Styles */
+
+.browser-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #fff;
+}
+
+.browser-panel-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: #fafafa;
+}
+
+.empty-state {
+  text-align: center;
+  color: #666;
+}
+
+.empty-state h3 {
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.empty-state p {
+  margin-bottom: 16px;
+  color: #888;
+}
+
+/* Browser Toolbar */
+.browser-toolbar {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #d9d9d9;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.navigation-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.address-bar {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.browser-actions {
+  display: flex;
+  gap: 4px;
+}
+
+/* Device Toolbar */
+.device-toolbar {
+  flex-shrink: 0;
+}
+
+/* Browser Content */
+.browser-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.browser-sidebar {
+  flex-shrink: 0;
+  border-right: 1px solid #d9d9d9;
+}
+
+.browser-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Browser Tabs */
+.browser-tabs {
+  height: 100%;
+}
+
+.browser-tabs .ant-tabs-content-holder {
+  height: calc(100% - 46px);
+}
+
+.browser-tabs .ant-tabs-tabpane {
+  height: 100%;
+  padding: 0;
+}
+
+.browser-tab-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 200px;
+}
+
+.tab-favicon {
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.tab-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.tab-loading {
+  animation: spin 1s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Bookmark Sidebar */
+.bookmark-sidebar {
+  overflow: hidden;
+}
+
+.bookmark-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Device Emulation Styles */
+.browser-webview-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: #f0f0f0;
+  overflow: auto;
+}
+
+.browser-webview-container.device-emulation {
+  padding: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .browser-toolbar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .navigation-controls {
+    order: 1;
+  }
+  
+  .address-bar {
+    order: 3;
+    width: 100%;
+  }
+  
+  .browser-actions {
+    order: 2;
+  }
+}
+
+/* Dark Theme Support */
+.dark-theme .browser-panel {
+  background: #1e1e1e;
+  color: #cccccc;
+}
+
+.dark-theme .browser-toolbar {
+  background: #252526;
+  border-bottom-color: #3e3e42;
+}
+
+.dark-theme .device-toolbar {
+  background: #2d2d30;
+  border-bottom-color: #3e3e42;
+}
+
+.dark-theme .bookmark-sidebar {
+  background: #252526;
+  border-right-color: #3e3e42;
+}
+
+.dark-theme .bookmark-item {
+  background: #2d2d30;
+  border-color: #3e3e42;
+  color: #cccccc;
+}
+
+.dark-theme .bookmark-item:hover {
+  background: #37373d;
+  border-color: #007acc;
+}
+
+/* Loading States */
+.browser-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: #fafafa;
+}
+
+/* Error States */
+.browser-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: #fafafa;
+  color: #666;
+  text-align: center;
+}
+
+.browser-error h3 {
+  margin-bottom: 8px;
+  color: #f5222d;
+}
+
+.browser-error p {
+  margin-bottom: 16px;
+}
+
+/* Accessibility */
+.browser-panel button:focus,
+.browser-panel input:focus,
+.browser-panel select:focus {
+  outline: 2px solid #1890ff;
+  outline-offset: 2px;
+}
+
+/* Print Styles */
+@media print {
+  .browser-toolbar,
+  .device-toolbar,
+  .browser-sidebar {
+    display: none;
+  }
+  
+  .browser-main {
+    width: 100%;
+    height: 100%;
+  }
+}

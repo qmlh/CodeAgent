@@ -9,12 +9,30 @@ import * as fs from 'fs';
 import { WindowManager } from './WindowManager';
 import { getAssetPath, assetExists } from '../utils/assetPaths';
 
+export interface TrayNotificationCount {
+  agents: number;
+  tasks: number;
+  errors: number;
+  total: number;
+}
+
 export class TrayManager {
   private tray: Tray | null = null;
   private windowManager: WindowManager;
+  private notificationCount: TrayNotificationCount;
+  private statusIndicator: 'idle' | 'working' | 'error' | 'offline';
+  private quickActions: Array<{ label: string; action: string; enabled: boolean }>;
 
   constructor() {
     this.windowManager = new WindowManager();
+    this.notificationCount = { agents: 0, tasks: 0, errors: 0, total: 0 };
+    this.statusIndicator = 'idle';
+    this.quickActions = [
+      { label: 'New Project', action: 'new-project', enabled: true },
+      { label: 'Open Project', action: 'open-project', enabled: true },
+      { label: 'Create Agent', action: 'create-agent', enabled: true },
+      { label: 'Create Task', action: 'create-task', enabled: true }
+    ];
   }
 
   async initialize(): Promise<void> {
@@ -47,7 +65,7 @@ export class TrayManager {
     }
   }
 
-  updateTrayIcon(status: 'idle' | 'working' | 'error'): void {
+  updateTrayIcon(status: 'idle' | 'working' | 'error' | 'offline'): void {
     if (!this.tray) return;
 
     const iconPath = this.getTrayIconPath(status);
@@ -89,8 +107,59 @@ export class TrayManager {
     }
   }
 
+  updateNotificationCount(counts: Partial<TrayNotificationCount>): void {
+    this.notificationCount = { ...this.notificationCount, ...counts };
+    this.notificationCount.total = 
+      this.notificationCount.agents + 
+      this.notificationCount.tasks + 
+      this.notificationCount.errors;
+    
+    this.updateTrayDisplay();
+  }
+
+  updateStatusIndicator(status: 'idle' | 'working' | 'error' | 'offline'): void {
+    this.statusIndicator = status;
+    this.updateTrayIcon(status);
+    this.updateTrayTooltip(this.getStatusTooltip());
+    this.setupTrayMenu(); // Refresh menu with new status
+  }
+
+  updateQuickActions(actions: Array<{ label: string; action: string; enabled: boolean }>): void {
+    this.quickActions = actions;
+    this.setupTrayMenu(); // Refresh menu with new actions
+  }
+
+  private updateTrayDisplay(): void {
+    if (!this.tray) return;
+
+    // Update tooltip with notification count
+    const tooltip = this.getStatusTooltip();
+    this.tray.setToolTip(tooltip);
+
+    // Update context menu to show notification counts
+    this.setupTrayMenu();
+  }
+
+  private getStatusTooltip(): string {
+    let tooltip = `Multi-Agent IDE - ${this.statusIndicator.charAt(0).toUpperCase() + this.statusIndicator.slice(1)}`;
+    
+    if (this.notificationCount.total > 0) {
+      const parts = [];
+      if (this.notificationCount.agents > 0) parts.push(`${this.notificationCount.agents} agent alerts`);
+      if (this.notificationCount.tasks > 0) parts.push(`${this.notificationCount.tasks} task updates`);
+      if (this.notificationCount.errors > 0) parts.push(`${this.notificationCount.errors} errors`);
+      
+      tooltip += `\n${parts.join(', ')}`;
+    }
+    
+    return tooltip;
+  }
+
   private setupTrayMenu(): void {
     if (!this.tray) return;
+
+    const statusLabel = this.getStatusLabel();
+    const notificationLabel = this.getNotificationLabel();
 
     const contextMenu = Menu.buildFromTemplate([
       {
@@ -98,6 +167,16 @@ export class TrayManager {
         type: 'normal',
         enabled: false
       },
+      {
+        label: statusLabel,
+        type: 'normal',
+        enabled: false
+      },
+      ...(notificationLabel ? [{
+        label: notificationLabel,
+        type: 'normal' as const,
+        enabled: false
+      }] : []),
       {
         type: 'separator'
       },
@@ -114,7 +193,7 @@ export class TrayManager {
         type: 'submenu',
         submenu: [
           {
-            label: 'All Agents Idle',
+            label: `Status: ${this.statusIndicator}`,
             type: 'normal',
             enabled: false
           },
@@ -124,41 +203,73 @@ export class TrayManager {
           {
             label: 'Start All Agents',
             type: 'normal',
+            enabled: this.statusIndicator !== 'working',
             click: () => this.handleStartAllAgents()
           },
           {
             label: 'Stop All Agents',
             type: 'normal',
+            enabled: this.statusIndicator === 'working',
             click: () => this.handleStopAllAgents()
+          },
+          {
+            type: 'separator'
+          },
+          {
+            label: 'Agent Dashboard',
+            type: 'normal',
+            click: () => this.handleAgentDashboard()
           }
         ]
       },
       {
         label: 'Quick Actions',
         type: 'submenu',
+        submenu: this.quickActions.map(action => ({
+          label: action.label,
+          type: 'normal' as const,
+          enabled: action.enabled,
+          click: () => this.handleQuickAction(action.action)
+        }))
+      },
+      {
+        label: 'Notifications',
+        type: 'submenu',
         submenu: [
           {
-            label: 'New Project',
+            label: `Total: ${this.notificationCount.total}`,
             type: 'normal',
-            click: () => this.handleNewProject()
-          },
-          {
-            label: 'Open Project',
-            type: 'normal',
-            click: () => this.handleOpenProject()
+            enabled: false
           },
           {
             type: 'separator'
           },
           {
-            label: 'Create Agent',
+            label: `Agent Alerts: ${this.notificationCount.agents}`,
             type: 'normal',
-            click: () => this.handleCreateAgent()
+            enabled: this.notificationCount.agents > 0,
+            click: () => this.handleViewNotifications('agents')
           },
           {
-            label: 'Create Task',
+            label: `Task Updates: ${this.notificationCount.tasks}`,
             type: 'normal',
-            click: () => this.handleCreateTask()
+            enabled: this.notificationCount.tasks > 0,
+            click: () => this.handleViewNotifications('tasks')
+          },
+          {
+            label: `Errors: ${this.notificationCount.errors}`,
+            type: 'normal',
+            enabled: this.notificationCount.errors > 0,
+            click: () => this.handleViewNotifications('errors')
+          },
+          {
+            type: 'separator'
+          },
+          {
+            label: 'Clear All Notifications',
+            type: 'normal',
+            enabled: this.notificationCount.total > 0,
+            click: () => this.handleClearNotifications()
           }
         ]
       },
@@ -186,6 +297,23 @@ export class TrayManager {
     ]);
 
     this.tray.setContextMenu(contextMenu);
+  }
+
+  private getStatusLabel(): string {
+    const statusEmojis = {
+      idle: '⚪',
+      working: '🟢',
+      error: '🔴',
+      offline: '⚫'
+    };
+    
+    return `${statusEmojis[this.statusIndicator]} Status: ${this.statusIndicator.charAt(0).toUpperCase() + this.statusIndicator.slice(1)}`;
+  }
+
+  private getNotificationLabel(): string | null {
+    if (this.notificationCount.total === 0) return null;
+    
+    return `🔔 ${this.notificationCount.total} notification${this.notificationCount.total === 1 ? '' : 's'}`;
   }
 
   private setupTrayEvents(): void {
@@ -270,7 +398,7 @@ export class TrayManager {
     }
   }
 
-  private getTrayIconPath(status?: 'idle' | 'working' | 'error'): string | null {
+  private getTrayIconPath(status?: 'idle' | 'working' | 'error' | 'offline'): string | null {
     try {
       let iconName = 'tray-icon';
       
@@ -399,6 +527,55 @@ export class TrayManager {
       }
     } catch (error) {
       console.error('Failed to handle about action:', error);
+    }
+  }
+
+  private handleQuickAction(action: string): void {
+    try {
+      const mainWindow = this.windowManager.getMainWindow();
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('tray-action', { action });
+        this.showMainWindow();
+      }
+    } catch (error) {
+      console.error(`Failed to handle quick action ${action}:`, error);
+    }
+  }
+
+  private handleAgentDashboard(): void {
+    try {
+      const mainWindow = this.windowManager.getMainWindow();
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('tray-action', { action: 'agent-dashboard' });
+        this.showMainWindow();
+      }
+    } catch (error) {
+      console.error('Failed to handle agent dashboard action:', error);
+    }
+  }
+
+  private handleViewNotifications(type: 'agents' | 'tasks' | 'errors'): void {
+    try {
+      const mainWindow = this.windowManager.getMainWindow();
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('tray-action', { action: 'view-notifications', type });
+        this.showMainWindow();
+      }
+    } catch (error) {
+      console.error(`Failed to handle view notifications action for ${type}:`, error);
+    }
+  }
+
+  private handleClearNotifications(): void {
+    try {
+      this.updateNotificationCount({ agents: 0, tasks: 0, errors: 0, total: 0 });
+      
+      const mainWindow = this.windowManager.getMainWindow();
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('tray-action', { action: 'clear-notifications' });
+      }
+    } catch (error) {
+      console.error('Failed to handle clear notifications action:', error);
     }
   }
 }

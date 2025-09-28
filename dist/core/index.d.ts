@@ -2,11 +2,14 @@
  * Core module exports
  */
 export * from './interfaces';
-export * from './errors/SystemError';
+export * from './errors';
 export * from './constants';
 export * from './factories';
 export * from './validation';
 export * from './utils';
+export * from './system';
+export * from './recovery';
+export * from './plugins';
 export * from '../types/agent.types';
 export * from '../types/task.types';
 export * from '../types/message.types';

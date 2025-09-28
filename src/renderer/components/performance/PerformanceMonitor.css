@@ -1,0 +1,57 @@
+.performance-monitor {
+  padding: 16px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.performance-monitor .ant-card {
+  margin-bottom: 16px;
+}
+
+.performance-monitor .ant-card-head {
+  border-bottom: 2px solid #722ed1;
+}
+
+.performance-monitor .ant-statistic-title {
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.performance-monitor .ant-statistic-content {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.performance-monitor .ant-progress {
+  margin-top: 8px;
+}
+
+.performance-monitor .recharts-wrapper {
+  font-size: 12px;
+}
+
+.performance-monitor .recharts-cartesian-axis-tick-value {
+  font-size: 10px;
+}
+
+.performance-monitor .recharts-tooltip-wrapper {
+  font-size: 12px;
+}
+
+.performance-monitor .ant-card-small > .ant-card-head {
+  min-height: 38px;
+  padding: 0 12px;
+  font-size: 14px;
+}
+
+.performance-monitor .ant-card-small > .ant-card-body {
+  padding: 12px;
+}
+
+.performance-monitor .ant-row {
+  margin-bottom: 0;
+}
+
+.performance-monitor .ant-col {
+  margin-bottom: 8px;
+}

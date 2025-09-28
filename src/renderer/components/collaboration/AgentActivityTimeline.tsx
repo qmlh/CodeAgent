@@ -15,7 +15,7 @@ import {
   ReloadOutlined
 } from '@ant-design/icons';
 import { useAppSelector } from '../../hooks/redux';
-import { Agent, AgentStatus } from '../../../types/agent.types';
+import { Agent, AgentMessage } from '../../store/slices/agentSlice';
 import { MessageType } from '../../../types/message.types';
 
 interface ActivityEvent {
@@ -25,10 +25,10 @@ interface ActivityEvent {
   type: 'task_start' | 'task_complete' | 'task_fail' | 'status_change' | 'message_sent' | 'file_access';
   description: string;
   timestamp: Date;
-  status?: AgentStatus;
+  status?: Agent['status'];
   taskId?: string;
   filePath?: string;
-  messageType?: MessageType;
+  messageType?: AgentMessage['type'];
 }
 
 export const AgentActivityTimeline: React.FC = () => {
@@ -54,7 +54,7 @@ export const AgentActivityTimeline: React.FC = () => {
         });
 
         // Add current task activity if working
-        if (agent.status === AgentStatus.WORKING && agent.currentTask) {
+        if (agent.status === 'working' && agent.currentTask) {
           newActivities.push({
             id: `agent-${agent.id}-task`,
             agentId: agent.id,
@@ -118,32 +118,32 @@ export const AgentActivityTimeline: React.FC = () => {
     }
   };
 
-  const getStatusIcon = (status?: AgentStatus) => {
+  const getStatusIcon = (status?: Agent['status']) => {
     const iconStyle = { fontSize: '14px' };
     switch (status) {
-      case AgentStatus.WORKING:
+      case 'working':
         return <PlayCircleOutlined style={{ ...iconStyle, color: '#1890ff' }} />;
-      case AgentStatus.IDLE:
+      case 'idle':
         return <PauseCircleOutlined style={{ ...iconStyle, color: '#52c41a' }} />;
-      case AgentStatus.ERROR:
+      case 'error':
         return <ExclamationCircleOutlined style={{ ...iconStyle, color: '#ff4d4f' }} />;
-      case AgentStatus.WAITING:
+      case 'waiting':
         return <ClockCircleOutlined style={{ ...iconStyle, color: '#faad14' }} />;
       default:
         return <UserOutlined style={iconStyle} />;
     }
   };
 
-  const getMessageIcon = (messageType?: MessageType) => {
+  const getMessageIcon = (messageType?: AgentMessage['type']) => {
     const iconStyle = { fontSize: '14px' };
     switch (messageType) {
-      case MessageType.INFO:
+      case 'info':
         return <UserOutlined style={{ ...iconStyle, color: '#1890ff' }} />;
-      case MessageType.REQUEST:
+      case 'request':
         return <ExclamationCircleOutlined style={{ ...iconStyle, color: '#faad14' }} />;
-      case MessageType.RESPONSE:
+      case 'response':
         return <CheckCircleOutlined style={{ ...iconStyle, color: '#52c41a' }} />;
-      case MessageType.ALERT:
+      case 'alert':
         return <ExclamationCircleOutlined style={{ ...iconStyle, color: '#ff4d4f' }} />;
       default:
         return <UserOutlined style={iconStyle} />;
@@ -159,7 +159,7 @@ export const AgentActivityTimeline: React.FC = () => {
       case 'task_fail':
         return '#ff4d4f';
       case 'status_change':
-        return activity.status === AgentStatus.ERROR ? '#ff4d4f' : '#1890ff';
+        return activity.status === 'error' ? '#ff4d4f' : '#1890ff';
       case 'message_sent':
         return '#722ed1';
       default:
@@ -184,16 +184,16 @@ export const AgentActivityTimeline: React.FC = () => {
     if (!agent) return null;
 
     const statusColor = {
-      [AgentStatus.WORKING]: '#1890ff',
-      [AgentStatus.IDLE]: '#52c41a',
-      [AgentStatus.ERROR]: '#ff4d4f',
-      [AgentStatus.WAITING]: '#faad14',
-      [AgentStatus.OFFLINE]: '#d9d9d9'
+      'working': '#1890ff',
+      'idle': '#52c41a',
+      'error': '#ff4d4f',
+      'waiting': '#faad14',
+      'offline': '#d9d9d9'
     }[agent.status];
 
     return (
       <Badge dot color={statusColor}>
-        <Avatar size="small" style={{ backgroundColor: '#1890ff', fontSize: '10px' }}>
+        <Avatar  style={{ backgroundColor: '#1890ff', fontSize: '10px' }}>
           {agent.name.charAt(0).toUpperCase()}
         </Avatar>
       </Badge>
@@ -217,7 +217,7 @@ export const AgentActivityTimeline: React.FC = () => {
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <Button
-            size="small"
+            
             type={autoRefresh ? 'primary' : 'default'}
             icon={<ReloadOutlined spin={autoRefresh} />}
             onClick={() => setAutoRefresh(!autoRefresh)}
@@ -248,7 +248,7 @@ export const AgentActivityTimeline: React.FC = () => {
                   }}>
                     {activity.agentName}
                   </span>
-                  <Tag size="small" color={getActivityColor(activity)}>
+                  <Tag color={getActivityColor(activity)} style={{ fontSize: '10px', padding: '0 4px', lineHeight: '16px' }}>
                     {activity.type.replace('_', ' ')}
                   </Tag>
                 </div>

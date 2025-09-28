@@ -3,7 +3,7 @@
  * Displays and manages tasks in the sidebar
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   List, 
   Button, 
@@ -15,7 +15,8 @@ import {
   Input,
   Select,
   Space,
-  Modal
+  Modal,
+  message
 } from 'antd';
 import { 
   PlusOutlined, 
@@ -28,8 +29,9 @@ import {
   AppstoreOutlined
 } from '@ant-design/icons';
 import { useAppSelector, useAppDispatch } from '../../hooks/redux';
-import { updateTaskStatus, Task } from '../../store/slices/taskSlice';
+import { updateTaskStatus, loadTasks, Task } from '../../store/slices/taskSlice';
 import { TaskManagementView } from '../tasks/TaskManagementView';
+import { serviceIntegrationManager } from '../../services/ServiceIntegrationManager';
 
 type TaskStatus = Task['status'];
 type TaskPriority = Task['priority'];
@@ -39,11 +41,18 @@ const { Option } = Select;
 
 export const TaskPanel: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { tasks } = useAppSelector(state => state.task);
+  const { tasks, status } = useAppSelector(state => state.task);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<TaskStatus | 'all'>('all');
   const [filterPriority, setFilterPriority] = useState<TaskPriority | 'all'>('all');
   const [showTaskManagement, setShowTaskManagement] = useState(false);
+
+  // Load tasks on component mount
+  useEffect(() => {
+    if (serviceIntegrationManager.isReady()) {
+      dispatch(loadTasks());
+    }
+  }, [dispatch]);
 
   // Filter tasks based on search and filters
   const filteredTasks = tasks.filter(task => {
@@ -92,20 +101,30 @@ export const TaskPanel: React.FC = () => {
     }
   };
 
-  const handleTaskAction = (taskId: string, action: string) => {
-    switch (action) {
-      case 'start':
-        dispatch(updateTaskStatus({ taskId, status: 'in_progress' }));
-        break;
-      case 'complete':
-        dispatch(updateTaskStatus({ taskId, status: 'completed' }));
-        break;
-      case 'pause':
-        dispatch(updateTaskStatus({ taskId, status: 'blocked' }));
-        break;
-      case 'reset':
-        dispatch(updateTaskStatus({ taskId, status: 'pending' }));
-        break;
+  const handleTaskAction = async (taskId: string, action: string) => {
+    if (!serviceIntegrationManager.isReady()) {
+      message.warning('Service integration not ready. Please wait...');
+      return;
+    }
+
+    try {
+      switch (action) {
+        case 'start':
+          dispatch(updateTaskStatus({ taskId, status: 'in_progress' }));
+          await serviceIntegrationManager.executeTask(taskId);
+          break;
+        case 'complete':
+          dispatch(updateTaskStatus({ taskId, status: 'completed' }));
+          break;
+        case 'pause':
+          dispatch(updateTaskStatus({ taskId, status: 'blocked' }));
+          break;
+        case 'reset':
+          dispatch(updateTaskStatus({ taskId, status: 'pending' }));
+          break;
+      }
+    } catch (error) {
+      message.error(`Failed to ${action} task: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -154,6 +173,10 @@ export const TaskPanel: React.FC = () => {
   );
 
   const handleCreateTask = () => {
+    if (!serviceIntegrationManager.isReady()) {
+      message.warning('Service integration not ready. Please wait...');
+      return;
+    }
     setShowTaskManagement(true);
   };
 
@@ -166,23 +189,23 @@ export const TaskPanel: React.FC = () => {
       {/* Panel Header */}
       <div className="panel-header">
         <div className="panel-title">
-          Tasks
+          任务
           <Badge count={tasks.length} style={{ marginLeft: 8 }} />
         </div>
         <Space>
           <Button 
             type="text" 
-            size="small" 
+            size="small"
             icon={<PlusOutlined />}
             onClick={handleCreateTask}
-            title="Create Task"
+            title="创建任务"
           />
           <Button 
             type="text" 
-            size="small" 
+            size="small"
             icon={<AppstoreOutlined />}
             onClick={handleOpenTaskManagement}
-            title="Open Task Management"
+            title="打开任务管理"
           />
         </Space>
       </div>
@@ -190,7 +213,7 @@ export const TaskPanel: React.FC = () => {
       {/* Filters */}
       <div className="panel-filters">
         <Search
-          placeholder="Search tasks..."
+          placeholder="搜索任务..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{ marginBottom: 8 }}
@@ -204,12 +227,12 @@ export const TaskPanel: React.FC = () => {
             onChange={setFilterStatus}
             style={{ flex: 1 }}
           >
-            <Option value="all">All Status</Option>
-            <Option value="pending">Pending</Option>
-            <Option value="in_progress">In Progress</Option>
-            <Option value="completed">Completed</Option>
-            <Option value="failed">Failed</Option>
-            <Option value="blocked">Blocked</Option>
+            <Option value="all">全部状态</Option>
+            <Option value="pending">待办</Option>
+            <Option value="in_progress">进行中</Option>
+            <Option value="completed">已完成</Option>
+            <Option value="failed">失败</Option>
+            <Option value="blocked">阻塞</Option>
           </Select>
           
           <Select
@@ -218,11 +241,11 @@ export const TaskPanel: React.FC = () => {
             onChange={setFilterPriority}
             style={{ flex: 1 }}
           >
-            <Option value="all">All Priority</Option>
-            <Option value="critical">Critical</Option>
-            <Option value="high">High</Option>
-            <Option value="medium">Medium</Option>
-            <Option value="low">Low</Option>
+            <Option value="all">全部优先级</Option>
+            <Option value="critical">关键</Option>
+            <Option value="high">高</Option>
+            <Option value="medium">中</Option>
+            <Option value="low">低</Option>
           </Select>
         </Space>
       </div>
@@ -236,7 +259,13 @@ export const TaskPanel: React.FC = () => {
             <List.Item
               className="task-item"
               actions={[
-                <Dropdown overlay={getTaskMenu(task)} trigger={['click']}>
+                <Dropdown menu={{ items: getTaskMenu(task).props.children.filter((item: any) => item.type !== Menu.Divider).map((item: any) => ({
+                  key: item.key,
+                  icon: item.props.icon,
+                  label: item.props.children,
+                  onClick: item.props.onClick,
+                  danger: item.props.danger
+                })) }} trigger={['click']}>
                   <Button type="text" size="small" icon={<MoreOutlined />} />
                 </Dropdown>
               ]}
@@ -281,14 +310,13 @@ export const TaskPanel: React.FC = () => {
 
       {/* Task Management Modal */}
       <Modal
-        title="Task Management"
+        title="任务管理"
         open={showTaskManagement}
         onCancel={() => setShowTaskManagement(false)}
         footer={null}
         width="95vw"
         style={{ top: 20 }}
-        bodyStyle={{ height: '80vh', padding: 0 }}
-        destroyOnClose
+        styles={{ body: { height: '80vh', padding: 0 } }}
       >
         <TaskManagementView />
       </Modal>

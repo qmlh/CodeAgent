@@ -16,7 +16,10 @@ import {
 } from '@ant-design/icons';
 import { Dropdown, Menu, message } from 'antd';
 // import { useDrag, useDrop } from 'react-dnd';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store/store';
 import { FileItem } from '../../store/slices/fileSlice';
+import { FileLockIndicator } from '../conflict-resolution/FileLockIndicator';
 
 interface FileTreeNodeProps {
   file: FileItem;
@@ -62,6 +65,10 @@ export const FileTreeNode: React.FC<FileTreeNodeProps> = ({
   const [renameValue, setRenameValue] = useState(file.name);
   const nodeRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  
+  // Get file lock information from conflict state
+  const { fileLocks } = useSelector((state: RootState) => state.conflict);
+  const fileLock = fileLocks.find((lock: any) => lock.filePath === file.path);
 
   // Drag and drop setup (temporarily disabled)
   const isDragging = false;
@@ -313,7 +320,15 @@ export const FileTreeNode: React.FC<FileTreeNodeProps> = ({
           }}
         />
       ) : (
-        <span style={nameStyle}>{file.name}</span>
+        <div style={{ display: 'flex', alignItems: 'center', flex: 1, gap: '6px' }}>
+          <span style={nameStyle}>{file.name}</span>
+          {fileLock && !file.isDirectory && (
+            <FileLockIndicator 
+              lockInfo={fileLock} 
+              
+            />
+          )}
+        </div>
       )}
       
       <Dropdown overlay={contextMenu} trigger={['contextMenu']} placement="bottomLeft">

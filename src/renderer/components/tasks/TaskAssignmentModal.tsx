@@ -271,7 +271,7 @@ export const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
         className={`agent-suggestion-card ${isSelected ? 'selected' : ''} ${isRecommended ? 'recommended' : ''}`}
         onClick={() => setSelectedAgent(agent.id)}
         hoverable
-        size="small"
+        
       >
         {isRecommended && (
           <div className="recommendation-badge">
@@ -334,7 +334,7 @@ export const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
           </Space>
           <Progress
             percent={suggestion.score}
-            size="small"
+            
             strokeColor={getCompatibilityColor(suggestion.compatibility)}
             showInfo={false}
           />
@@ -377,7 +377,7 @@ export const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
     >
       <div className="task-assignment-modal">
         {/* Task Info */}
-        <Card size="small" className="task-info-card">
+        <Card  className="task-info-card">
           <Row gutter={16}>
             <Col span={12}>
               <div className="task-detail">

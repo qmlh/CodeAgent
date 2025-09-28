@@ -1,0 +1,148 @@
+/* Resolution Suggestions Panel Styles */
+
+.resolution-suggestions-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.suggestions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 12px;
+}
+
+.suggestions-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.suggestion-item {
+  padding: 0 0 12px 0;
+  border: none;
+}
+
+.suggestion-card {
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.suggestion-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.suggestion-card.confidence-green {
+  border-left: 4px solid #52c41a;
+}
+
+.suggestion-card.confidence-orange {
+  border-left: 4px solid #fa8c16;
+}
+
+.suggestion-card.confidence-red {
+  border-left: 4px solid #ff4d4f;
+}
+
+.suggestion-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.suggestion-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.suggestion-description {
+  margin: 0;
+  font-size: 13px;
+}
+
+.suggestion-confidence {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.suggestion-confidence .ant-progress {
+  flex: 1;
+  margin: 0;
+}
+
+.suggestion-reasoning {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.reasoning-label {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.reasoning-text {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.suggestions-footer {
+  padding: 12px 0 0 0;
+  border-top: 1px solid #f0f0f0;
+  margin-top: 12px;
+  text-align: center;
+}
+
+.suggestions-loading,
+.suggestions-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  gap: 16px;
+}
+
+/* Dark theme support */
+.dark .suggestions-header {
+  border-bottom-color: #434343;
+}
+
+.dark .suggestions-footer {
+  border-top-color: #434343;
+}
+
+.dark .suggestion-card {
+  background: #2f2f2f;
+  border-color: #434343;
+}
+
+.dark .suggestion-card:hover {
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .suggestion-card .ant-card-head {
+    padding: 8px 12px;
+  }
+  
+  .suggestion-card .ant-card-body {
+    padding: 8px 12px;
+  }
+  
+  .suggestion-title {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  
+  .suggestion-card .ant-card-extra {
+    margin-left: 0;
+    margin-top: 8px;
+  }
+}

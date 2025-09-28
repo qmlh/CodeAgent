@@ -2,17 +2,17 @@
  * File System Events Hook
  * Custom hook for managing file system events and real-time updates
  */
-import { FileWatchEvent } from '../services/FileWatcherService';
+import { FileChangeEvent } from '../services/FileWatcherService';
 export interface UseFileSystemEventsOptions {
     enableNotifications?: boolean;
     debounceDelay?: number;
     ignoredPatterns?: RegExp[];
-    onFileAdded?: (event: FileWatchEvent) => void;
-    onFileChanged?: (event: FileWatchEvent) => void;
-    onFileDeleted?: (event: FileWatchEvent) => void;
-    onDirectoryAdded?: (event: FileWatchEvent) => void;
-    onDirectoryDeleted?: (event: FileWatchEvent) => void;
-    onError?: (event: FileWatchEvent) => void;
+    onFileAdded?: (event: FileChangeEvent) => void;
+    onFileChanged?: (event: FileChangeEvent) => void;
+    onFileDeleted?: (event: FileChangeEvent) => void;
+    onDirectoryAdded?: (event: FileChangeEvent) => void;
+    onDirectoryDeleted?: (event: FileChangeEvent) => void;
+    onError?: (event: FileChangeEvent) => void;
 }
 export declare const useFileSystemEvents: (workspacePath: string | null, options?: UseFileSystemEventsOptions) => {
     isWatching: boolean;
@@ -21,9 +21,8 @@ export declare const useFileSystemEvents: (workspacePath: string | null, options
     pauseWatcher: () => void;
     resumeWatcher: () => void;
     getWatcherStats: () => {
-        totalWatchers: number;
-        watchedPaths: string[];
-        memoryUsage?: number;
+        watchedDirectories: string[];
+        isActive: boolean;
     };
 };
 export declare const useFileOperations: () => {

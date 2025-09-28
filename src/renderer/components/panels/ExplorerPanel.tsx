@@ -10,6 +10,7 @@ import { useAppSelector, useAppDispatch } from '../../hooks/redux';
 import { useFileSystemEvents } from '../../hooks/useFileSystemEvents';
 import { 
   loadWorkspace, 
+  loadDirectory,
   openFile, 
   expandDirectory, 
   collapseDirectory,
@@ -17,10 +18,9 @@ import {
   createDirectory,
   deleteFile
 } from '../../store/slices/fileSlice';
-import { FileTree } from '../file-tree/FileTree';
-import { FilePreview } from '../file-tree/FilePreview';
+import { FileManager } from '../file-tree/FileManager';
 import { FileItem } from '../../store/slices/fileSlice';
-import { fileWatcherService, FileWatchEvent } from '../../services/FileWatcherService';
+import { fileWatcherService, FileChangeEvent } from '../../services/FileWatcherService';
 import { fileOperationsService, FileOperation } from '../../services/FileOperationsService';
 
 export const ExplorerPanel: React.FC = () => {
@@ -60,43 +60,45 @@ export const ExplorerPanel: React.FC = () => {
     };
 
     // Set up file watcher event listeners for real-time notifications
-    const handleFileChange = (event: FileWatchEvent) => {
+    const handleFileChange = (event: FileChangeEvent) => {
+      const fileName = event.filename || event.path.split('/').pop() || '';
+      
       switch (event.type) {
         case 'add':
-          if (event.filename && !event.filename.startsWith('.')) {
+          if (fileName && !fileName.startsWith('.')) {
             notification.success({
               message: 'File Added',
-              description: `${event.filename} was added to the workspace`,
+              description: `${fileName} was added to the workspace`,
               duration: 3,
               placement: 'bottomRight'
             });
           }
           break;
         case 'unlink':
-          if (event.filename && !event.filename.startsWith('.')) {
+          if (fileName && !fileName.startsWith('.')) {
             notification.info({
               message: 'File Deleted',
-              description: `${event.filename} was removed from the workspace`,
+              description: `${fileName} was removed from the workspace`,
               duration: 3,
               placement: 'bottomRight'
             });
           }
           break;
         case 'addDir':
-          if (event.filename && !event.filename.startsWith('.')) {
+          if (fileName && !fileName.startsWith('.')) {
             notification.success({
               message: 'Folder Added',
-              description: `${event.filename} folder was created`,
+              description: `${fileName} folder was created`,
               duration: 3,
               placement: 'bottomRight'
             });
           }
           break;
         case 'unlinkDir':
-          if (event.filename && !event.filename.startsWith('.')) {
+          if (fileName && !fileName.startsWith('.')) {
             notification.info({
               message: 'Folder Deleted',
-              description: `${event.filename} folder was removed`,
+              description: `${fileName} folder was removed`,
               duration: 3,
               placement: 'bottomRight'
             });
@@ -177,6 +179,9 @@ export const ExplorerPanel: React.FC = () => {
 
   const handleDirectoryExpand = async (path: string) => {
     try {
+      // First load the directory contents
+      await dispatch(loadDirectory(path));
+      // Then expand it in the UI
       await dispatch(expandDirectory(path));
       setExpandedDirectories(prev => new Set([...prev, path]));
     } catch (error) {
@@ -301,7 +306,7 @@ export const ExplorerPanel: React.FC = () => {
       {/* Header */}
       <div style={{ padding: '8px', borderBottom: '1px solid #333' }}>
         <Button 
-          size="small" 
+           
           icon={<FolderOpenOutlined />}
           onClick={handleOpenProject}
           block
@@ -310,34 +315,23 @@ export const ExplorerPanel: React.FC = () => {
         </Button>
       </div>
 
-      {/* File Tree */}
+      {/* Enhanced File Manager */}
       <div style={{ flex: 1, minHeight: 0 }}>
-        <FileTree
-          files={fileTree}
-          selectedFile={selectedFile?.path || null}
-          expandedDirectories={expandedDirectories}
-          onFileSelect={handleFileSelect}
-          onDirectoryExpand={handleDirectoryExpand}
-          onDirectoryCollapse={handleDirectoryCollapse}
-          onFileCreate={handleFileCreate}
-          onDirectoryCreate={handleDirectoryCreate}
-          onFileRename={handleFileRename}
-          onFileDelete={handleFileDelete}
-          onFileCopy={handleFileCopy}
-          onFileMove={handleFileMove}
-          onRefresh={handleRefresh}
-          workspacePath={currentWorkspace}
-        />
+        <FileManager />
       </div>
 
-      {/* File Preview */}
+      {/* File info at bottom */}
       {selectedFile && (
-        <>
-          <Divider style={{ margin: '8px 0' }} />
-          <div style={{ height: '200px', minHeight: '200px' }}>
-            <FilePreview file={selectedFile} />
-          </div>
-        </>
+        <div style={{ 
+          padding: '8px 12px', 
+          borderTop: '1px solid #333',
+          background: '#2d2d30',
+          fontSize: '11px',
+          color: '#888'
+        }}>
+          <div>Selected: {selectedFile.name}</div>
+          <div>Path: {selectedFile.path}</div>
+        </div>
       )}
     </div>
   );

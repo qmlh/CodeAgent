@@ -47,6 +47,7 @@ export declare class CoordinationManager extends EventEmitter implements ICoordi
     private rulesEngine;
     private healthMonitor;
     constructor(config: CoordinationManagerConfig);
+    initialize(): Promise<void>;
     createAgent(config: AgentConfig): Promise<Agent>;
     destroyAgent(agentId: string): Promise<void>;
     getAgent(agentId: string): Promise<Agent | null>;

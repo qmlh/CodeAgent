@@ -29,8 +29,9 @@ import {
   ClearOutlined
 } from '@ant-design/icons';
 import { useAppSelector } from '../../hooks/redux';
-import { AgentMessage, MessageType } from '../../../types/message.types';
+import { MessageType } from '../../../types/message.types';
 import { Agent } from '../../../types/agent.types';
+import { AgentMessage } from '../../store/slices/agentSlice';
 
 const { Search } = Input;
 const { Option } = Select;
@@ -142,19 +143,17 @@ export const MessageCenter: React.FC = () => {
     return agent ? agent.name : agentId;
   };
 
-  const getMessageIcon = (type: MessageType) => {
+  const getMessageIcon = (type: AgentMessage['type']) => {
     const iconStyle = { fontSize: '14px' };
     switch (type) {
-      case MessageType.INFO:
+      case 'info':
         return <InfoCircleOutlined style={{ ...iconStyle, color: '#1890ff' }} />;
-      case MessageType.REQUEST:
+      case 'request':
         return <ExclamationCircleOutlined style={{ ...iconStyle, color: '#faad14' }} />;
-      case MessageType.RESPONSE:
+      case 'response':
         return <CheckCircleOutlined style={{ ...iconStyle, color: '#52c41a' }} />;
-      case MessageType.ALERT:
+      case 'alert':
         return <ExclamationCircleOutlined style={{ ...iconStyle, color: '#ff4d4f' }} />;
-      case MessageType.SYSTEM:
-        return <BellOutlined style={{ ...iconStyle, color: '#722ed1' }} />;
       default:
         return <MessageOutlined style={iconStyle} />;
     }
@@ -225,11 +224,11 @@ export const MessageCenter: React.FC = () => {
           <MessageOutlined />
           Message Center
           {unreadNotifications.length > 0 && (
-            <Badge count={unreadNotifications.length} size="small" />
+            <Badge count={unreadNotifications.length}  />
           )}
         </div>
         <Button
-          size="small"
+          
           icon={<BellOutlined />}
           type={showNotifications ? 'primary' : 'default'}
           onClick={() => setShowNotifications(!showNotifications)}
@@ -241,7 +240,7 @@ export const MessageCenter: React.FC = () => {
       {/* System Notifications */}
       {showNotifications && notifications.length > 0 && (
         <Card 
-          size="small" 
+           
           title={
             <div style={{ fontSize: '12px', color: '#cccccc' }}>
               System Notifications ({unreadNotifications.length} unread)
@@ -251,7 +250,7 @@ export const MessageCenter: React.FC = () => {
           bodyStyle={{ padding: '8px' }}
         >
           <List
-            size="small"
+            
             dataSource={notifications.slice(0, 5)}
             renderItem={(notification) => (
               <List.Item 
@@ -301,14 +300,14 @@ export const MessageCenter: React.FC = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{ flex: 1, minWidth: '150px' }}
-          size="small"
+          
           prefix={<SearchOutlined />}
         />
         
         <Select
           value={messageTypeFilter}
           onChange={setMessageTypeFilter}
-          size="small"
+          
           style={{ width: '100px' }}
         >
           <Option value="all">All Types</Option>
@@ -322,7 +321,7 @@ export const MessageCenter: React.FC = () => {
         <Select
           value={agentFilter}
           onChange={setAgentFilter}
-          size="small"
+          
           style={{ width: '120px' }}
         >
           <Option value="all">All Agents</Option>
@@ -334,7 +333,7 @@ export const MessageCenter: React.FC = () => {
         </Select>
 
         <Button
-          size="small"
+          
           icon={<ClearOutlined />}
           onClick={clearFilters}
           disabled={searchTerm === '' && messageTypeFilter === 'all' && agentFilter === 'all'}
@@ -347,7 +346,7 @@ export const MessageCenter: React.FC = () => {
       <div style={{ flex: 1, overflow: 'auto' }}>
         {filteredMessages.length > 0 ? (
           <List
-            size="small"
+            
             dataSource={filteredMessages}
             renderItem={(message) => (
               <List.Item style={{ padding: '8px 0' }}>
@@ -355,7 +354,7 @@ export const MessageCenter: React.FC = () => {
                   avatar={
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                       {getMessageIcon(message.type)}
-                      <Avatar size="small" style={{ backgroundColor: '#1890ff', fontSize: '10px' }}>
+                      <Avatar  style={{ backgroundColor: '#1890ff', fontSize: '10px' }}>
                         {getAgentName(message.from).charAt(0).toUpperCase()}
                       </Avatar>
                     </div>
@@ -377,7 +376,7 @@ export const MessageCenter: React.FC = () => {
                           : getAgentName(message.to)
                         }
                       </span>
-                      <Tag size="small" color={message.type === MessageType.ALERT ? 'red' : 'blue'}>
+                      <Tag color={message.type === 'alert' ? 'red' : 'blue'} style={{ fontSize: '10px', padding: '0 4px', lineHeight: '16px' }}>
                         {message.type}
                       </Tag>
                     </div>
@@ -400,7 +399,7 @@ export const MessageCenter: React.FC = () => {
                       }}>
                         <span>{formatTime(message.timestamp)}</span>
                         {message.requiresResponse && (
-                          <Tag size="small" color="orange">Response Required</Tag>
+                          <Tag color="orange" style={{ fontSize: '10px', padding: '0 4px', lineHeight: '16px' }}>Response Required</Tag>
                         )}
                       </div>
                     </div>

@@ -44,6 +44,14 @@ export class FileChangeTracker extends EventEmitter {
     super();
   }
 
+  async initialize(): Promise<void> {
+    // Initialize file change tracker
+    // Clear any existing data and prepare for tracking
+    this.fileHistory.clear();
+    this.fileSnapshots.clear();
+    this.emit('initialized');
+  }
+
   /**
    * Record a file change with detailed analysis
    */

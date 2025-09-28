@@ -51,6 +51,24 @@ export class MessageManager implements IMessageManager {
     this.startQueueProcessor();
   }
 
+  async initialize(): Promise<void> {
+    // Initialize message manager components
+    this.eventSubscriptions.clear();
+    this.messageQueue = {};
+    this.messageHistory.clear();
+    this.connections = {};
+    this.notifications.clear();
+    
+    // Remove all event listeners
+    this.eventEmitter.removeAllListeners();
+    
+    // Restart queue processor if needed
+    if (this.queueProcessorInterval) {
+      clearInterval(this.queueProcessorInterval);
+    }
+    this.startQueueProcessor();
+  }
+
   /**
    * Send a message to specific agent(s)
    */

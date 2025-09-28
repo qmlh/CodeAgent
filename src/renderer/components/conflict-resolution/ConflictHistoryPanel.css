@@ -1,0 +1,163 @@
+/* Conflict History Panel Styles */
+
+.conflict-history-panel {
+  padding: 24px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.history-header {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.history-header .ant-typography h4 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.history-stats {
+  margin: 0;
+}
+
+.history-stats .ant-card {
+  text-align: center;
+}
+
+.history-filters {
+  padding: 16px;
+  background: #fafafa;
+  border-radius: 6px;
+  border: 1px solid #f0f0f0;
+}
+
+.conflict-details-modal {
+  padding: 16px 0;
+}
+
+.conflict-details-modal .ant-typography h5 {
+  margin-bottom: 12px;
+  color: #1890ff;
+}
+
+/* Table customizations */
+.conflict-history-panel .ant-table {
+  flex: 1;
+}
+
+.conflict-history-panel .ant-table-thead > tr > th {
+  background: #fafafa;
+  font-weight: 600;
+}
+
+.conflict-history-panel .ant-table-tbody > tr:hover > td {
+  background: #f5f5f5;
+}
+
+/* Dark theme support */
+.dark .history-filters {
+  background: #2f2f2f;
+  border-color: #434343;
+}
+
+.dark .conflict-history-panel .ant-table-thead > tr > th {
+  background: #2f2f2f;
+  border-color: #434343;
+  color: #ccc;
+}
+
+.dark .conflict-history-panel .ant-table-tbody > tr:hover > td {
+  background: #3f3f3f;
+}
+
+.dark .conflict-history-panel .ant-table {
+  background: #1f1f1f;
+  color: #ccc;
+}
+
+.dark .conflict-history-panel .ant-table-tbody > tr > td {
+  border-color: #434343;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+  .history-stats {
+    flex-wrap: wrap;
+  }
+  
+  .history-stats .ant-col {
+    margin-bottom: 8px;
+  }
+}
+
+@media (max-width: 768px) {
+  .conflict-history-panel {
+    padding: 16px;
+    gap: 16px;
+  }
+  
+  .history-filters {
+    padding: 12px;
+  }
+  
+  .history-filters .ant-space {
+    width: 100%;
+  }
+  
+  .history-filters .ant-space-item {
+    width: 100%;
+  }
+  
+  .history-filters .ant-input,
+  .history-filters .ant-picker,
+  .history-filters .ant-select {
+    width: 100%;
+  }
+  
+  .history-stats .ant-col {
+    span: 12;
+  }
+}
+
+/* Animation for table rows */
+.conflict-history-panel .ant-table-tbody > tr {
+  transition: all 0.2s ease;
+}
+
+/* Status indicators */
+.conflict-resolved {
+  color: #52c41a;
+}
+
+.conflict-active {
+  color: #ff4d4f;
+}
+
+.conflict-in-progress {
+  color: #fa8c16;
+}
+
+/* Custom scrollbar for table */
+.conflict-history-panel .ant-table-body::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.conflict-history-panel .ant-table-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.conflict-history-panel .ant-table-body::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.conflict-history-panel .ant-table-body::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

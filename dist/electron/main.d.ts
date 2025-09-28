@@ -1,24 +1,17 @@
 /**
- * Electron Main Process
- * Handles application lifecycle, window management, and system integration
+ * Enhanced Electron Main Process
+ * Handles application lifecycle with optimized startup and advanced features
  */
 declare class ElectronApp {
-    private windowManager;
-    private menuManager;
-    private trayManager;
-    private ipcManager;
-    private fileSystemManager;
+    private startupManager;
     private isDevelopment;
     constructor();
     initialize(): Promise<void>;
     private configureApp;
     private setupAppEvents;
-    private onAppReady;
     private onWindowAllClosed;
     private onActivate;
     private onBeforeQuit;
     private onWebContentsCreated;
-    private initializeManagers;
-    private setupAutoUpdater;
 }
 export { ElectronApp };

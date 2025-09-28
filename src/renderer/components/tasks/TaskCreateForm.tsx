@@ -373,7 +373,7 @@ export const TaskCreateForm: React.FC<TaskCreateFormProps> = ({
                   Requirements
                   <Button 
                     type="dashed" 
-                    size="small" 
+                     
                     icon={<PlusOutlined />}
                     onClick={handleAddRequirement}
                   >
@@ -428,7 +428,7 @@ export const TaskCreateForm: React.FC<TaskCreateFormProps> = ({
                 ))}
                 <Button 
                   type="dashed" 
-                  size="small"
+                  
                   onClick={() => {
                     // TODO: Open file picker
                     message.info('File picker not implemented yet');

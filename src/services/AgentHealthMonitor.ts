@@ -6,6 +6,7 @@
 import { EventEmitter } from 'events';
 import { IAgent } from '../core/interfaces/IAgent';
 import { Agent, AgentStatus } from '../types/agent.types';
+import { ErrorSeverity } from '../types/error.types';
 
 export interface HealthCheckConfig {
   interval: number;
@@ -65,7 +66,7 @@ export interface RecoveryResult {
 export interface HealthAlert {
   id: string;
   agentId: string;
-  severity: AlertSeverity;
+  severity: ErrorSeverity;
   type: AlertType;
   message: string;
   timestamp: Date;
@@ -74,12 +75,7 @@ export interface HealthAlert {
   metadata?: Record<string, any>;
 }
 
-export enum AlertSeverity {
-  LOW = 'low',
-  MEDIUM = 'medium',
-  HIGH = 'high',
-  CRITICAL = 'critical'
-}
+
 
 export enum AlertType {
   HEALTH_DEGRADED = 'health_degraded',
@@ -110,6 +106,15 @@ export class AgentHealthMonitor extends EventEmitter {
       recoveryThreshold: 2,
       ...config
     };
+  }
+
+  async initialize(): Promise<void> {
+    // Initialize agent health monitor
+    // Start monitoring if there are already registered agents
+    if (this.agents.size > 0) {
+      this.startMonitoring();
+    }
+    this.emit('initialized');
   }
 
   // Agent registration
@@ -475,17 +480,17 @@ export class AgentHealthMonitor extends EventEmitter {
     }
 
     let alertType: AlertType;
-    let severity: AlertSeverity;
+    let severity: ErrorSeverity;
 
     if (metrics.consecutiveFailures >= this.config.failureThreshold) {
       alertType = AlertType.AGENT_UNRESPONSIVE;
-      severity = AlertSeverity.HIGH;
+      severity = ErrorSeverity.HIGH;
     } else if (metrics.errorCount > 10) {
       alertType = AlertType.HIGH_ERROR_RATE;
-      severity = AlertSeverity.MEDIUM;
+      severity = ErrorSeverity.MEDIUM;
     } else {
       alertType = AlertType.HEALTH_DEGRADED;
-      severity = AlertSeverity.LOW;
+      severity = ErrorSeverity.LOW;
     }
 
     const alert: HealthAlert = {
@@ -511,7 +516,7 @@ export class AgentHealthMonitor extends EventEmitter {
     const alert: HealthAlert = {
       id: this.generateAlertId(),
       agentId,
-      severity: AlertSeverity.CRITICAL,
+      severity: ErrorSeverity.CRITICAL,
       type: AlertType.RECOVERY_FAILED,
       message: `Recovery action failed: ${recoveryAction.result?.message}`,
       timestamp: new Date(),

@@ -1,0 +1,201 @@
+/* Git Panel Styles */
+.git-panel {
+  height: 100%;
+  padding: 12px;
+  background: #252526;
+  color: #cccccc;
+  overflow-y: auto;
+}
+
+.git-panel-loading {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #252526;
+}
+
+.git-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #cccccc;
+}
+
+.git-section-header > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.git-branch-section {
+  margin-bottom: 16px;
+}
+
+.git-sync-status {
+  margin-top: 8px;
+  display: flex;
+  gap: 4px;
+}
+
+.git-changes-section {
+  margin-bottom: 16px;
+}
+
+.git-file-tree {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.git-file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-bottom: 2px;
+  transition: background-color 0.2s;
+}
+
+.git-file-item:hover {
+  background: #2a2d2e;
+}
+
+.git-file-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.git-file-path {
+  font-size: 13px;
+  color: #cccccc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.git-file-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.git-file-item:hover .git-file-actions {
+  opacity: 1;
+}
+
+.git-commit-section {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: #2d2d30;
+  border-radius: 6px;
+  border: 1px solid #3e3e42;
+}
+
+.git-empty-state {
+  display: block;
+  text-align: center;
+  padding: 16px;
+  font-style: italic;
+}
+
+.git-untracked-files {
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.git-actions {
+  margin-top: 16px;
+}
+
+.git-commit-item {
+  width: 100%;
+}
+
+.git-commit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
+.git-commit-hash {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 12px;
+}
+
+.git-commit-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+
+.git-commit-refs {
+  display: flex;
+  gap: 4px;
+}
+
+/* Dark theme overrides */
+.git-panel .ant-select-selector {
+  background: #3c3c3c !important;
+  border-color: #3e3e42 !important;
+  color: #cccccc !important;
+}
+
+.git-panel .ant-select-selection-item {
+  color: #cccccc !important;
+}
+
+.git-panel .ant-input {
+  background: #3c3c3c !important;
+  border-color: #3e3e42 !important;
+  color: #cccccc !important;
+}
+
+.git-panel .ant-btn {
+  border-color: #3e3e42;
+}
+
+.git-panel .ant-btn-text {
+  color: #cccccc;
+}
+
+.git-panel .ant-btn-text:hover {
+  color: #ffffff;
+  background: #404040;
+}
+
+.git-panel .ant-divider {
+  border-color: #3e3e42;
+}
+
+/* Scrollbar styling */
+.git-file-tree::-webkit-scrollbar,
+.git-untracked-files::-webkit-scrollbar {
+  width: 6px;
+}
+
+.git-file-tree::-webkit-scrollbar-track,
+.git-untracked-files::-webkit-scrollbar-track {
+  background: #252526;
+}
+
+.git-file-tree::-webkit-scrollbar-thumb,
+.git-untracked-files::-webkit-scrollbar-thumb {
+  background: #424242;
+  border-radius: 3px;
+}
+
+.git-file-tree::-webkit-scrollbar-thumb:hover,
+.git-untracked-files::-webkit-scrollbar-thumb:hover {
+  background: #4f4f4f;
+}

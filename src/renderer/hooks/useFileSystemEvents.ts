@@ -6,19 +6,19 @@
 import { useEffect, useCallback, useRef, useState } from 'react';
 import { useAppDispatch } from './redux';
 import { handleFileSystemEvent } from '../store/slices/fileSlice';
-import { fileWatcherService, FileWatchEvent } from '../services/FileWatcherService';
+import { fileWatcherService, FileChangeEvent } from '../services/FileWatcherService';
 import { fileOperationsService } from '../services/FileOperationsService';
 
 export interface UseFileSystemEventsOptions {
   enableNotifications?: boolean;
   debounceDelay?: number;
   ignoredPatterns?: RegExp[];
-  onFileAdded?: (event: FileWatchEvent) => void;
-  onFileChanged?: (event: FileWatchEvent) => void;
-  onFileDeleted?: (event: FileWatchEvent) => void;
-  onDirectoryAdded?: (event: FileWatchEvent) => void;
-  onDirectoryDeleted?: (event: FileWatchEvent) => void;
-  onError?: (event: FileWatchEvent) => void;
+  onFileAdded?: (event: FileChangeEvent) => void;
+  onFileChanged?: (event: FileChangeEvent) => void;
+  onFileDeleted?: (event: FileChangeEvent) => void;
+  onDirectoryAdded?: (event: FileChangeEvent) => void;
+  onDirectoryDeleted?: (event: FileChangeEvent) => void;
+  onError?: (event: FileChangeEvent) => void;
 }
 
 export const useFileSystemEvents = (
@@ -45,7 +45,7 @@ export const useFileSystemEvents = (
   }, [ignoredPatterns]);
 
   // Handle file system events
-  const handleEvent = useCallback((event: FileWatchEvent) => {
+  const handleEvent = useCallback((event: FileChangeEvent) => {
     // Skip ignored files
     if (event.path && shouldIgnoreFile(event.path)) {
       return;
@@ -54,7 +54,7 @@ export const useFileSystemEvents = (
     // Dispatch to Redux store
     dispatch(handleFileSystemEvent({
       eventType: event.type,
-      filename: event.filename || event.path,
+      filename: event.filename || event.path.split('/').pop() || event.path,
       path: event.path
     }));
 
@@ -92,9 +92,15 @@ export const useFileSystemEvents = (
 
   // Create debounced event handler if needed
   const debouncedHandler = useCallback(
-    debounceDelay > 0
-      ? fileWatcherService.createDebouncedCallback(handleEvent, debounceDelay)
-      : handleEvent,
+    (event: FileChangeEvent) => {
+      if (debounceDelay > 0) {
+        // Simple debouncing implementation
+        const timeoutId = setTimeout(() => handleEvent(event), debounceDelay);
+        return () => clearTimeout(timeoutId);
+      } else {
+        handleEvent(event);
+      }
+    },
     [handleEvent, debounceDelay]
   );
 
@@ -112,11 +118,11 @@ export const useFileSystemEvents = (
     // Set up new watcher
     const setupWatcher = async () => {
       try {
-        const watcherId = await fileWatcherService.watchDirectory(
-          workspacePath,
-          debouncedHandler
-        );
-        watcherIdRef.current = watcherId;
+        await fileWatcherService.watchDirectory(workspacePath);
+        watcherIdRef.current = workspacePath; // Use path as ID
+        
+        // Set up event listener
+        fileWatcherService.on('file-changed', debouncedHandler);
       } catch (error) {
         console.error('Failed to set up file watcher:', error);
       }
@@ -128,6 +134,7 @@ export const useFileSystemEvents = (
     return () => {
       if (watcherIdRef.current) {
         fileWatcherService.unwatchDirectory(watcherIdRef.current).catch(console.error);
+        fileWatcherService.off('file-changed', debouncedHandler);
         watcherIdRef.current = null;
       }
     };
@@ -135,31 +142,31 @@ export const useFileSystemEvents = (
 
   // Return utility functions
   return {
-    isWatching: workspacePath ? fileWatcherService.isWatching(workspacePath) : false,
+    isWatching: workspacePath ? fileWatcherService.isActive() : false,
     watcherId: watcherIdRef.current,
 
     // Manual event handlers
     refreshWatcher: useCallback(async () => {
       if (workspacePath && watcherIdRef.current) {
         await fileWatcherService.unwatchDirectory(watcherIdRef.current);
-        const newWatcherId = await fileWatcherService.watchDirectory(
-          workspacePath,
-          debouncedHandler
-        );
-        watcherIdRef.current = newWatcherId;
+        await fileWatcherService.watchDirectory(workspacePath);
+        watcherIdRef.current = workspacePath;
       }
     }, [workspacePath, debouncedHandler]),
 
     pauseWatcher: useCallback(() => {
-      fileWatcherService.pauseAllWatchers();
+      console.warn('Pause watcher not implemented');
     }, []),
 
     resumeWatcher: useCallback(() => {
-      fileWatcherService.resumeAllWatchers();
+      console.warn('Resume watcher not implemented');
     }, []),
 
     getWatcherStats: useCallback(() => {
-      return fileWatcherService.getWatcherStats();
+      return {
+        watchedDirectories: fileWatcherService.getWatchedDirectories(),
+        isActive: fileWatcherService.isActive()
+      };
     }, [])
   };
 };

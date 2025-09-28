@@ -1,0 +1,143 @@
+/* Agent Communication Visualization Styles */
+
+.network-topology {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 8px;
+  border: 1px solid #e8e8e8;
+}
+
+.network-node {
+  transition: all 0.3s ease;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.network-node:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(3px 3px 6px rgba(0, 0, 0, 0.2));
+}
+
+.network-node.working {
+  animation: pulse-node 2s infinite;
+}
+
+.network-node.error {
+  animation: shake-node 0.5s infinite;
+}
+
+.network-edge {
+  transition: all 0.3s ease;
+}
+
+.network-edge:hover {
+  stroke-width: 3px !important;
+  opacity: 1 !important;
+}
+
+/* Node animations */
+@keyframes pulse-node {
+  0% {
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.1));
+  }
+  50% {
+    filter: drop-shadow(4px 4px 8px rgba(24, 144, 255, 0.3));
+  }
+  100% {
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.1));
+  }
+}
+
+@keyframes shake-node {
+  0% { transform: translate(1px, 1px); }
+  10% { transform: translate(-1px, -1px); }
+  20% { transform: translate(-1px, 1px); }
+  30% { transform: translate(1px, -1px); }
+  40% { transform: translate(1px, 1px); }
+  50% { transform: translate(-1px, -1px); }
+  60% { transform: translate(-1px, 1px); }
+  70% { transform: translate(1px, -1px); }
+  80% { transform: translate(1px, 1px); }
+  90% { transform: translate(-1px, -1px); }
+  100% { transform: translate(1px, 1px); }
+}
+
+/* Message flow animation */
+.message-flow {
+  animation: flow 2s linear infinite;
+}
+
+@keyframes flow {
+  0% {
+    stroke-dasharray: 5, 5;
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 10;
+  }
+}
+
+/* Timeline enhancements */
+.ant-timeline-item-content {
+  transition: all 0.3s ease;
+}
+
+.ant-timeline-item:hover .ant-timeline-item-content {
+  background-color: #f0f2f5;
+  padding: 8px;
+  border-radius: 4px;
+  margin-left: -8px;
+}
+
+/* Communication stats cards */
+.communication-stats-card {
+  transition: all 0.3s ease;
+}
+
+.communication-stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Message type indicators */
+.message-type-info {
+  border-left: 3px solid #1890ff;
+}
+
+.message-type-request {
+  border-left: 3px solid #52c41a;
+}
+
+.message-type-response {
+  border-left: 3px solid #faad14;
+}
+
+.message-type-alert {
+  border-left: 3px solid #ff4d4f;
+}
+
+/* Agent activity indicators */
+.agent-activity-high {
+  background: linear-gradient(90deg, rgba(24, 144, 255, 0.1) 0%, transparent 100%);
+}
+
+.agent-activity-medium {
+  background: linear-gradient(90deg, rgba(250, 173, 20, 0.1) 0%, transparent 100%);
+}
+
+.agent-activity-low {
+  background: linear-gradient(90deg, rgba(140, 140, 140, 0.1) 0%, transparent 100%);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .network-topology {
+    height: 300px !important;
+  }
+  
+  .network-node text {
+    font-size: 10px;
+  }
+  
+  .ant-timeline-item-content {
+    font-size: 12px;
+  }
+}

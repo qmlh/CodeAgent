@@ -37,6 +37,12 @@ export class ConflictResolver extends EventEmitter {
     this.initializeDefaultStrategies();
   }
 
+  async initialize(): Promise<void> {
+    // Initialize conflict resolver
+    // Any async initialization logic can be added here
+    this.emit('initialized');
+  }
+
   /**
    * Register a conflict detection rule
    */

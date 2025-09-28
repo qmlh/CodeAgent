@@ -93,6 +93,7 @@ export declare class CollaborationRulesEngine extends EventEmitter {
     private ruleEvaluationHistory;
     private maxHistorySize;
     constructor();
+    initialize(): Promise<void>;
     addRule(rule: CollaborationRule): void;
     updateRule(ruleId: string, updates: Partial<CollaborationRule>): void;
     removeRule(ruleId: string): void;

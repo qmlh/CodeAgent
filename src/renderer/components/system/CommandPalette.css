@@ -1,0 +1,253 @@
+/* Command Palette Styles */
+.command-palette-modal .ant-modal-content {
+  background: #252526 !important;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.command-palette-modal .ant-modal-body {
+  padding: 0;
+}
+
+.command-palette {
+  background: #252526;
+  color: #cccccc;
+  max-height: 500px;
+  display: flex;
+  flex-direction: column;
+}
+
+.command-search {
+  padding: 16px;
+  border-bottom: 1px solid #3e3e42;
+  background: #2d2d30;
+}
+
+.command-search .ant-input-affix-wrapper {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  font-size: 16px;
+}
+
+.command-search .ant-input {
+  background: transparent !important;
+  color: #cccccc !important;
+  font-size: 16px;
+}
+
+.command-search .ant-input::placeholder {
+  color: #888888;
+}
+
+.command-search .anticon {
+  color: #888888;
+}
+
+.command-results {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+.command-list {
+  padding: 8px 0;
+}
+
+.command-category {
+  margin-bottom: 8px;
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px 4px;
+  border-bottom: 1px solid #3e3e42;
+  margin-bottom: 4px;
+}
+
+.category-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888888 !important;
+}
+
+.category-count {
+  font-size: 11px;
+  color: #666666 !important;
+}
+
+.command-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  border-left: 3px solid transparent;
+}
+
+.command-item:hover,
+.command-item.selected {
+  background: #2a2d2e;
+  border-left-color: #1890ff;
+}
+
+.command-item.selected {
+  background: #094771;
+}
+
+.command-icon {
+  margin-right: 12px;
+  color: #888888;
+  font-size: 16px;
+  width: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.command-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.command-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #cccccc;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.command-shortcut {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 11px;
+  background: #3c3c3c;
+  border: 1px solid #555;
+  color: #cccccc;
+  padding: 1px 6px;
+  border-radius: 3px;
+  margin-left: auto;
+}
+
+.command-description {
+  font-size: 12px;
+  color: #888888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.command-category {
+  margin-left: 8px;
+}
+
+.command-category .ant-tag {
+  background: #3c3c3c;
+  border-color: #555;
+  color: #888888;
+  font-size: 11px;
+  margin: 0;
+}
+
+.command-empty {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.command-empty .ant-empty-description {
+  color: #888888;
+}
+
+.command-footer {
+  padding: 8px 16px;
+  border-top: 1px solid #3e3e42;
+  background: #2d2d30;
+  text-align: center;
+}
+
+/* Scrollbar styling */
+.command-results::-webkit-scrollbar {
+  width: 8px;
+}
+
+.command-results::-webkit-scrollbar-track {
+  background: #252526;
+}
+
+.command-results::-webkit-scrollbar-thumb {
+  background: #424242;
+  border-radius: 4px;
+}
+
+.command-results::-webkit-scrollbar-thumb:hover {
+  background: #4f4f4f;
+}
+
+/* Animation for modal appearance */
+.command-palette-modal.ant-modal {
+  animation: commandPaletteSlideIn 0.2s ease-out;
+}
+
+@keyframes commandPaletteSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .command-palette-modal {
+    width: 90% !important;
+    max-width: 500px;
+  }
+  
+  .command-item {
+    padding: 12px 16px;
+  }
+  
+  .command-title {
+    font-size: 15px;
+  }
+  
+  .command-description {
+    font-size: 13px;
+  }
+  
+  .command-shortcut {
+    display: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .command-palette {
+    background: #000000;
+    color: #ffffff;
+  }
+  
+  .command-search {
+    background: #1a1a1a;
+    border-color: #ffffff;
+  }
+  
+  .command-item:hover,
+  .command-item.selected {
+    background: #333333;
+    border-left-color: #ffffff;
+  }
+  
+  .category-header {
+    border-color: #ffffff;
+  }
+}

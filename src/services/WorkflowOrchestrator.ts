@@ -87,6 +87,12 @@ export class WorkflowOrchestrator extends EventEmitter {
     this.initializeStateMachine();
   }
 
+  async initialize(): Promise<void> {
+    // Initialize workflow orchestrator
+    // Any async initialization logic can be added here
+    this.emit('initialized');
+  }
+
   // Workflow management
   registerWorkflow(workflow: WorkflowConfig): void {
     this.validateWorkflow(workflow);

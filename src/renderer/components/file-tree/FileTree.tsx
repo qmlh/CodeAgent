@@ -348,28 +348,28 @@ export const FileTree: React.FC<FileTreeProps> = ({
         <div style={{ padding: '8px', borderBottom: '1px solid #333' }}>
           <div style={{ display: 'flex', gap: '4px', marginBottom: '8px', flexWrap: 'wrap' }}>
             <Button
-              size="small"
+              
               icon={<PlusOutlined />}
               onClick={() => workspacePath && handleCreateFile({ path: workspacePath, name: '', isDirectory: true, isFile: false })}
               disabled={!workspacePath}
               title="New File"
             />
             <Button
-              size="small"
+              
               icon={<FolderAddOutlined />}
               onClick={() => workspacePath && handleCreateFolder({ path: workspacePath, name: '', isDirectory: true, isFile: false })}
               disabled={!workspacePath}
               title="New Folder"
             />
             <Button
-              size="small"
+              
               icon={<ReloadOutlined />}
               onClick={onRefresh}
               disabled={!workspacePath}
               title="Refresh"
             />
             <Button
-              size="small"
+              
               onClick={handleImportFiles}
               disabled={!workspacePath}
               title="Import Files"
@@ -377,7 +377,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
               Import
             </Button>
             <Button
-              size="small"
+              
               onClick={handleImportFolder}
               disabled={!workspacePath}
               title="Import Folder"
@@ -390,7 +390,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
             placeholder="Search files..."
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
-            size="small"
+            
             allowClear
           />
         </div>

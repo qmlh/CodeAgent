@@ -1,0 +1,137 @@
+/* File Lock Indicator Styles */
+
+.file-lock-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.file-lock-indicator.detailed {
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid #f0f0f0;
+}
+
+.file-lock-indicator.locked.detailed {
+  background: rgba(255, 77, 79, 0.05);
+  border-color: rgba(255, 77, 79, 0.2);
+}
+
+.file-lock-indicator.unlocked.detailed {
+  background: rgba(82, 196, 26, 0.05);
+  border-color: rgba(82, 196, 26, 0.2);
+}
+
+.lock-agent-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.agent-name {
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+}
+
+.file-lock-icon {
+  cursor: help;
+  transition: all 0.2s ease;
+}
+
+.file-lock-icon:hover {
+  transform: scale(1.1);
+}
+
+.file-lock-icon.expiring-soon {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.lock-tooltip-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 200px;
+}
+
+.lock-tooltip-header {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.lock-tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.lock-tooltip-row span {
+  flex: 1;
+}
+
+/* Tag customizations */
+.file-lock-indicator .ant-tag.expiring-soon {
+  animation: pulse 2s infinite;
+  border-color: #ff7875;
+}
+
+/* Dark theme support */
+.dark .file-lock-indicator.detailed {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: #434343;
+}
+
+.dark .file-lock-indicator.locked.detailed {
+  background: rgba(255, 77, 79, 0.1);
+  border-color: rgba(255, 77, 79, 0.3);
+}
+
+.dark .file-lock-indicator.unlocked.detailed {
+  background: rgba(82, 196, 26, 0.1);
+  border-color: rgba(82, 196, 26, 0.3);
+}
+
+.dark .agent-name {
+  color: #ccc;
+}
+
+.dark .lock-tooltip-header {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Size variations */
+.file-lock-indicator.small {
+  gap: 4px;
+}
+
+.file-lock-indicator.small .agent-name {
+  font-size: 11px;
+}
+
+.file-lock-indicator.large {
+  gap: 8px;
+  padding: 6px 12px;
+}
+
+.file-lock-indicator.large .agent-name {
+  font-size: 13px;
+}

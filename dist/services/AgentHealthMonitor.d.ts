@@ -5,6 +5,7 @@
 import { EventEmitter } from 'events';
 import { IAgent } from '../core/interfaces/IAgent';
 import { AgentStatus } from '../types/agent.types';
+import { ErrorSeverity } from '../types/error.types';
 export interface HealthCheckConfig {
     interval: number;
     timeout: number;
@@ -57,19 +58,13 @@ export interface RecoveryResult {
 export interface HealthAlert {
     id: string;
     agentId: string;
-    severity: AlertSeverity;
+    severity: ErrorSeverity;
     type: AlertType;
     message: string;
     timestamp: Date;
     acknowledged: boolean;
     resolvedAt?: Date;
     metadata?: Record<string, any>;
-}
-export declare enum AlertSeverity {
-    LOW = "low",
-    MEDIUM = "medium",
-    HIGH = "high",
-    CRITICAL = "critical"
 }
 export declare enum AlertType {
     HEALTH_DEGRADED = "health_degraded",
@@ -88,6 +83,7 @@ export declare class AgentHealthMonitor extends EventEmitter {
     private config;
     private isMonitoring;
     constructor(config?: Partial<HealthCheckConfig>);
+    initialize(): Promise<void>;
     registerAgent(agent: IAgent): void;
     unregisterAgent(agentId: string): void;
     startMonitoring(): void;

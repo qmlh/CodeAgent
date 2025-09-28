@@ -8,7 +8,11 @@ export enum ErrorType {
   COMMUNICATION_ERROR = 'communication_error',
   FILE_ERROR = 'file_error',
   SYSTEM_ERROR = 'system_error',
-  VALIDATION_ERROR = 'validation_error'
+  VALIDATION_ERROR = 'validation_error',
+  CONFIGURATION_ERROR = 'configuration_error',
+  ENVIRONMENT_ERROR = 'environment_error',
+  TIMEOUT_ERROR = 'timeout_error',
+  DEPENDENCY_ERROR = 'dependency_error'
 }
 
 export enum ErrorSeverity {

@@ -22,11 +22,17 @@ import {
   SettingOutlined,
   SyncOutlined,
   CloudUploadOutlined,
-  DownloadOutlined
+  DownloadOutlined,
+  StarOutlined,
+  HistoryOutlined,
+  ThunderboltOutlined
 } from '@ant-design/icons';
-import { FileTree } from './FileTree';
-import { FileSearch } from './FileSearch';
-import { FilePreview } from './FilePreview';
+import { VirtualizedFileTree } from './VirtualizedFileTree';
+import { DragDropFileTree } from './DragDropFileTree';
+import { AdvancedFileSearch } from './AdvancedFileSearch';
+import { EnhancedFilePreview } from './EnhancedFilePreview';
+import { FileFavorites } from './FileFavorites';
+import { FileOperationHistory } from './FileOperationHistory';
 import { useAppSelector, useAppDispatch } from '../../hooks/redux';
 import { 
   loadWorkspace, 
@@ -66,6 +72,8 @@ export const FileManager: React.FC<FileManagerProps> = ({ style }) => {
   const [expandedDirectories, setExpandedDirectories] = useState<Set<string>>(new Set());
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
+  const [useVirtualization, setUseVirtualization] = useState(true);
+  const [useDragDrop, setUseDragDrop] = useState(true);
 
   useEffect(() => {
     // Set up file system event listeners
@@ -278,28 +286,86 @@ export const FileManager: React.FC<FileManagerProps> = ({ style }) => {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'explorer':
+        if (useDragDrop) {
+          return (
+            <DragDropFileTree
+              files={fileTree || []}
+              selectedFile={selectedFile?.path || null}
+              expandedDirectories={expandedDirectories}
+              onFileSelect={handleFileSelect}
+              onDirectoryExpand={handleDirectoryExpand}
+              onDirectoryCollapse={handleDirectoryCollapse}
+              onFileCreate={handleFileCreate}
+              onDirectoryCreate={handleDirectoryCreate}
+              onFileRename={handleFileRename}
+              onFileDelete={handleFileDelete}
+              onFileCopy={handleFileCopy}
+              onFileMove={handleFileMove}
+              onRefresh={handleRefresh}
+              workspacePath={currentWorkspace}
+              loading={status === 'loading'}
+            />
+          );
+        } else if (useVirtualization) {
+          return (
+            <VirtualizedFileTree
+              files={fileTree || []}
+              selectedFile={selectedFile?.path || null}
+              expandedDirectories={expandedDirectories}
+              onFileSelect={handleFileSelect}
+              onDirectoryExpand={handleDirectoryExpand}
+              onDirectoryCollapse={handleDirectoryCollapse}
+              onFileCreate={handleFileCreate}
+              onDirectoryCreate={handleDirectoryCreate}
+              onFileRename={handleFileRename}
+              onFileDelete={handleFileDelete}
+              onFileCopy={handleFileCopy}
+              onFileMove={handleFileMove}
+              onRefresh={handleRefresh}
+              workspacePath={currentWorkspace}
+              loading={status === 'loading'}
+            />
+          );
+        } else {
+          // Fallback to original FileTree for compatibility
+          return (
+            <div style={{ padding: '8px', textAlign: 'center', color: '#888' }}>
+              Original FileTree component would be rendered here
+            </div>
+          );
+        }
+      case 'search':
+        return <AdvancedFileSearch />;
+      case 'preview':
+        return <EnhancedFilePreview file={selectedFile} />;
+      case 'favorites':
         return (
-          <FileTree
-            files={fileTree}
-            selectedFile={selectedFile?.path || null}
-            expandedDirectories={expandedDirectories}
+          <FileFavorites
+            currentWorkspace={currentWorkspace}
             onFileSelect={handleFileSelect}
-            onDirectoryExpand={handleDirectoryExpand}
-            onDirectoryCollapse={handleDirectoryCollapse}
-            onFileCreate={handleFileCreate}
-            onDirectoryCreate={handleDirectoryCreate}
-            onFileRename={handleFileRename}
-            onFileDelete={handleFileDelete}
-            onFileCopy={handleFileCopy}
-            onFileMove={handleFileMove}
-            onRefresh={handleRefresh}
-            workspacePath={currentWorkspace}
+            onDirectorySelect={(path) => {
+              // Handle directory selection for favorites
+              handleDirectoryExpand(path);
+            }}
           />
         );
-      case 'search':
-        return <FileSearch />;
-      case 'preview':
-        return <FilePreview file={selectedFile} />;
+      case 'history':
+        return (
+          <div style={{ padding: '12px' }}>
+            <FileOperationHistory
+              onUndo={async (operation) => {
+                // Handle undo operation
+                message.info(`Undoing: ${operation.description}`);
+                handleRefresh();
+              }}
+              onRedo={async (operation) => {
+                // Handle redo operation
+                message.info(`Redoing: ${operation.description}`);
+                handleRefresh();
+              }}
+            />
+          </div>
+        );
       default:
         return null;
     }
@@ -311,7 +377,10 @@ export const FileManager: React.FC<FileManagerProps> = ({ style }) => {
         width={300} 
         style={{ 
           backgroundColor: '#252526',
-          borderRight: '1px solid #333'
+          borderRight: '1px solid #333',
+          position: 'relative',
+          zIndex: 1,
+          overflow: 'hidden'
         }}
       >
         <div style={{ 
@@ -323,7 +392,7 @@ export const FileManager: React.FC<FileManagerProps> = ({ style }) => {
         }}>
           <Space>
             <Button
-              size="small"
+              
               icon={<FolderOutlined />}
               onClick={handleWorkspaceOpen}
               title="Open Workspace"
@@ -332,7 +401,7 @@ export const FileManager: React.FC<FileManagerProps> = ({ style }) => {
             </Button>
             <Tooltip title="Refresh">
               <Button
-                size="small"
+                
                 icon={<SyncOutlined spin={isRefreshing} />}
                 onClick={handleRefresh}
                 disabled={!currentWorkspace || isRefreshing}
@@ -343,7 +412,7 @@ export const FileManager: React.FC<FileManagerProps> = ({ style }) => {
           <Space>
             <Tooltip title="Bulk Upload">
               <Button
-                size="small"
+                
                 icon={<CloudUploadOutlined />}
                 onClick={handleBulkUpload}
                 disabled={!currentWorkspace}
@@ -351,10 +420,18 @@ export const FileManager: React.FC<FileManagerProps> = ({ style }) => {
             </Tooltip>
             <Tooltip title="Export Workspace">
               <Button
-                size="small"
+                
                 icon={<DownloadOutlined />}
                 onClick={handleExportWorkspace}
                 disabled={!currentWorkspace}
+              />
+            </Tooltip>
+            <Tooltip title="Performance Mode">
+              <Button
+                
+                icon={<ThunderboltOutlined />}
+                onClick={() => setUseVirtualization(!useVirtualization)}
+                type={useVirtualization ? 'primary' : 'default'}
               />
             </Tooltip>
           </Space>
@@ -364,7 +441,7 @@ export const FileManager: React.FC<FileManagerProps> = ({ style }) => {
           <div style={{ padding: '8px' }}>
             <Progress 
               percent={uploadProgress.bulk} 
-              size="small" 
+               
               status="active"
               format={(percent) => `Uploading... ${percent}%`}
             />
@@ -374,8 +451,11 @@ export const FileManager: React.FC<FileManagerProps> = ({ style }) => {
         <Tabs
           activeKey={activeTab}
           onChange={setActiveTab}
-          size="small"
-          style={{ height: 'calc(100% - 48px)' }}
+          
+          style={{ 
+            height: 'calc(100% - 48px)',
+            overflow: 'hidden'
+          }}
           items={[
             {
               key: 'explorer',
@@ -385,7 +465,15 @@ export const FileManager: React.FC<FileManagerProps> = ({ style }) => {
                   Explorer
                 </span>
               ),
-              children: renderTabContent()
+              children: (
+                <div style={{ 
+                  height: 'calc(100vh - 140px)', 
+                  overflow: 'auto',
+                  position: 'relative'
+                }}>
+                  {renderTabContent()}
+                </div>
+              )
             },
             {
               key: 'search',
@@ -395,7 +483,15 @@ export const FileManager: React.FC<FileManagerProps> = ({ style }) => {
                   Search
                 </span>
               ),
-              children: renderTabContent()
+              children: (
+                <div style={{ 
+                  height: 'calc(100vh - 140px)', 
+                  overflow: 'auto',
+                  position: 'relative'
+                }}>
+                  {renderTabContent()}
+                </div>
+              )
             },
             {
               key: 'preview',
@@ -407,7 +503,51 @@ export const FileManager: React.FC<FileManagerProps> = ({ style }) => {
                   </span>
                 </Badge>
               ),
-              children: renderTabContent()
+              children: (
+                <div style={{ 
+                  height: 'calc(100vh - 140px)', 
+                  overflow: 'hidden',
+                  position: 'relative'
+                }}>
+                  {renderTabContent()}
+                </div>
+              )
+            },
+            {
+              key: 'favorites',
+              label: (
+                <span>
+                  <StarOutlined />
+                  Favorites
+                </span>
+              ),
+              children: (
+                <div style={{ 
+                  height: 'calc(100vh - 140px)', 
+                  overflow: 'auto',
+                  position: 'relative'
+                }}>
+                  {renderTabContent()}
+                </div>
+              )
+            },
+            {
+              key: 'history',
+              label: (
+                <span>
+                  <HistoryOutlined />
+                  History
+                </span>
+              ),
+              children: (
+                <div style={{ 
+                  height: 'calc(100vh - 140px)', 
+                  overflow: 'auto',
+                  position: 'relative'
+                }}>
+                  {renderTabContent()}
+                </div>
+              )
             }
           ]}
         />

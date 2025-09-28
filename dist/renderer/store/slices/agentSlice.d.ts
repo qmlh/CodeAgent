@@ -11,11 +11,11 @@ export interface Agent {
     capabilities: string[];
     currentTask?: string;
     workload: number;
+    lastActive: Date;
     performance: {
         tasksCompleted: number;
         averageTaskTime: number;
         successRate: number;
-        lastActive: Date;
     };
     config: {
         maxConcurrentTasks: number;

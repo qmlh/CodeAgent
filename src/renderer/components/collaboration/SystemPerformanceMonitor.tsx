@@ -17,7 +17,7 @@ import {
 } from 'antd';
 import { 
   DashboardOutlined,
-  MemoryOutlined,
+  DatabaseOutlined,
   HddOutlined,
   WifiOutlined,
   ThunderboltOutlined,
@@ -250,7 +250,7 @@ export const SystemPerformanceMonitor: React.FC = () => {
             Last update: {lastUpdate.toLocaleTimeString()}
           </span>
           <Button
-            size="small"
+            
             type={autoRefresh ? 'primary' : 'default'}
             icon={<ReloadOutlined spin={autoRefresh} />}
             onClick={() => setAutoRefresh(!autoRefresh)}
@@ -282,7 +282,7 @@ export const SystemPerformanceMonitor: React.FC = () => {
       <Row gutter={[12, 12]}>
         {/* CPU Usage */}
         <Col span={12}>
-          <Card size="small" bodyStyle={{ padding: '12px' }}>
+          <Card  bodyStyle={{ padding: '12px' }}>
             <Statistic
               title={
                 <div style={{ fontSize: '11px', color: '#cccccc' }}>
@@ -296,23 +296,23 @@ export const SystemPerformanceMonitor: React.FC = () => {
             />
             <Progress 
               percent={metrics.cpu.usage} 
-              size="small" 
+               
               showInfo={false}
               strokeColor={getProgressColor(metrics.cpu.usage)}
             />
             <div style={{ fontSize: '9px', color: '#666', marginTop: '4px' }}>
-              {metrics.cpu.cores} cores • {metrics.cpu.temperature?.toFixed(1)}°C
+              {metrics.cpu.cores} cores �?{metrics.cpu.temperature?.toFixed(1)}°C
             </div>
           </Card>
         </Col>
 
         {/* Memory Usage */}
         <Col span={12}>
-          <Card size="small" bodyStyle={{ padding: '12px' }}>
+          <Card  bodyStyle={{ padding: '12px' }}>
             <Statistic
               title={
                 <div style={{ fontSize: '11px', color: '#cccccc' }}>
-                  <MemoryOutlined /> Memory Usage
+                  <DatabaseOutlined /> Memory Usage
                 </div>
               }
               value={metrics.memory.percentage}
@@ -322,7 +322,7 @@ export const SystemPerformanceMonitor: React.FC = () => {
             />
             <Progress 
               percent={metrics.memory.percentage} 
-              size="small" 
+               
               showInfo={false}
               strokeColor={getProgressColor(metrics.memory.percentage)}
             />
@@ -334,7 +334,7 @@ export const SystemPerformanceMonitor: React.FC = () => {
 
         {/* Disk Usage */}
         <Col span={12}>
-          <Card size="small" bodyStyle={{ padding: '12px' }}>
+          <Card  bodyStyle={{ padding: '12px' }}>
             <Statistic
               title={
                 <div style={{ fontSize: '11px', color: '#cccccc' }}>
@@ -348,7 +348,7 @@ export const SystemPerformanceMonitor: React.FC = () => {
             />
             <Progress 
               percent={metrics.disk.percentage} 
-              size="small" 
+               
               showInfo={false}
               strokeColor={getProgressColor(metrics.disk.percentage)}
             />
@@ -360,7 +360,7 @@ export const SystemPerformanceMonitor: React.FC = () => {
 
         {/* Network Activity */}
         <Col span={12}>
-          <Card size="small" bodyStyle={{ padding: '12px' }}>
+          <Card  bodyStyle={{ padding: '12px' }}>
             <div style={{ fontSize: '11px', color: '#cccccc', marginBottom: '8px' }}>
               <WifiOutlined /> Network Activity
             </div>
@@ -387,7 +387,7 @@ export const SystemPerformanceMonitor: React.FC = () => {
 
         {/* Agent Performance */}
         <Col span={24}>
-          <Card size="small" bodyStyle={{ padding: '12px' }}>
+          <Card  bodyStyle={{ padding: '12px' }}>
             <div style={{ fontSize: '11px', color: '#cccccc', marginBottom: '12px' }}>
               Agent Performance Metrics
             </div>

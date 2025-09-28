@@ -167,11 +167,11 @@ export const TaskKanbanView: React.FC<TaskKanbanViewProps> = ({ tasks, onAssignT
           className={`kanban-task-card ${snapshot.isDragging ? 'dragging' : ''}`}
         >
           <Card
-            size="small"
+            
             className="task-card"
             actions={[
               <Dropdown overlay={getTaskMenu(task)} trigger={['click']}>
-                <Button type="text" size="small" icon={<MoreOutlined />} />
+                <Button type="text"  icon={<MoreOutlined />} />
               </Dropdown>
             ]}
           >
@@ -218,7 +218,7 @@ export const TaskKanbanView: React.FC<TaskKanbanViewProps> = ({ tasks, onAssignT
               <div className="task-progress">
                 <Progress 
                   percent={task.progress} 
-                  size="small" 
+                   
                   showInfo={false}
                   strokeColor={getPriorityColor(task.priority)}
                 />
@@ -241,7 +241,7 @@ export const TaskKanbanView: React.FC<TaskKanbanViewProps> = ({ tasks, onAssignT
                 {/* Dependencies */}
                 {task.dependencies.length > 0 && (
                   <Tooltip title={`${task.dependencies.length} dependencies`}>
-                    <Badge count={task.dependencies.length} size="small">
+                    <Badge count={task.dependencies.length} >
                       <span className="meta-item">Deps</span>
                     </Badge>
                   </Tooltip>
@@ -250,7 +250,7 @@ export const TaskKanbanView: React.FC<TaskKanbanViewProps> = ({ tasks, onAssignT
                 {/* Files */}
                 {task.files.length > 0 && (
                   <Tooltip title={`${task.files.length} files`}>
-                    <Badge count={task.files.length} size="small">
+                    <Badge count={task.files.length} >
                       <span className="meta-item">Files</span>
                     </Badge>
                   </Tooltip>
@@ -261,7 +261,7 @@ export const TaskKanbanView: React.FC<TaskKanbanViewProps> = ({ tasks, onAssignT
               {task.assignedAgent && (
                 <Tooltip title={`Assigned to: ${task.assignedAgent}`}>
                   <Avatar 
-                    size="small" 
+                     
                     icon={<UserOutlined />}
                     className="assigned-avatar"
                   >

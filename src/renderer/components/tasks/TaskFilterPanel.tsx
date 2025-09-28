@@ -187,7 +187,7 @@ export const TaskFilterPanel: React.FC<TaskFilterPanelProps> = ({ onClose }) => 
         }}
       >
         {/* Search */}
-        <Card size="small" title="Search & Text" className="filter-section">
+        <Card  title="Search & Text" className="filter-section">
           <Form.Item name="search" label="Search Tasks">
             <Search
               placeholder="Search in title, description, tags..."
@@ -199,7 +199,7 @@ export const TaskFilterPanel: React.FC<TaskFilterPanelProps> = ({ onClose }) => 
         </Card>
 
         {/* Status & Priority */}
-        <Card size="small" title="Status & Priority" className="filter-section">
+        <Card  title="Status & Priority" className="filter-section">
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item name="status" label="Status">
@@ -230,7 +230,7 @@ export const TaskFilterPanel: React.FC<TaskFilterPanelProps> = ({ onClose }) => 
         </Card>
 
         {/* Assignment */}
-        <Card size="small" title="Assignment" className="filter-section">
+        <Card  title="Assignment" className="filter-section">
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item name="assignee" label="Assigned Agent">
@@ -274,7 +274,7 @@ export const TaskFilterPanel: React.FC<TaskFilterPanelProps> = ({ onClose }) => 
         </Card>
 
         {/* Dates */}
-        <Card size="small" title="Dates" className="filter-section">
+        <Card  title="Dates" className="filter-section">
           <Form.Item name="dateRange" label="Created Date Range">
             <RangePicker
               style={{ width: '100%' }}
@@ -294,7 +294,7 @@ export const TaskFilterPanel: React.FC<TaskFilterPanelProps> = ({ onClose }) => 
         </Card>
 
         {/* Task Properties */}
-        <Card size="small" title="Task Properties" className="filter-section">
+        <Card  title="Task Properties" className="filter-section">
           <Form.Item name="taskTypes" label="Task Types">
             <Select
               mode="multiple"
@@ -329,7 +329,7 @@ export const TaskFilterPanel: React.FC<TaskFilterPanelProps> = ({ onClose }) => 
         </Card>
 
         {/* Time & Progress */}
-        <Card size="small" title="Time & Progress" className="filter-section">
+        <Card  title="Time & Progress" className="filter-section">
           <Form.Item label="Estimated Time (hours)">
             <Slider
               range
@@ -366,7 +366,7 @@ export const TaskFilterPanel: React.FC<TaskFilterPanelProps> = ({ onClose }) => 
         </Card>
 
         {/* File & Dependencies */}
-        <Card size="small" title="Relationships" className="filter-section">
+        <Card  title="Relationships" className="filter-section">
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item label="Has Files">

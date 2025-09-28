@@ -1,25 +1,63 @@
 /**
- * Window Manager
- * Handles creation and management of application windows
+ * Enhanced Window Manager
+ * Handles creation and management of application windows with advanced features
  */
 
-import { BrowserWindow, screen, nativeImage } from 'electron';
+import { BrowserWindow, screen, nativeImage, app } from 'electron';
 import * as path from 'path';
-import * as fs from 'fs';
+import * as fs from 'fs-extra';
 import { WindowConfig, WindowState } from '../types/window.types';
 import { getAssetPath, assetExists } from '../utils/assetPaths';
+
+export interface WindowMemoryState {
+  bounds: Electron.Rectangle;
+  isMaximized: boolean;
+  isFullScreen: boolean;
+  display: number;
+  lastUsed: Date;
+}
+
+export interface WindowSnapZone {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  type: 'left' | 'right' | 'top' | 'bottom' | 'corner';
+}
 
 export class WindowManager {
   private mainWindow: BrowserWindow | null = null;
   private windows: Map<string, BrowserWindow> = new Map();
+  private windowStates: Map<string, WindowMemoryState> = new Map();
   private isDevelopment: boolean;
+  private stateFilePath: string;
+  private snapThreshold: number = 20;
+  private snapZones: WindowSnapZone[] = [];
+  private isInitialized: boolean = false;
 
   constructor() {
     this.isDevelopment = process.env.NODE_ENV === 'development';
+    this.stateFilePath = path.join(app.getPath('userData'), 'window-states.json');
+    // Remove direct call to initializeSnapZones() - will be called in initialize()
   }
 
   async initialize(): Promise<void> {
     try {
+      // Ensure app is ready before using screen API
+      if (!app.isReady()) {
+        throw new Error('WindowManager.initialize() called before app is ready. Call this after app.whenReady().');
+      }
+
+      // Initialize snap zones now that screen API is available
+      this.initializeSnapZones();
+      
+      // Load saved window states
+      await this.loadWindowStates();
+      
+      // Set up display change handlers
+      this.setupDisplayHandlers();
+      
+      this.isInitialized = true;
       console.log('WindowManager initialized');
     } catch (error) {
       console.error('Failed to initialize WindowManager:', error);
@@ -29,6 +67,10 @@ export class WindowManager {
 
   async createMainWindow(): Promise<BrowserWindow> {
     try {
+      if (!this.isInitialized) {
+        throw new Error('WindowManager must be initialized before creating windows. Call initialize() first.');
+      }
+
       if (this.mainWindow && !this.mainWindow.isDestroyed()) {
         this.mainWindow.focus();
         return this.mainWindow;
@@ -41,7 +83,7 @@ export class WindowManager {
         height: Math.min(900, height * 0.9),
         minWidth: 1000,
         minHeight: 700,
-        show: false,
+        show: true,
         webPreferences: {
           nodeIntegration: false,
           contextIsolation: true,
@@ -68,16 +110,25 @@ export class WindowManager {
       // Set up window events
       this.setupWindowEvents(this.mainWindow);
 
-      // Show window when ready
+      // Show window when ready and open dev tools in development
       this.mainWindow.once('ready-to-show', () => {
         if (this.mainWindow) {
-          this.mainWindow.show();
+          this.mainWindow.focus(); // 确保窗口获得焦点
           
           if (this.isDevelopment) {
             this.mainWindow.webContents.openDevTools();
           }
         }
       });
+
+      // 强制显示窗口（备用方案）
+      setTimeout(() => {
+        if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+          this.mainWindow.show();
+          this.mainWindow.focus();
+          console.log('Window force shown after timeout');
+        }
+      }, 2000);
 
       return this.mainWindow;
     } catch (error) {
@@ -276,6 +327,204 @@ export class WindowManager {
     } catch (error) {
       console.error('Failed to setup window events:', error);
     }
+  }
+
+  // Enhanced window management methods
+  async saveWindowStates(): Promise<void> {
+    try {
+      const states: Record<string, WindowMemoryState> = {};
+      
+      this.windowStates.forEach((state, windowId) => {
+        states[windowId] = state;
+      });
+      
+      await fs.writeJson(this.stateFilePath, states, { spaces: 2 });
+    } catch (error) {
+      console.error('Failed to save window states:', error);
+    }
+  }
+
+  async loadWindowStates(): Promise<void> {
+    try {
+      if (await fs.pathExists(this.stateFilePath)) {
+        const states = await fs.readJson(this.stateFilePath);
+        
+        Object.entries(states).forEach(([windowId, state]) => {
+          this.windowStates.set(windowId, state as WindowMemoryState);
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load window states:', error);
+    }
+  }
+
+  getOptimalDisplay(): Electron.Display {
+    if (!this.isInitialized) {
+      throw new Error('WindowManager must be initialized before using display methods.');
+    }
+
+    const displays = screen.getAllDisplays();
+    const cursor = screen.getCursorScreenPoint();
+    
+    // Find display containing cursor
+    const currentDisplay = displays.find(display => {
+      const { x, y, width, height } = display.bounds;
+      return cursor.x >= x && cursor.x < x + width && 
+             cursor.y >= y && cursor.y < y + height;
+    });
+    
+    return currentDisplay || screen.getPrimaryDisplay();
+  }
+
+  snapWindowToEdge(window: BrowserWindow, edge: 'left' | 'right' | 'top' | 'bottom'): void {
+    if (!this.isInitialized) {
+      throw new Error('WindowManager must be initialized before using snap methods.');
+    }
+
+    const display = screen.getDisplayMatching(window.getBounds());
+    const { x, y, width, height } = display.workArea;
+    
+    let newBounds: Electron.Rectangle;
+    
+    switch (edge) {
+      case 'left':
+        newBounds = { x, y, width: Math.floor(width / 2), height };
+        break;
+      case 'right':
+        newBounds = { x: x + Math.floor(width / 2), y, width: Math.ceil(width / 2), height };
+        break;
+      case 'top':
+        newBounds = { x, y, width, height: Math.floor(height / 2) };
+        break;
+      case 'bottom':
+        newBounds = { x, y: y + Math.floor(height / 2), width, height: Math.ceil(height / 2) };
+        break;
+    }
+    
+    window.setBounds(newBounds);
+  }
+
+  centerWindowOnDisplay(window: BrowserWindow, displayId?: number): void {
+    if (!this.isInitialized) {
+      throw new Error('WindowManager must be initialized before using display methods.');
+    }
+
+    const displays = screen.getAllDisplays();
+    const targetDisplay = displayId !== undefined 
+      ? displays.find(d => d.id === displayId) || screen.getPrimaryDisplay()
+      : screen.getPrimaryDisplay();
+    
+    const { x, y, width, height } = targetDisplay.workArea;
+    const windowBounds = window.getBounds();
+    
+    const newX = x + Math.floor((width - windowBounds.width) / 2);
+    const newY = y + Math.floor((height - windowBounds.height) / 2);
+    
+    window.setPosition(newX, newY);
+  }
+
+  moveWindowToDisplay(window: BrowserWindow, displayId: number): void {
+    if (!this.isInitialized) {
+      throw new Error('WindowManager must be initialized before using display methods.');
+    }
+
+    const displays = screen.getAllDisplays();
+    const targetDisplay = displays.find(d => d.id === displayId);
+    
+    if (!targetDisplay) {
+      console.warn(`Display ${displayId} not found`);
+      return;
+    }
+    
+    const currentBounds = window.getBounds();
+    const { x: displayX, y: displayY, width: displayWidth, height: displayHeight } = targetDisplay.workArea;
+    
+    // Calculate relative position on new display
+    const newX = displayX + Math.min(currentBounds.x - displayX, displayWidth - currentBounds.width);
+    const newY = displayY + Math.min(currentBounds.y - displayY, displayHeight - currentBounds.height);
+    
+    window.setPosition(Math.max(displayX, newX), Math.max(displayY, newY));
+  }
+
+  getAllDisplays(): Electron.Display[] {
+    if (!this.isInitialized) {
+      throw new Error('WindowManager must be initialized before using display methods.');
+    }
+    return screen.getAllDisplays();
+  }
+
+  getWindowDisplay(window: BrowserWindow): Electron.Display {
+    if (!this.isInitialized) {
+      throw new Error('WindowManager must be initialized before using display methods.');
+    }
+    return screen.getDisplayMatching(window.getBounds());
+  }
+
+  private initializeSnapZones(): void {
+    // Clear existing snap zones
+    this.snapZones = [];
+    
+    const displays = screen.getAllDisplays();
+    
+    displays.forEach(display => {
+      const { x, y, width, height } = display.bounds;
+      
+      // Create snap zones for each edge
+      this.snapZones.push(
+        { x, y, width: this.snapThreshold, height, type: 'left' },
+        { x: x + width - this.snapThreshold, y, width: this.snapThreshold, height, type: 'right' },
+        { x, y, width, height: this.snapThreshold, type: 'top' },
+        { x, y: y + height - this.snapThreshold, width, height: this.snapThreshold, type: 'bottom' }
+      );
+    });
+  }
+
+  private setupDisplayHandlers(): void {
+    // Handle display changes
+    screen.on('display-added', () => {
+      if (this.isInitialized) {
+        this.initializeSnapZones();
+        console.log('Display added, snap zones updated');
+      }
+    });
+    
+    screen.on('display-removed', () => {
+      if (this.isInitialized) {
+        this.initializeSnapZones();
+        console.log('Display removed, snap zones updated');
+      }
+    });
+    
+    screen.on('display-metrics-changed', () => {
+      if (this.isInitialized) {
+        this.initializeSnapZones();
+        console.log('Display metrics changed, snap zones updated');
+      }
+    });
+  }
+
+  private updateWindowState(windowId: string, window: BrowserWindow): void {
+    if (!this.isInitialized) {
+      console.warn('WindowManager not initialized, skipping window state update');
+      return;
+    }
+
+    const state: WindowMemoryState = {
+      bounds: window.getBounds(),
+      isMaximized: window.isMaximized(),
+      isFullScreen: window.isFullScreen(),
+      display: this.getWindowDisplay(window).id,
+      lastUsed: new Date()
+    };
+    
+    this.windowStates.set(windowId, state);
+    
+    // Save states periodically
+    this.saveWindowStates();
+  }
+
+  isWindowManagerInitialized(): boolean {
+    return this.isInitialized;
   }
 
   private getAppIcon(): Electron.NativeImage | undefined {

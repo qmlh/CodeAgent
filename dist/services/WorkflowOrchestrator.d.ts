@@ -63,6 +63,7 @@ export declare class WorkflowOrchestrator extends EventEmitter {
     private stateMachine;
     private agentProvider;
     constructor(agentProvider: (type?: AgentType) => Promise<IAgent[]>);
+    initialize(): Promise<void>;
     registerWorkflow(workflow: WorkflowConfig): void;
     unregisterWorkflow(workflowId: string): void;
     getWorkflow(workflowId: string): WorkflowConfig | undefined;

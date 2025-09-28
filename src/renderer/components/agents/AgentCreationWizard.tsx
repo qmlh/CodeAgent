@@ -219,7 +219,7 @@ export const AgentCreationWizard: React.FC<AgentCreationWizardProps> = ({
                   backgroundColor: formData.type === type ? `${info.color}10` : undefined
                 }}
               >
-                <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                <Space direction="vertical"  style={{ width: '100%' }}>
                   <div style={{ fontSize: '24px', color: info.color }}>
                     {info.icon}
                   </div>

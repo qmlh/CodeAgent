@@ -125,6 +125,16 @@ export class TaskManager implements ITaskManager {
   
   // Agent information cache for assignment decisions
   private agentInfo: Map<string, { type: AgentType; workload: number }> = new Map();
+
+  async initialize(): Promise<void> {
+    // Initialize task manager components
+    // Clear any existing data
+    this.tasks.clear();
+    this.taskQueues.clear();
+    this.dependencyGraph.clear();
+    this.reverseDependencyGraph.clear();
+    this.agentInfo.clear();
+  }
   
   /**
    * Update agent information for assignment decisions

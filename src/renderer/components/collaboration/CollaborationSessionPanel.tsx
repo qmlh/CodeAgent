@@ -102,7 +102,7 @@ export const CollaborationSessionPanel: React.FC = () => {
 
     return (
       <Badge dot color={statusColor}>
-        <Avatar size="small" style={{ backgroundColor: '#1890ff', fontSize: '10px' }}>
+        <Avatar  style={{ backgroundColor: '#1890ff', fontSize: '10px' }}>
           {agent.name.charAt(0).toUpperCase()}
         </Avatar>
       </Badge>
@@ -178,7 +178,7 @@ export const CollaborationSessionPanel: React.FC = () => {
       {/* Active Sessions */}
       {activeSessions.length > 0 && (
         <Card 
-          size="small" 
+           
           title={
             <div style={{ fontSize: '12px', color: '#cccccc' }}>
               Active Sessions ({activeSessions.length})
@@ -188,7 +188,7 @@ export const CollaborationSessionPanel: React.FC = () => {
           bodyStyle={{ padding: '8px' }}
         >
           <List
-            size="small"
+            
             dataSource={activeSessions}
             renderItem={(session) => {
               const metrics = sessionMetrics.find(m => m.sessionId === session.id);
@@ -200,7 +200,7 @@ export const CollaborationSessionPanel: React.FC = () => {
                   actions={[
                     <Tooltip title="View Details">
                       <Button 
-                        size="small" 
+                         
                         type="text" 
                         icon={<EyeOutlined />}
                         onClick={() => {
@@ -211,7 +211,7 @@ export const CollaborationSessionPanel: React.FC = () => {
                     </Tooltip>,
                     <Tooltip title="Pause Session">
                       <Button 
-                        size="small" 
+                         
                         type="text" 
                         icon={<PauseCircleOutlined />}
                         onClick={() => handleSessionAction(session.id, 'pause')}
@@ -224,7 +224,7 @@ export const CollaborationSessionPanel: React.FC = () => {
                     title={
                       <div style={{ fontSize: '11px', color: '#cccccc' }}>
                         Session {session.id.slice(-8)}
-                        <Tag size="small" color={getSessionStatusColor(session.status)} style={{ marginLeft: '8px' }}>
+                        <Tag color={getSessionStatusColor(session.status)} style={{ marginLeft: '8px', fontSize: '10px', padding: '0 4px', lineHeight: '16px' }}>
                           {session.status}
                         </Tag>
                       </div>
@@ -237,7 +237,7 @@ export const CollaborationSessionPanel: React.FC = () => {
                           gap: '4px',
                           marginBottom: '4px'
                         }}>
-                          <Avatar.Group size="small" maxCount={3}>
+                          <Avatar.Group  maxCount={3}>
                             {session.participants.map(participantId => (
                               <Tooltip key={participantId} title={getAgentName(participantId)}>
                                 {getAgentAvatar(participantId)}
@@ -267,7 +267,7 @@ export const CollaborationSessionPanel: React.FC = () => {
 
                         <Progress 
                           percent={progress} 
-                          size="small" 
+                           
                           showInfo={false}
                           strokeColor="#52c41a"
                         />
@@ -287,7 +287,7 @@ export const CollaborationSessionPanel: React.FC = () => {
       {/* Paused Sessions */}
       {pausedSessions.length > 0 && (
         <Card 
-          size="small" 
+           
           title={
             <div style={{ fontSize: '12px', color: '#cccccc' }}>
               Paused Sessions ({pausedSessions.length})
@@ -297,14 +297,14 @@ export const CollaborationSessionPanel: React.FC = () => {
           bodyStyle={{ padding: '8px' }}
         >
           <List
-            size="small"
+            
             dataSource={pausedSessions}
             renderItem={(session) => (
               <List.Item 
                 style={{ padding: '4px 0', opacity: 0.7 }}
                 actions={[
                   <Button 
-                    size="small" 
+                     
                     type="text" 
                     icon={<PlayCircleOutlined />}
                     onClick={() => handleSessionAction(session.id, 'resume')}
@@ -335,7 +335,7 @@ export const CollaborationSessionPanel: React.FC = () => {
       {/* Recent Completed Sessions */}
       {completedSessions.length > 0 && (
         <Card 
-          size="small" 
+           
           title={
             <div style={{ fontSize: '12px', color: '#cccccc' }}>
               Recent Completed Sessions
@@ -344,7 +344,7 @@ export const CollaborationSessionPanel: React.FC = () => {
           bodyStyle={{ padding: '8px' }}
         >
           <List
-            size="small"
+            
             dataSource={completedSessions}
             renderItem={(session) => {
               const metrics = sessionMetrics.find(m => m.sessionId === session.id);
@@ -359,7 +359,7 @@ export const CollaborationSessionPanel: React.FC = () => {
                     }
                     description={
                       <div style={{ fontSize: '10px', color: '#888' }}>
-                        {metrics ? formatDuration(metrics.duration) : '0m'} â€¢ {session.participants.length} agents
+                        {metrics ? formatDuration(metrics.duration) : '0m'} â€?{session.participants.length} agents
                       </div>
                     }
                   />
@@ -392,7 +392,7 @@ export const CollaborationSessionPanel: React.FC = () => {
       >
         {selectedSession && (
           <div>
-            <Descriptions size="small" column={2}>
+            <Descriptions  column={2}>
               <Descriptions.Item label="Status">
                 <Tag color={getSessionStatusColor(selectedSession.status)}>
                   {selectedSession.status}
@@ -443,7 +443,7 @@ export const CollaborationSessionPanel: React.FC = () => {
             <div>
               <h4>Shared Files</h4>
               <List
-                size="small"
+                
                 dataSource={selectedSession.sharedFiles}
                 renderItem={(filePath) => (
                   <List.Item>

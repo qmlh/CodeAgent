@@ -13,11 +13,11 @@ export interface Agent {
   capabilities: string[];
   currentTask?: string;
   workload: number;
+  lastActive: Date;
   performance: {
     tasksCompleted: number;
     averageTaskTime: number;
     successRate: number;
-    lastActive: Date;
   };
   config: {
     maxConcurrentTasks: number;
@@ -105,11 +105,11 @@ export const createAgent = createAsyncThunk(
       status: 'idle',
       capabilities: config.capabilities,
       workload: 0,
+      lastActive: new Date(),
       performance: {
         tasksCompleted: 0,
         averageTaskTime: 0,
-        successRate: 0,
-        lastActive: new Date()
+        successRate: 0
       },
       config: {
         maxConcurrentTasks: 3,
@@ -169,7 +169,7 @@ export const agentSlice = createSlice({
       const agent = state.agents.find(a => a.id === agentId);
       if (agent) {
         agent.status = status;
-        agent.performance.lastActive = new Date();
+        agent.lastActive = new Date();
       }
     },
     
@@ -217,7 +217,7 @@ export const agentSlice = createSlice({
           agent.performance.successRate = successfulTasks / totalTasks;
         }
         
-        agent.performance.lastActive = new Date();
+        agent.lastActive = new Date();
       }
     },
     
@@ -336,7 +336,7 @@ export const agentSlice = createSlice({
         const agent = state.agents.find(a => a.id === agentId);
         if (agent) {
           agent.status = status;
-          agent.performance.lastActive = new Date();
+          agent.lastActive = new Date();
         }
       });
   }

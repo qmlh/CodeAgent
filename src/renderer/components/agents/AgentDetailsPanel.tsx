@@ -177,7 +177,7 @@ export const AgentDetailsPanel: React.FC<AgentDetailsPanelProps> = ({ agentId })
   return (
     <div style={{ padding: '16px', height: '100%', overflow: 'auto' }}>
       {/* Agent Header */}
-      <Card size="small" style={{ marginBottom: '16px' }}>
+      <Card  style={{ marginBottom: '16px' }}>
         <Row align="middle" justify="space-between">
           <Col>
             <Space size="middle">
@@ -205,7 +205,7 @@ export const AgentDetailsPanel: React.FC<AgentDetailsPanelProps> = ({ agentId })
                   icon={<ReloadOutlined />}
                   onClick={handleRefreshStatus}
                   loading={refreshing}
-                  size="small"
+                  
                 />
               </Tooltip>
               <Tooltip title={agent.status === 'offline' ? 'Start Agent' : 'Stop Agent'}>
@@ -213,14 +213,14 @@ export const AgentDetailsPanel: React.FC<AgentDetailsPanelProps> = ({ agentId })
                   type="primary"
                   icon={agent.status === 'offline' ? <PlayCircleOutlined /> : <PauseCircleOutlined />}
                   onClick={agent.status === 'offline' ? handleStartAgent : handleStopAgent}
-                  size="small"
+                  
                 >
                   {agent.status === 'offline' ? 'Start' : 'Stop'}
                 </Button>
               </Tooltip>
               <Button
                 icon={<SettingOutlined />}
-                size="small"
+                
               >
                 Settings
               </Button>
@@ -232,7 +232,7 @@ export const AgentDetailsPanel: React.FC<AgentDetailsPanelProps> = ({ agentId })
       {/* Performance Overview */}
       <Row gutter={16} style={{ marginBottom: '16px' }}>
         <Col span={6}>
-          <Card size="small">
+          <Card >
             <Statistic
               title="Tasks Completed"
               value={agent.performance.tasksCompleted}
@@ -241,7 +241,7 @@ export const AgentDetailsPanel: React.FC<AgentDetailsPanelProps> = ({ agentId })
           </Card>
         </Col>
         <Col span={6}>
-          <Card size="small">
+          <Card >
             <Statistic
               title="Success Rate"
               value={agent.performance.successRate * 100}
@@ -252,7 +252,7 @@ export const AgentDetailsPanel: React.FC<AgentDetailsPanelProps> = ({ agentId })
           </Card>
         </Col>
         <Col span={6}>
-          <Card size="small">
+          <Card >
             <Statistic
               title="Avg Task Time"
               value={formatDuration(agent.performance.averageTaskTime)}
@@ -261,7 +261,7 @@ export const AgentDetailsPanel: React.FC<AgentDetailsPanelProps> = ({ agentId })
           </Card>
         </Col>
         <Col span={6}>
-          <Card size="small">
+          <Card >
             <Statistic
               title="Current Load"
               value={agent.workload}
@@ -275,7 +275,7 @@ export const AgentDetailsPanel: React.FC<AgentDetailsPanelProps> = ({ agentId })
       {agent.currentTask && (
         <Card 
           title="Current Task" 
-          size="small" 
+           
           style={{ marginBottom: '16px' }}
           extra={<Badge status="processing" text="In Progress" />}
         >
@@ -294,8 +294,8 @@ export const AgentDetailsPanel: React.FC<AgentDetailsPanelProps> = ({ agentId })
       )}
 
       {/* Agent Information */}
-      <Card title="Agent Information" size="small" style={{ marginBottom: '16px' }}>
-        <Descriptions column={2} size="small">
+      <Card title="Agent Information"  style={{ marginBottom: '16px' }}>
+        <Descriptions column={2} >
           <Descriptions.Item label="Agent ID">
             <Text code>{agent.id}</Text>
           </Descriptions.Item>
@@ -303,7 +303,7 @@ export const AgentDetailsPanel: React.FC<AgentDetailsPanelProps> = ({ agentId })
             {new Date(agent.createdAt).toLocaleDateString()}
           </Descriptions.Item>
           <Descriptions.Item label="Last Active">
-            {new Date(agent.performance.lastActive).toLocaleString()}
+            {new Date(agent.lastActive).toLocaleString()}
           </Descriptions.Item>
           <Descriptions.Item label="Max Concurrent Tasks">
             {agent.config.maxConcurrentTasks}
@@ -345,7 +345,7 @@ export const AgentDetailsPanel: React.FC<AgentDetailsPanelProps> = ({ agentId })
       </Card>
 
       {/* Work History */}
-      <Card title="Recent Work History" size="small" style={{ marginBottom: '16px' }}>
+      <Card title="Recent Work History"  style={{ marginBottom: '16px' }}>
         <Timeline
           items={getWorkHistory().map(item => ({
             color: item.status === 'completed' ? 'green' : 'red',
@@ -377,12 +377,12 @@ export const AgentDetailsPanel: React.FC<AgentDetailsPanelProps> = ({ agentId })
       </Card>
 
       {/* Performance Chart */}
-      <Card title="Performance Metrics" size="small" style={{ marginBottom: '16px' }}>
+      <Card title="Performance Metrics"  style={{ marginBottom: '16px' }}>
         <AgentPerformanceChart agentId={agent.id} />
       </Card>
 
       {/* Agent Logs */}
-      <Card title="Agent Logs" size="small">
+      <Card title="Agent Logs" >
         <AgentLogViewer agentId={agent.id} />
       </Card>
     </div>

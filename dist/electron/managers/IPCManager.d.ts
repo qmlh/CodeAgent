@@ -6,6 +6,7 @@ export declare class IPCManager {
     private windowManager;
     private fileSystemManager;
     constructor();
+    private isBinaryFile;
     initialize(): Promise<void>;
     setupHandlers(): void;
     private setupWindowHandlers;

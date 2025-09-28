@@ -18,4 +18,4 @@ export type { WorkflowState, StepState, WorkflowExecution as WorkflowOrchestrato
 export { CollaborationRulesEngine } from './CollaborationRulesEngine';
 export type { CollaborationRule, RuleType, RuleCondition, ConditionOperator, LogicalOperator, RuleAction, ActionType, RuleEvaluationContext, RuleEvaluationResult, PolicySet } from './CollaborationRulesEngine';
 export { AgentHealthMonitor } from './AgentHealthMonitor';
-export type { HealthCheckConfig, AgentHealthMetrics, HealthCheckResult, RecoveryAction, RecoveryActionType, RecoveryResult, HealthAlert, AlertSeverity, AlertType } from './AgentHealthMonitor';
+export type { HealthCheckConfig, AgentHealthMetrics, HealthCheckResult, RecoveryAction, RecoveryActionType, RecoveryResult, HealthAlert, AlertType } from './AgentHealthMonitor';

@@ -16,6 +16,7 @@ export declare class TaskManager implements ITaskManager {
     private assignmentStrategy;
     private validator;
     private agentInfo;
+    initialize(): Promise<void>;
     /**
      * Update agent information for assignment decisions
      */

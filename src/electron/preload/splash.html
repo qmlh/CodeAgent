@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent IDE - Loading</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+            color: #ffffff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .splash-container {
+            text-align: center;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #007acc, #00a8ff);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 8px 32px rgba(0, 122, 204, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        .app-name {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .app-tagline {
+            font-size: 14px;
+            color: #cccccc;
+            margin-bottom: 40px;
+        }
+
+        .loading-section {
+            width: 300px;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #007acc, #00a8ff);
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.3s ease;
+            position: relative;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+
+        .loading-text {
+            font-size: 13px;
+            color: #cccccc;
+            min-height: 20px;
+            margin-bottom: 8px;
+        }
+
+        .loading-stage {
+            font-size: 11px;
+            color: #999999;
+            font-style: italic;
+        }
+
+        .version {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 11px;
+            color: #666666;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .fade-out {
+            animation: fadeOut 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="splash-container" id="splashContainer">
+        <div class="logo">AI</div>
+        <div class="app-name">Multi-Agent IDE</div>
+        <div class="app-tagline">Collaborative Development Environment</div>
+        
+        <div class="loading-section">
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="loading-text" id="loadingText">Initializing application...</div>
+            <div class="loading-stage" id="loadingStage">Starting up</div>
+        </div>
+    </div>
+    
+    <div class="version" id="version">v1.0.0</div>
+
+    <script>
+        // IPC communication with main process
+        const { ipcRenderer } = require('electron');
+        
+        // Elements
+        const progressBar = document.getElementById('progressBar');
+        const loadingText = document.getElementById('loadingText');
+        const loadingStage = document.getElementById('loadingStage');
+        const splashContainer = document.getElementById('splashContainer');
+
+        // Listen for progress updates
+        ipcRenderer.on('splash-progress', (event, data) => {
+            updateProgress(data.progress, data.message, data.stage);
+        });
+
+        // Listen for message updates
+        ipcRenderer.on('splash-message', (event, data) => {
+            updateMessage(data.message);
+        });
+
+        // Listen for configuration
+        ipcRenderer.on('splash-config', (event, config) => {
+            applyConfiguration(config);
+        });
+
+        // Listen for close signal
+        ipcRenderer.on('splash-close', () => {
+            closeSplash();
+        });
+
+        function updateProgress(progress, message, stage) {
+            if (progressBar) {
+                progressBar.style.width = `${Math.max(0, Math.min(100, progress))}%`;
+            }
+            
+            if (message && loadingText) {
+                loadingText.textContent = message;
+            }
+            
+            if (stage && loadingStage) {
+                loadingStage.textContent = stage;
+            }
+        }
+
+        function updateMessage(message) {
+            if (loadingText) {
+                loadingText.textContent = message;
+            }
+        }
+
+        function applyConfiguration(config) {
+            if (config.backgroundColor) {
+                document.body.style.background = config.backgroundColor;
+            }
+            
+            if (config.textColor) {
+                document.body.style.color = config.textColor;
+            }
+            
+            if (!config.showProgressBar && progressBar) {
+                progressBar.parentElement.style.display = 'none';
+            }
+            
+            if (!config.showLoadingText && loadingText) {
+                loadingText.style.display = 'none';
+            }
+        }
+
+        function closeSplash() {
+            if (splashContainer) {
+                splashContainer.classList.add('fade-out');
+            }
+        }
+
+        // Initialize with default progress
+        updateProgress(0, 'Initializing application...', 'Starting up');
+    </script>
+</body>
+</html>

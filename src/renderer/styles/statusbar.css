@@ -1,0 +1,132 @@
+/**
+ * Enhanced Status Bar Styles
+ */
+
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 16px !important;
+  height: 24px !important;
+  min-height: 24px !important;
+  background: #252526 !important;
+  border-top: 1px solid #3e3e42;
+  font-size: 12px;
+  color: #cccccc;
+}
+
+.status-bar-left,
+.status-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-bar-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: default;
+  padding: 2px 4px;
+  border-radius: 2px;
+  transition: background-color 0.2s;
+}
+
+.status-bar-item.clickable {
+  cursor: pointer;
+}
+
+.status-bar-item.clickable:hover,
+.status-bar-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.status-bar-item .anticon {
+  font-size: 12px;
+}
+
+.status-bar-item span {
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* Resource monitoring items */
+.resource-item {
+  gap: 6px !important;
+  min-width: 80px;
+}
+
+.resource-item .ant-progress {
+  margin: 0 !important;
+}
+
+.resource-item .ant-progress-bg {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.resource-item .ant-progress-inner {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-radius: 2px !important;
+}
+
+/* Badge adjustments for status bar */
+.status-bar-item .ant-badge {
+  line-height: 1;
+}
+
+.status-bar-item .ant-badge-count {
+  font-size: 10px;
+  min-width: 16px;
+  height: 16px;
+  line-height: 14px;
+  background: #1890ff;
+  border: none;
+}
+
+/* Service status indicator in status bar */
+.status-bar-item .ant-badge-status-dot {
+  width: 8px;
+  height: 8px;
+}
+
+/* Tooltip styling for status bar */
+.ant-tooltip-inner {
+  font-size: 12px;
+  max-width: 300px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .status-bar-left,
+  .status-bar-right {
+    gap: 12px !important;
+  }
+  
+  .resource-item .ant-progress {
+    width: 30px !important;
+  }
+  
+  .resource-item {
+    min-width: 60px;
+  }
+}
+
+@media (max-width: 768px) {
+  .status-bar {
+    font-size: 11px !important;
+    padding: 4px 12px !important;
+  }
+  
+  .status-bar-left,
+  .status-bar-right {
+    gap: 8px !important;
+  }
+  
+  .resource-item {
+    display: none !important;
+  }
+  
+  .status-bar-item span {
+    font-size: 11px;
+  }
+}

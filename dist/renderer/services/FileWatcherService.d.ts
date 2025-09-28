@@ -1,97 +1,66 @@
 /**
  * File Watcher Service
- * Provides real-time file system monitoring and notifications
+ * Handles file system monitoring for hot reload functionality
  */
 import { EventEmitter } from 'eventemitter3';
-export interface FileWatchEvent {
-    type: 'add' | 'change' | 'unlink' | 'addDir' | 'unlinkDir' | 'error';
+export interface FileChangeEvent {
+    type: 'change' | 'add' | 'unlink' | 'addDir' | 'unlinkDir' | 'error';
     path: string;
     filename?: string;
-    stats?: {
-        size: number;
-        mtime: Date;
-        isDirectory: boolean;
-        isFile: boolean;
-    };
+    stats?: any;
     error?: string;
-}
-export interface WatcherOptions {
-    ignored?: RegExp | string | ((path: string) => boolean);
-    persistent?: boolean;
-    ignoreInitial?: boolean;
-    followSymlinks?: boolean;
-    depth?: number;
-    awaitWriteFinish?: boolean | {
-        stabilityThreshold?: number;
-        pollInterval?: number;
-    };
 }
 export declare class FileWatcherService extends EventEmitter {
     private watchers;
-    private watcherCallbacks;
-    private isInitialized;
+    private isWatching;
     constructor();
-    private initialize;
-    private handleFileSystemEvent;
-    private getWatcherPath;
     /**
-     * Watch a directory for changes
+     * Start watching a directory for changes
      */
-    watchDirectory(dirPath: string, callback: (event: FileWatchEvent) => void, options?: WatcherOptions): Promise<string>;
+    watchDirectory(dirPath: string): Promise<void>;
     /**
      * Stop watching a directory
      */
-    unwatchDirectory(watcherId: string): Promise<void>;
+    unwatchDirectory(dirPath: string): Promise<void>;
     /**
-     * Watch multiple directories
+     * Stop watching all directories
      */
-    watchMultipleDirectories(dirPaths: string[], callback: (event: FileWatchEvent) => void, options?: WatcherOptions): Promise<string[]>;
+    unwatchAll(): Promise<void>;
     /**
-     * Get all active watchers
+     * Check if currently watching any directories
      */
-    getActiveWatchers(): Array<{
-        watcherId: string;
-        path: string;
-    }>;
+    isActive(): boolean;
     /**
-     * Check if a path is being watched
+     * Get list of watched directories
      */
-    isWatching(path: string): boolean;
+    getWatchedDirectories(): string[];
     /**
-     * Get watcher statistics
+     * Handle file change events from the main process
      */
-    getWatcherStats(): {
-        totalWatchers: number;
-        watchedPaths: string[];
-        memoryUsage?: number;
-    };
+    private handleFileChange;
     /**
-     * Pause all watchers
+     * Simulate file watching for development mode
      */
-    pauseAllWatchers(): void;
+    private simulateFileWatching;
     /**
-     * Resume all watchers
+     * Get file extension from path
      */
-    resumeAllWatchers(): void;
+    private getFileExtension;
     /**
-     * Clean up all watchers
+     * Check if file is a web file that should trigger browser refresh
      */
-    cleanup(): Promise<void>;
+    private isWebFile;
     /**
-     * Create a debounced callback for file events
+     * Check if file is a style file
      */
-    createDebouncedCallback(callback: (event: FileWatchEvent) => void, delay?: number): (event: FileWatchEvent) => void;
+    private isStyleFile;
     /**
-     * Create a throttled callback for file events
+     * Check if file is a script file
      */
-    createThrottledCallback(callback: (event: FileWatchEvent) => void, interval?: number): (event: FileWatchEvent) => void;
+    private isScriptFile;
     /**
-     * Filter events by type
+     * Cleanup resources
      */
-    createEventFilter(callback: (event: FileWatchEvent) => void, allowedTypes: FileWatchEvent['type'][]): (event: FileWatchEvent) => void;
-    /**
-     * Filter events by path pattern
-     */
-    createPathFilter(callback: (event: FileWatchEvent) => void, pathPattern: RegExp | string): (event: FileWatchEvent) => void;
+    destroy(): void;
 }
 export declare const fileWatcherService: FileWatcherService;

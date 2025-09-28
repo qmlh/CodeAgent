@@ -18,6 +18,63 @@ export class IPCManager {
     this.fileSystemManager = new FileSystemManager();
   }
 
+  private isBinaryFile(buffer: Buffer, filePath: string): boolean {
+    // First check by file extension - common text file extensions
+    const textExtensions = [
+      'txt', 'md', 'json', 'xml', 'yaml', 'yml', 'csv', 'log',
+      'js', 'jsx', 'ts', 'tsx', 'html', 'htm', 'css', 'scss', 'sass', 'less',
+      'py', 'java', 'cpp', 'c', 'h', 'cs', 'php', 'rb', 'go', 'rs', 'swift',
+      'sql', 'sh', 'bash', 'ps1', 'bat', 'cmd', 'dockerfile', 'gitignore',
+      'env', 'ini', 'cfg', 'conf', 'properties', 'toml'
+    ];
+    
+    const extension = filePath.split('.').pop()?.toLowerCase();
+    if (extension && textExtensions.includes(extension)) {
+      return false; // Force treat as text file
+    }
+
+    // Binary file extensions
+    const binaryExtensions = [
+      'exe', 'dll', 'so', 'dylib', 'bin', 'dat',
+      'jpg', 'jpeg', 'png', 'gif', 'bmp', 'ico', 'svg', 'webp',
+      'mp3', 'mp4', 'avi', 'mov', 'wav', 'flac',
+      'zip', 'rar', '7z', 'tar', 'gz', 'bz2',
+      'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'
+    ];
+    
+    if (extension && binaryExtensions.includes(extension)) {
+      return true; // Force treat as binary file
+    }
+
+    // For unknown extensions, check content
+    const sample = buffer.slice(0, Math.min(1024, buffer.length));
+    
+    // Check for null bytes (strong indicator of binary content)
+    for (let i = 0; i < sample.length; i++) {
+      if (sample[i] === 0) {
+        return true;
+      }
+    }
+
+    // Check for high percentage of non-printable characters
+    let nonPrintableCount = 0;
+    for (let i = 0; i < sample.length; i++) {
+      const byte = sample[i];
+      // Allow common whitespace and printable ASCII characters
+      if (byte < 32 && byte !== 9 && byte !== 10 && byte !== 13) {
+        nonPrintableCount++;
+      } else if (byte > 126) {
+        // Allow some extended ASCII but count high values
+        if (byte > 160) {
+          nonPrintableCount += 0.5; // Weight high bytes less
+        }
+      }
+    }
+
+    // If more than 20% non-printable characters, consider it binary
+    return (nonPrintableCount / sample.length) > 0.2;
+  }
+
   async initialize(): Promise<void> {
     console.log('IPCManager initialized');
   }
@@ -102,8 +159,23 @@ export class IPCManager {
     // Read file
     ipcMain.handle('fs:read-file', async (event, filePath: string) => {
       try {
-        const content = await fs.readFile(filePath, 'utf-8');
-        return { success: true, content };
+        // First check if file is binary
+        const stats = await fs.stat(filePath);
+        if (stats.size > 10 * 1024 * 1024) { // Files larger than 10MB
+          return { success: false, error: 'File too large to open in editor' };
+        }
+
+        // Read a small sample to detect binary content
+        const buffer = await fs.readFile(filePath);
+        const isBinary = this.isBinaryFile(buffer, filePath);
+        
+        if (isBinary) {
+          return { success: true, content: '', isBinary: true };
+        }
+
+        // Read as text if not binary
+        const content = buffer.toString('utf-8');
+        return { success: true, content, isBinary: false };
       } catch (error) {
         return { success: false, error: (error as Error).message };
       }
@@ -143,16 +215,11 @@ export class IPCManager {
     // List directory
     ipcMain.handle('fs:list-directory', async (event, dirPath: string) => {
       try {
-        const items = await fs.readdir(dirPath, { withFileTypes: true });
-        const result = items.map(item => ({
-          name: item.name,
-          isDirectory: item.isDirectory(),
-          isFile: item.isFile(),
-          path: path.join(dirPath, item.name)
-        }));
-        return { success: true, items: result };
+        const items = await this.fileSystemManager.listDirectory(dirPath);
+        return { success: true, items: items || [] };
       } catch (error) {
-        return { success: false, error: (error as Error).message };
+        console.error('Failed to list directory:', error);
+        return { success: false, error: (error as Error).message, items: [] };
       }
     });
 

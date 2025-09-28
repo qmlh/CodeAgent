@@ -201,7 +201,7 @@ export const AgentLogViewer: React.FC<AgentLogViewerProps> = ({ agentId }) => {
             prefix={<SearchOutlined />}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            size="small"
+            
             allowClear
           />
         </Col>
@@ -209,7 +209,7 @@ export const AgentLogViewer: React.FC<AgentLogViewerProps> = ({ agentId }) => {
           <Select
             value={levelFilter}
             onChange={setLevelFilter}
-            size="small"
+            
             style={{ width: 100 }}
           >
             <Option value="all">All ({filteredLogs.length})</Option>
@@ -235,17 +235,17 @@ export const AgentLogViewer: React.FC<AgentLogViewerProps> = ({ agentId }) => {
 
       <Row gutter={8} style={{ marginBottom: '12px' }} align="middle">
         <Col>
-          <Space size="small">
+          <Space >
             <Tooltip title={isPaused ? 'Resume auto-scroll' : 'Pause auto-scroll'}>
               <Button
-                size="small"
+                
                 icon={isPaused ? <PlayCircleOutlined /> : <PauseCircleOutlined />}
                 onClick={() => setIsPaused(!isPaused)}
               />
             </Tooltip>
             <Tooltip title="Auto-scroll to bottom">
               <Switch
-                size="small"
+                
                 checked={autoScroll}
                 onChange={setAutoScroll}
                 checkedChildren="Auto"
@@ -256,17 +256,17 @@ export const AgentLogViewer: React.FC<AgentLogViewerProps> = ({ agentId }) => {
         </Col>
         <Col flex="auto" />
         <Col>
-          <Space size="small">
+          <Space >
             <Tooltip title="Clear logs">
               <Button
-                size="small"
+                
                 icon={<ClearOutlined />}
                 onClick={handleClearLogs}
               />
             </Tooltip>
             <Tooltip title="Export logs">
               <Button
-                size="small"
+                
                 icon={<DownloadOutlined />}
                 onClick={handleExportLogs}
               />

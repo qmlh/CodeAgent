@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
@@ -32,7 +33,8 @@ const mainConfig = {
   },
   externals: {
     'electron': 'commonjs electron',
-    'electron-updater': 'commonjs electron-updater'
+    'electron-updater': 'commonjs electron-updater',
+    'fsevents': 'commonjs fsevents'
   },
   plugins: [
     new webpack.DefinePlugin({
@@ -95,7 +97,12 @@ const rendererConfig = {
     rules: [
       {
         test: /\.(ts|tsx)$/,
-        use: 'ts-loader',
+        use: {
+          loader: 'ts-loader',
+          options: {
+            transpileOnly: true
+          }
+        },
         exclude: /node_modules/
       },
       {
@@ -120,6 +127,22 @@ const rendererConfig = {
       '@services': path.resolve(__dirname, 'src/renderer/services'),
       '@utils': path.resolve(__dirname, 'src/renderer/utils'),
       '@types': path.resolve(__dirname, 'src/renderer/types')
+    },
+    fallback: {
+      "buffer": require.resolve("buffer"),
+      "process": require.resolve("process/browser.js"),
+      "util": false,
+      "path": false,
+      "fs": false,
+      "os": false,
+      "crypto": false,
+      "stream": false,
+      "assert": false,
+      "http": false,
+      "https": false,
+      "url": false,
+      "zlib": false,
+      "fsevents": false
     }
   },
   plugins: [
@@ -128,17 +151,49 @@ const rendererConfig = {
       filename: 'index.html'
     }),
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production')
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production'),
+      'global': 'globalThis',
+      'globalThis': 'globalThis'
+    }),
+    new webpack.ProvidePlugin({
+      global: 'globalThis',
+      process: 'process/browser.js',
+      Buffer: ['buffer', 'Buffer']
+    }),
+    new MonacoWebpackPlugin({
+      languages: ['typescript', 'javascript', 'css', 'html', 'json'],
+      features: [
+        'bracketMatching',
+        'caretOperations',
+        'clipboard',
+        'comment',
+        'contextmenu',
+        'coreCommands',
+        'find',
+        'folding',
+        'format',
+        'gotoLine',
+        'indentation',
+        'linesOperations',
+        'multicursor',
+        'smartSelect',
+        'wordHighlighter',
+        'wordOperations'
+      ]
     })
   ],
   devtool: isDevelopment ? 'source-map' : false,
   devServer: isDevelopment ? {
-    port: 3000,
+    port: 8081,
     hot: true,
     static: {
-      directory: path.join(__dirname, 'dist/renderer')
+      directory: path.join(__dirname, 'public'),
+      publicPath: '/'
     },
-    host: 'localhost'
+    host: 'localhost',
+    historyApiFallback: true,
+    compress: true,
+    open: false
   } : undefined
 };
 

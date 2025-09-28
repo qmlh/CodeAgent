@@ -55,6 +55,5 @@ export type {
   RecoveryActionType,
   RecoveryResult,
   HealthAlert,
-  AlertSeverity,
   AlertType
 } from './AgentHealthMonitor';

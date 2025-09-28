@@ -200,7 +200,7 @@ export const TaskListView: React.FC<TaskListViewProps> = ({ tasks, onAssignTask 
             </Tooltip>
           </div>
           <div className="task-meta">
-            <Space size="small">
+            <Space >
               <Tag>{record.type}</Tag>
               {record.tags.slice(0, 2).map(tag => (
                 <Tag key={tag} color="blue">{tag}</Tag>
@@ -268,7 +268,7 @@ export const TaskListView: React.FC<TaskListViewProps> = ({ tasks, onAssignTask 
         assignedAgent ? (
           <Tooltip title={assignedAgent}>
             <Space>
-              <Avatar size="small" icon={<UserOutlined />}>
+              <Avatar  icon={<UserOutlined />}>
                 {assignedAgent.charAt(0).toUpperCase()}
               </Avatar>
               <span>{assignedAgent.length > 10 ? `${assignedAgent.substring(0, 10)}...` : assignedAgent}</span>
@@ -276,7 +276,7 @@ export const TaskListView: React.FC<TaskListViewProps> = ({ tasks, onAssignTask 
           </Tooltip>
         ) : (
           <Button 
-            size="small" 
+             
             type="dashed"
             onClick={() => onAssignTask(record.id)}
           >
@@ -295,7 +295,7 @@ export const TaskListView: React.FC<TaskListViewProps> = ({ tasks, onAssignTask 
         <div className="progress-cell">
           <Progress 
             percent={progress} 
-            size="small"
+            
             strokeColor={getPriorityColor(record.priority)}
           />
         </div>
@@ -348,7 +348,7 @@ export const TaskListView: React.FC<TaskListViewProps> = ({ tasks, onAssignTask 
       render: (dependencies: string[]) => (
         dependencies.length > 0 ? (
           <Tooltip title={`${dependencies.length} dependencies`}>
-            <Badge count={dependencies.length} size="small">
+            <Badge count={dependencies.length} >
               <LinkOutlined />
             </Badge>
           </Tooltip>
@@ -363,7 +363,7 @@ export const TaskListView: React.FC<TaskListViewProps> = ({ tasks, onAssignTask 
       render: (files: string[]) => (
         files.length > 0 ? (
           <Tooltip title={`${files.length} files`}>
-            <Badge count={files.length} size="small">
+            <Badge count={files.length} >
               <FileOutlined />
             </Badge>
           </Tooltip>
@@ -377,7 +377,7 @@ export const TaskListView: React.FC<TaskListViewProps> = ({ tasks, onAssignTask 
       fixed: 'right',
       render: (_, record: Task) => (
         <Dropdown overlay={getTaskMenu(record)} trigger={['click']}>
-          <Button type="text" size="small" icon={<MoreOutlined />} />
+          <Button type="text"  icon={<MoreOutlined />} />
         </Dropdown>
       ),
     },
@@ -527,7 +527,7 @@ export const TaskListView: React.FC<TaskListViewProps> = ({ tasks, onAssignTask 
           showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} tasks`,
         }}
         scroll={{ x: 1200 }}
-        size="small"
+        
         className="task-table"
       />
     </div>

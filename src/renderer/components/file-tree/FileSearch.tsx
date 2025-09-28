@@ -169,13 +169,13 @@ export const FileSearch: React.FC = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           onSearch={handleSearch}
           enterButton={<SearchOutlined />}
-          size="small"
+          
           disabled={!currentWorkspace}
         />
         
         <div style={{ marginTop: '8px', display: 'flex', gap: '8px', alignItems: 'center' }}>
           <Button
-            size="small"
+            
             icon={<FilterOutlined />}
             onClick={() => setShowFilters(!showFilters)}
             type={showFilters ? 'primary' : 'default'}
@@ -185,7 +185,7 @@ export const FileSearch: React.FC = () => {
           
           {searchResults.length > 0 && (
             <Button
-              size="small"
+              
               icon={<ClearOutlined />}
               onClick={handleClearSearch}
             >
@@ -220,7 +220,7 @@ export const FileSearch: React.FC = () => {
                 value={selectedExtensions}
                 onChange={setSelectedExtensions}
                 style={{ width: '100%' }}
-                size="small"
+                
                 maxTagCount={3}
               >
                 {commonExtensions.map(ext => (
@@ -257,7 +257,7 @@ export const FileSearch: React.FC = () => {
           </div>
         ) : (
           <List
-            size="small"
+            
             dataSource={searchResults}
             renderItem={renderSearchResult}
             style={{ padding: '4px' }}

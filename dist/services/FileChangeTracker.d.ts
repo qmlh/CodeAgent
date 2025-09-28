@@ -31,6 +31,7 @@ export declare class FileChangeTracker extends EventEmitter {
     private maxHistorySize;
     private maxSnapshotSize;
     constructor();
+    initialize(): Promise<void>;
     /**
      * Record a file change with detailed analysis
      */

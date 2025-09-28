@@ -1,0 +1,397 @@
+/**
+ * Enhanced Monaco Editor Styles
+ * CSS styles for enhanced editor components
+ */
+
+/* Enhanced Monaco Editor Container */
+.enhanced-monaco-editor-container {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+.enhanced-monaco-editor-container.readonly {
+  opacity: 0.8;
+}
+
+.enhanced-monaco-editor-container.optimized::after {
+  content: 'Performance Mode';
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(82, 196, 26, 0.8);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Collaboration Cursors */
+.collaboration-cursor {
+  position: relative;
+  border-left: 2px solid var(--cursor-color, #007acc);
+  animation: cursor-blink 1s infinite;
+}
+
+.collaboration-cursor::before {
+  content: attr(data-agent-name);
+  position: absolute;
+  top: -20px;
+  left: -1px;
+  background: var(--cursor-color, #007acc);
+  color: white;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 10px;
+  white-space: nowrap;
+  z-index: 100;
+}
+
+.collaboration-selection {
+  background: var(--selection-color, rgba(0, 122, 204, 0.2));
+  border: 1px solid var(--selection-color, #007acc);
+}
+
+@keyframes cursor-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Tab Manager Enhancements */
+.enhanced-tab-manager {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.enhanced-tab-manager .ant-tabs {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.enhanced-tab-manager .ant-tabs-content-holder {
+  flex: 1;
+}
+
+.enhanced-tab-manager .ant-tabs-tabpane {
+  height: 100%;
+}
+
+/* Tab with indicators */
+.tab-with-indicators {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 200px;
+}
+
+.tab-indicator {
+  font-size: 12px;
+}
+
+.tab-indicator.pinned {
+  color: #1890ff;
+}
+
+.tab-indicator.favorite {
+  color: #faad14;
+}
+
+.tab-indicator.dirty {
+  color: #faad14;
+}
+
+.tab-indicator.readonly {
+  color: #ff4d4f;
+}
+
+/* Split Screen Editor */
+.split-screen-editor {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.split-pane {
+  position: relative;
+  border: 1px solid #3e3e42;
+}
+
+.split-pane-header {
+  height: 32px;
+  background: #252526;
+  border-bottom: 1px solid #3e3e42;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  font-size: 12px;
+}
+
+.split-pane-content {
+  height: calc(100% - 32px);
+}
+
+.split-resizer {
+  background: #3e3e42;
+  cursor: col-resize;
+}
+
+.split-resizer.horizontal {
+  cursor: row-resize;
+}
+
+.split-resizer:hover {
+  background: #007acc;
+}
+
+/* Collaboration Visualization */
+.collaboration-panel {
+  padding: 16px;
+  background: #252526;
+  color: #cccccc;
+}
+
+.collaboration-user-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.collaboration-user-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: #3e3e42;
+}
+
+.collaboration-user-card.online {
+  border-left: 3px solid #52c41a;
+}
+
+.collaboration-user-card.offline {
+  opacity: 0.6;
+  border-left: 3px solid #8c8c8c;
+}
+
+.collaboration-activity-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #3e3e42;
+}
+
+.collaboration-activity-item:last-child {
+  border-bottom: none;
+}
+
+.collaboration-conflict-warning {
+  background: rgba(250, 173, 20, 0.1);
+  border: 1px solid #faad14;
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+
+.collaboration-conflict-warning.high {
+  background: rgba(255, 77, 79, 0.1);
+  border-color: #ff4d4f;
+}
+
+.collaboration-conflict-warning.medium {
+  background: rgba(250, 140, 22, 0.1);
+  border-color: #fa8c16;
+}
+
+/* Editor Personalization */
+.editor-personalization {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.font-preview {
+  padding: 16px;
+  border: 1px solid #3e3e42;
+  border-radius: 4px;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  font-family: monospace;
+  white-space: pre-wrap;
+  margin-top: 8px;
+}
+
+.theme-color-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.theme-color-preview {
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  border: 1px solid #3e3e42;
+}
+
+.shortcut-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #3e3e42;
+}
+
+.shortcut-item:last-child {
+  border-bottom: none;
+}
+
+.shortcut-key {
+  background: #3e3e42;
+  color: #cccccc;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-family: monospace;
+}
+
+/* Performance indicators */
+.performance-indicator {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.performance-indicator.optimized {
+  background: rgba(82, 196, 26, 0.8);
+}
+
+.performance-indicator.warning {
+  background: rgba(250, 173, 20, 0.8);
+}
+
+.performance-indicator.error {
+  background: rgba(255, 77, 79, 0.8);
+}
+
+/* Large file optimization styles */
+.large-file-editor {
+  position: relative;
+}
+
+.large-file-editor::before {
+  content: 'Large File - Performance Mode Active';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(250, 173, 20, 0.9);
+  color: white;
+  text-align: center;
+  padding: 4px;
+  font-size: 12px;
+  z-index: 10;
+}
+
+/* AI completion indicators */
+.ai-completion-active {
+  position: relative;
+}
+
+.ai-completion-active::after {
+  content: 'AI';
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(114, 46, 209, 0.8);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .collaboration-panel {
+    padding: 8px;
+  }
+  
+  .enhanced-tab-manager .tab-with-indicators {
+    max-width: 120px;
+  }
+  
+  .split-pane-header {
+    font-size: 11px;
+    padding: 0 4px;
+  }
+}
+
+/* Dark theme adjustments */
+.ant-drawer-content {
+  background: #252526 !important;
+}
+
+.ant-drawer-header {
+  background: #2d2d30 !important;
+  border-bottom: 1px solid #3e3e42 !important;
+}
+
+.ant-drawer-title {
+  color: #cccccc !important;
+}
+
+/* Accessibility improvements */
+.enhanced-monaco-editor-container:focus-within {
+  outline: 2px solid #007acc;
+  outline-offset: 2px;
+}
+
+.collaboration-user-card:focus {
+  outline: 2px solid #007acc;
+  outline-offset: 2px;
+}
+
+/* Animation improvements */
+.tab-indicator {
+  transition: all 0.2s ease;
+}
+
+.collaboration-user-card {
+  transition: all 0.2s ease;
+}
+
+.split-pane {
+  transition: border-color 0.2s ease;
+}
+
+.split-pane:hover {
+  border-color: #007acc;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .collaboration-cursor {
+    border-left-width: 3px;
+  }
+  
+  .collaboration-selection {
+    border-width: 2px;
+  }
+  
+  .performance-indicator {
+    border: 1px solid white;
+  }
+}

@@ -1,17 +1,29 @@
 /**
- * Resizable Panel Component
- * Provides resizable panels with drag handles
+ * Enhanced Resizable Panel Component
+ * Provides advanced resizable functionality with drag preview and docking
  */
 import React from 'react';
 interface ResizablePanelProps {
     children: React.ReactNode;
-    direction: 'horizontal' | 'vertical';
-    initialSize: number;
+    width?: number;
+    height?: number;
+    minWidth?: number;
+    maxWidth?: number;
+    minHeight?: number;
+    maxHeight?: number;
+    onResize?: (width: number, height?: number) => void;
+    onResizeStart?: () => void;
+    onResizeEnd?: () => void;
+    className?: string;
+    style?: React.CSSProperties;
+    resizeHandle?: 'right' | 'bottom' | 'corner' | 'all';
+    showPreview?: boolean;
+    snapToGrid?: number;
+    disabled?: boolean;
+    direction?: 'horizontal' | 'vertical';
+    initialSize?: number;
     minSize?: number;
     maxSize?: number;
-    onResize?: (size: number) => void;
-    className?: string;
-    disabled?: boolean;
 }
 export declare const ResizablePanel: React.FC<ResizablePanelProps>;
 export {};

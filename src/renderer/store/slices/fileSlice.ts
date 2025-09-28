@@ -26,6 +26,7 @@ export interface OpenFile {
   encoding: string;
   lineEnding: 'lf' | 'crlf';
   lastModified: Date;
+  isBinary?: boolean;
 }
 
 export interface FileState {
@@ -60,17 +61,32 @@ const initialState: FileState = {
 export const loadWorkspace = createAsyncThunk(
   'file/loadWorkspace',
   async (workspacePath: string) => {
+    console.log('Loading workspace:', workspacePath);
+    
     const result = await window.electronAPI?.fs.listDirectory(workspacePath);
+    console.log('Workspace result:', result);
+    
     if (!result?.success) {
       throw new Error(result?.error || 'Failed to load workspace');
     }
+    
+    // Validate the items
+    const validItems = (result.items || []).filter((item: any) => {
+      if (!item || typeof item !== 'object') {
+        console.warn('Invalid item found:', item);
+        return false;
+      }
+      return true;
+    });
+    
+    console.log('Valid items:', validItems.length, 'out of', result.items?.length || 0);
     
     // Start watching the workspace
     await window.electronAPI?.fs.watchDirectory(workspacePath);
     
     return {
       workspacePath,
-      files: result.items
+      files: validItems
     };
   }
 );
@@ -99,12 +115,14 @@ export const openFile = createAsyncThunk(
     }
     
     const stats = await window.electronAPI?.fs.getStats(filePath);
+    const fileName = filePath.split('/').pop() || filePath;
     
     return {
       path: filePath,
-      name: filePath.split('/').pop() || filePath,
-      content: result.content,
-      lastModified: stats?.success ? new Date(stats.stats.mtime) : new Date()
+      name: fileName,
+      content: result.content || '',
+      lastModified: stats?.success ? new Date(stats.stats.mtime) : new Date(),
+      isBinary: result.isBinary || false
     };
   }
 );
@@ -355,10 +373,12 @@ export const fileSlice = createSlice({
       .addCase(loadWorkspace.fulfilled, (state, action) => {
         state.status = 'idle';
         state.currentWorkspace = action.payload.workspacePath;
-        state.fileTree = action.payload.files.map((file: any) => ({
-          ...file,
-          expanded: false
-        }));
+        state.fileTree = (action.payload.files || [])
+          .filter((file: any) => file && typeof file === 'object')
+          .map((file: any) => ({
+            ...file,
+            expanded: false
+          }));
         state.watchedDirectories.push(action.payload.workspacePath);
       })
       .addCase(loadWorkspace.rejected, (state, action) => {
@@ -371,13 +391,17 @@ export const fileSlice = createSlice({
         const { directoryPath, files } = action.payload;
         
         const updateFileTree = (items: FileItem[]): void => {
+          if (!items || !Array.isArray(items)) return;
+          
           items.forEach(item => {
-            if (item.path === directoryPath && item.isDirectory) {
-              item.children = files.map((file: any) => ({
-                ...file,
-                expanded: false
-              }));
-            } else if (item.children) {
+            if (item && item.path === directoryPath && item.isDirectory) {
+              item.children = (files || [])
+                .filter((file: any) => file && typeof file === 'object')
+                .map((file: any) => ({
+                  ...file,
+                  expanded: false
+                }));
+            } else if (item && item.children) {
               updateFileTree(item.children);
             }
           });
@@ -388,7 +412,11 @@ export const fileSlice = createSlice({
       
       // Open file
       .addCase(openFile.fulfilled, (state, action) => {
+        if (!action.payload) return;
+        
         const { path, name, content, lastModified } = action.payload;
+        
+        if (!path) return;
         
         // Check if file is already open
         const existingFile = state.openFiles.find(f => f.path === path);
@@ -396,14 +424,15 @@ export const fileSlice = createSlice({
         if (!existingFile) {
           const newFile: OpenFile = {
             path,
-            name,
-            content,
+            name: name || path.split('/').pop() || 'Untitled',
+            content: content || '',
             isDirty: false,
             isReadonly: false,
             language: getLanguageFromExtension(path),
             encoding: 'utf-8',
             lineEnding: 'lf',
-            lastModified
+            lastModified: lastModified || new Date(),
+            isBinary: action.payload.isBinary || false
           };
           
           state.openFiles.push(newFile);

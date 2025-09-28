@@ -1,0 +1,202 @@
+/* Plugin Manager Styles */
+.plugin-manager {
+  height: 100%;
+  background: #1e1e1e;
+  color: #cccccc;
+}
+
+.plugin-manager-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid #3e3e42;
+}
+
+.plugin-manager-header .ant-typography {
+  color: #cccccc;
+  margin: 0;
+}
+
+.plugin-stats {
+  display: flex;
+  gap: 16px;
+}
+
+.plugin-browser {
+  padding: 16px 24px;
+}
+
+.plugin-filters {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #3e3e42;
+}
+
+.plugin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 16px;
+}
+
+.plugin-card {
+  background: #252526 !important;
+  border-color: #3e3e42 !important;
+}
+
+.plugin-card .ant-card-head {
+  border-color: #3e3e42 !important;
+}
+
+.plugin-card .ant-card-head-title {
+  color: #cccccc;
+}
+
+.plugin-card .ant-card-body {
+  color: #cccccc;
+}
+
+.plugin-card .ant-card-meta-title {
+  color: #cccccc !important;
+}
+
+.plugin-card .ant-card-meta-description {
+  color: #888888 !important;
+}
+
+.plugin-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.plugin-keywords {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.installed-plugins {
+  padding: 16px 24px;
+}
+
+.installed-plugins .ant-list-item {
+  border-color: #3e3e42 !important;
+}
+
+.installed-plugins .ant-list-item-meta-title {
+  color: #cccccc !important;
+}
+
+.installed-plugins .ant-list-item-meta-description {
+  color: #888888 !important;
+}
+
+.plugin-settings {
+  padding: 16px 24px;
+}
+
+.plugin-settings .ant-card {
+  background: #252526 !important;
+  border-color: #3e3e42 !important;
+}
+
+.plugin-settings .ant-card-head {
+  border-color: #3e3e42 !important;
+}
+
+.plugin-settings .ant-card-head-title {
+  color: #cccccc !important;
+}
+
+.plugin-settings .ant-form-item-label > label {
+  color: #cccccc !important;
+}
+
+/* Dark theme overrides */
+.plugin-manager .ant-tabs-tab {
+  color: #cccccc !important;
+}
+
+.plugin-manager .ant-tabs-tab-active {
+  color: #1890ff !important;
+}
+
+.plugin-manager .ant-tabs-ink-bar {
+  background: #1890ff !important;
+}
+
+.plugin-manager .ant-tabs-content-holder {
+  background: #1e1e1e;
+}
+
+.plugin-manager .ant-input {
+  background: #3c3c3c !important;
+  border-color: #3e3e42 !important;
+  color: #cccccc !important;
+}
+
+.plugin-manager .ant-select-selector {
+  background: #3c3c3c !important;
+  border-color: #3e3e42 !important;
+  color: #cccccc !important;
+}
+
+.plugin-manager .ant-select-selection-item {
+  color: #cccccc !important;
+}
+
+.plugin-manager .ant-btn {
+  border-color: #3e3e42;
+  color: #cccccc;
+}
+
+.plugin-manager .ant-btn:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+.plugin-manager .ant-btn-primary {
+  background: #1890ff;
+  border-color: #1890ff;
+}
+
+.plugin-manager .ant-btn-text {
+  color: #cccccc;
+}
+
+.plugin-manager .ant-btn-text:hover {
+  color: #ffffff;
+  background: #404040;
+}
+
+.plugin-manager .ant-switch-checked {
+  background: #1890ff !important;
+}
+
+.plugin-manager .ant-badge-count {
+  background: #1890ff;
+}
+
+.plugin-manager .ant-empty-description {
+  color: #888888;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .plugin-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .plugin-manager-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  
+  .plugin-filters {
+    flex-direction: column;
+    gap: 12px;
+  }
+}

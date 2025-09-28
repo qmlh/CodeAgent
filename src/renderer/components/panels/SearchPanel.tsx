@@ -173,7 +173,7 @@ export const SearchPanel: React.FC = () => {
             searchTerm && (
               <Button 
                 type="text" 
-                size="small" 
+                 
                 icon={<ClearOutlined />}
                 onClick={handleClearSearch}
               />
@@ -183,7 +183,7 @@ export const SearchPanel: React.FC = () => {
       </div>
 
       {/* Search Options */}
-      <Collapse ghost size="small" className="search-options">
+      <Collapse ghost  className="search-options">
         <Panel 
           header={
             <Space>
@@ -310,7 +310,7 @@ export const SearchPanel: React.FC = () => {
                   }
                 >
                   <List
-                    size="small"
+                    
                     dataSource={results}
                     renderItem={renderSearchResult}
                   />

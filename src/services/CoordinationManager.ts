@@ -85,6 +85,15 @@ export class CoordinationManager extends EventEmitter implements ICoordinationMa
     this.startHealthMonitoring();
   }
 
+  async initialize(): Promise<void> {
+    // Initialize orchestration components
+    await this.workflowOrchestrator.initialize();
+    await this.rulesEngine.initialize();
+    await this.healthMonitor.initialize();
+    
+    this.emit('initialized');
+  }
+
   // Agent lifecycle management
   async createAgent(config: AgentConfig): Promise<Agent> {
     if (this.agents.size >= this.config.maxAgents) {

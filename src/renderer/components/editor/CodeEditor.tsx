@@ -9,6 +9,8 @@ import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { updateFileContent, markFileSaved } from '../../store/slices/fileSlice';
 import { OpenFile } from '../../store/slices/fileSlice';
 import { message } from 'antd';
+import { initializeMonaco } from '../../services/monaco-worker';
+import { getSafeEditorOptions } from '../../services/monaco-safe';
 
 interface CodeEditorProps {
   file: OpenFile;
@@ -46,51 +48,45 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(({ fi
   useEffect(() => {
     if (!editorRef.current) return;
 
-    // Configure Monaco environment
-    monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
-    monaco.languages.typescript.typescriptDefaults.setEagerModelSync(true);
+    // Initialize Monaco with proper worker configuration
+    const initEditor = async () => {
+      try {
+        // Ensure the container is still available
+        if (!editorRef.current) {
+          console.warn('Editor container not available');
+          return;
+        }
 
-    // Enhanced editor configuration
-    const editor = monaco.editor.create(editorRef.current, {
-      value: file.content,
-      language: file.language,
-      theme: theme,
-      automaticLayout: true,
-      fontSize: 14,
-      fontFamily: 'JetBrains Mono, Monaco, Consolas, "Courier New", monospace',
-      fontLigatures: true,
-      lineNumbers: 'on',
-      lineNumbersMinChars: 4,
-      wordWrap: 'on',
-      wordWrapColumn: 120,
-      minimap: { 
-        enabled: true,
-        maxColumn: 120,
-        renderCharacters: true,
-        showSlider: 'mouseover'
-      },
-      scrollBeyondLastLine: false,
-      readOnly: file.isReadonly,
-      tabSize: 2,
-      insertSpaces: true,
-      detectIndentation: true,
-      
-      // Code folding
-      folding: true,
-      foldingStrategy: 'indentation',
-      showFoldingControls: 'always',
-      unfoldOnClickAfterEndOfLine: false,
-      foldingHighlight: true,
-      
-      // Context menu and interactions
-      contextmenu: true,
-      mouseWheelZoom: true,
-      multiCursorModifier: 'ctrlCmd',
-      
-      // Cursor and selection
-      cursorBlinking: 'blink',
-      cursorSmoothCaretAnimation: 'on',
-      cursorWidth: 2,
+        await initializeMonaco();
+        
+        // Configure Monaco environment (disable eager sync to avoid worker issues)
+        monaco.languages.typescript.javascriptDefaults.setEagerModelSync(false);
+        monaco.languages.typescript.typescriptDefaults.setEagerModelSync(false);
+
+        // Get ultra-safe editor configuration
+        const safeOptions = getSafeEditorOptions();
+        
+        // Ultra-safe editor configuration
+        const editor = monaco.editor.create(editorRef.current, {
+          value: file.content || '',
+          language: file.language || 'plaintext',
+          theme: theme === 'dark' ? 'safe-dark' : 'safe-light',
+          readOnly: file.isReadonly || false,
+          tabSize: 2,
+          insertSpaces: true,
+          
+          // Apply ultra-safe options
+          ...safeOptions,
+          
+          // Context menu and interactions
+          contextmenu: true,
+          mouseWheelZoom: true,
+          multiCursorModifier: 'ctrlCmd',
+          
+          // Cursor and selection
+          cursorBlinking: 'blink',
+          cursorSmoothCaretAnimation: 'on',
+          cursorWidth: 2,
       selectOnLineNumbers: true,
       
       // Rendering options
@@ -140,8 +136,8 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(({ fi
       
       // Find and replace
       find: {
-        seedSearchStringFromSelection: 'selection',
-        autoFindInSelection: 'never',
+        seedSearchStringFromSelection: 'selection' as 'selection',
+        autoFindInSelection: 'never' as 'never',
         addExtraSpaceOnTop: true,
         loop: true
       },
@@ -396,16 +392,23 @@ export const CodeEditor = React.forwardRef<CodeEditorRef, CodeEditorProps>(({ fi
       }
     });
 
-    // Cleanup function
-    return () => {
-      clearTimeout(contentChangeTimeout);
-      contentChangeDisposable.dispose();
-      markerDisposable.dispose();
-      cursorDisposable.dispose();
-      selectionDisposable.dispose();
-      // Shortcuts are automatically disposed with the editor
-      editor.dispose();
+        // Cleanup function
+        return () => {
+          clearTimeout(contentChangeTimeout);
+          contentChangeDisposable.dispose();
+          markerDisposable.dispose();
+          cursorDisposable.dispose();
+          selectionDisposable.dispose();
+          // Shortcuts are automatically disposed with the editor
+          editor.dispose();
+        };
+      } catch (error) {
+        console.error('Failed to initialize Monaco Editor:', error);
+        message.error('Failed to initialize code editor');
+      }
     };
+
+    initEditor();
   }, [file.path, dispatch, theme, onFindReplace]);
 
   // Update editor content when file content changes externally

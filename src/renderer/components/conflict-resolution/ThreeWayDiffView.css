@@ -1,0 +1,161 @@
+/* Three-Way Diff View Styles */
+
+.three-way-diff-view {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.diff-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  gap: 16px;
+}
+
+.three-way-diff {
+  display: flex;
+  height: 100%;
+  gap: 1px;
+  background: #d9d9d9;
+}
+
+.side-by-side-diff {
+  display: flex;
+  height: 100%;
+  gap: 1px;
+  background: #d9d9d9;
+}
+
+.unified-diff {
+  display: flex;
+  height: 100%;
+}
+
+.diff-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  min-width: 0;
+}
+
+.diff-pane-header {
+  padding: 8px 12px;
+  border-bottom: 1px solid #d9d9d9;
+  background: #fafafa;
+  font-size: 12px;
+  text-align: center;
+}
+
+.local-header {
+  background: #f6ffed;
+  border-bottom-color: #b7eb8f;
+}
+
+.remote-header {
+  background: #e6f7ff;
+  border-bottom-color: #91d5ff;
+}
+
+.merged-header {
+  background: #fff7e6;
+  border-bottom-color: #ffd591;
+}
+
+.diff-editor {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Monaco editor customizations */
+.diff-editor .monaco-editor {
+  border: none;
+}
+
+.diff-editor .monaco-editor .margin {
+  background-color: #f8f8f8;
+}
+
+.diff-editor .monaco-editor .monaco-editor-background {
+  background-color: white;
+}
+
+/* Conflict markers */
+.conflict-marker {
+  background: rgba(255, 0, 0, 0.1);
+  border-left: 3px solid #ff4d4f;
+}
+
+.resolved-marker {
+  background: rgba(0, 255, 0, 0.1);
+  border-left: 3px solid #52c41a;
+}
+
+/* Dark theme support */
+.dark .three-way-diff,
+.dark .side-by-side-diff {
+  background: #434343;
+}
+
+.dark .diff-pane {
+  background: #1f1f1f;
+}
+
+.dark .diff-pane-header {
+  background: #2f2f2f;
+  border-bottom-color: #434343;
+  color: #ccc;
+}
+
+.dark .local-header {
+  background: #1f2f1f;
+  border-bottom-color: #52c41a;
+}
+
+.dark .remote-header {
+  background: #1f2f3f;
+  border-bottom-color: #1890ff;
+}
+
+.dark .merged-header {
+  background: #3f2f1f;
+  border-bottom-color: #fa8c16;
+}
+
+.dark .diff-editor .monaco-editor .margin {
+  background-color: #2f2f2f;
+}
+
+.dark .diff-editor .monaco-editor .monaco-editor-background {
+  background-color: #1f1f1f;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+  .three-way-diff {
+    flex-direction: column;
+    gap: 1px;
+  }
+  
+  .diff-pane {
+    height: 33.33%;
+  }
+}
+
+@media (max-width: 768px) {
+  .side-by-side-diff {
+    flex-direction: column;
+  }
+  
+  .diff-pane {
+    height: 50%;
+  }
+  
+  .diff-pane-header {
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+}

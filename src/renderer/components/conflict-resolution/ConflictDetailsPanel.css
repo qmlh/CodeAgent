@@ -1,0 +1,79 @@
+/* Conflict Details Panel Styles */
+
+.conflict-details-panel {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.details-section {
+  margin-bottom: 16px;
+}
+
+.details-section .ant-typography h5 {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.agents-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.agent-card {
+  border-radius: 4px;
+}
+
+.agent-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.agent-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.agent-details > div {
+  display: flex;
+  gap: 4px;
+}
+
+.ant-descriptions-item-label {
+  font-weight: 500;
+  color: #666;
+}
+
+.ant-timeline-item-content {
+  margin-left: 8px;
+}
+
+/* Dark theme support */
+.dark .ant-descriptions-item-label {
+  color: #ccc;
+}
+
+.dark .agent-card {
+  background: #2f2f2f;
+  border-color: #434343;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .details-section {
+    margin-bottom: 12px;
+  }
+  
+  .agent-info {
+    gap: 8px;
+  }
+  
+  .agent-details {
+    gap: 2px;
+  }
+}

@@ -1,0 +1,205 @@
+/* Shortcut Editor Styles */
+.shortcut-editor {
+  height: 100%;
+  padding: 16px 24px;
+  background: #1e1e1e;
+  color: #cccccc;
+  overflow-y: auto;
+}
+
+.shortcut-editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.shortcut-editor-header .ant-typography {
+  color: #cccccc;
+  margin: 0;
+}
+
+.shortcut-filters {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #3e3e42;
+}
+
+.shortcuts-table {
+  background: #252526;
+}
+
+.shortcuts-table .ant-table {
+  background: #252526;
+}
+
+.shortcuts-table .ant-table-thead > tr > th {
+  background: #2d2d30 !important;
+  border-color: #3e3e42 !important;
+  color: #cccccc !important;
+}
+
+.shortcuts-table .ant-table-tbody > tr > td {
+  border-color: #3e3e42 !important;
+  color: #cccccc !important;
+}
+
+.shortcuts-table .ant-table-tbody > tr:hover > td {
+  background: #2a2d2e !important;
+}
+
+.shortcut-tag {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #3c3c3c;
+  border: 1px solid #555;
+  color: #cccccc;
+}
+
+.shortcut-recorder {
+  position: relative;
+}
+
+.shortcut-recorder .ant-input.recording {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(24, 144, 255, 0.1);
+  }
+  100% {
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+  }
+}
+
+/* Dark theme overrides */
+.shortcut-editor .ant-input {
+  background: #3c3c3c !important;
+  border-color: #3e3e42 !important;
+  color: #cccccc !important;
+}
+
+.shortcut-editor .ant-select-selector {
+  background: #3c3c3c !important;
+  border-color: #3e3e42 !important;
+  color: #cccccc !important;
+}
+
+.shortcut-editor .ant-select-selection-item {
+  color: #cccccc !important;
+}
+
+.shortcut-editor .ant-btn {
+  border-color: #3e3e42;
+  color: #cccccc;
+}
+
+.shortcut-editor .ant-btn:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+.shortcut-editor .ant-btn-text {
+  color: #cccccc;
+}
+
+.shortcut-editor .ant-btn-text:hover {
+  color: #ffffff;
+  background: #404040;
+}
+
+.shortcut-editor .ant-tag {
+  background: #3c3c3c;
+  border-color: #555;
+  color: #cccccc;
+}
+
+.shortcut-editor .ant-alert {
+  background: rgba(255, 193, 7, 0.1);
+  border-color: rgba(255, 193, 7, 0.3);
+}
+
+.shortcut-editor .ant-alert-warning {
+  background: rgba(255, 193, 7, 0.1);
+  border-color: rgba(255, 193, 7, 0.3);
+}
+
+.shortcut-editor .ant-alert-warning .ant-alert-message {
+  color: #ffc107;
+}
+
+.shortcut-editor .ant-alert-warning .ant-alert-description {
+  color: #cccccc;
+}
+
+.shortcut-editor .ant-form-item-label > label {
+  color: #cccccc !important;
+}
+
+.shortcut-editor .ant-form-item-explain {
+  color: #888888;
+}
+
+/* Table pagination */
+.shortcuts-table .ant-pagination {
+  color: #cccccc;
+}
+
+.shortcuts-table .ant-pagination-item {
+  background: #3c3c3c;
+  border-color: #555;
+}
+
+.shortcuts-table .ant-pagination-item a {
+  color: #cccccc;
+}
+
+.shortcuts-table .ant-pagination-item-active {
+  background: #1890ff;
+  border-color: #1890ff;
+}
+
+.shortcuts-table .ant-pagination-item-active a {
+  color: #ffffff;
+}
+
+.shortcuts-table .ant-pagination-prev,
+.shortcuts-table .ant-pagination-next {
+  color: #cccccc;
+}
+
+.shortcuts-table .ant-pagination-prev:hover,
+.shortcuts-table .ant-pagination-next:hover {
+  color: #1890ff;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .shortcut-editor {
+    padding: 12px 16px;
+  }
+  
+  .shortcut-editor-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  
+  .shortcut-filters {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .shortcuts-table .ant-table-tbody > tr > td {
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+}

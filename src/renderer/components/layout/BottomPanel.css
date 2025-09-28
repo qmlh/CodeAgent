@@ -1,0 +1,72 @@
+/* Bottom Panel Styles */
+.bottom-panel {
+  background: #1e1e1e;
+  border-top: 1px solid #3e3e42;
+}
+
+.bottom-panel-tabs {
+  height: 100%;
+}
+
+.bottom-panel-tabs .ant-tabs-tab {
+  background: #2d2d30 !important;
+  border-color: #3e3e42 !important;
+  color: #cccccc !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+
+.bottom-panel-tabs .ant-tabs-tab-active {
+  background: #1e1e1e !important;
+  border-bottom-color: #1e1e1e !important;
+  color: #ffffff !important;
+}
+
+.bottom-panel-tabs .ant-tabs-tab:hover {
+  color: #ffffff !important;
+}
+
+.bottom-panel-tabs .ant-tabs-content-holder {
+  background: #1e1e1e;
+  overflow: hidden;
+}
+
+.bottom-panel-tabs .ant-tabs-tabpane {
+  background: #1e1e1e;
+  height: 100%;
+  overflow: hidden;
+}
+
+.bottom-panel-tabs .ant-tabs-nav {
+  background: #2d2d30;
+  margin: 0;
+}
+
+.bottom-panel-tabs .ant-tabs-nav-wrap {
+  background: #2d2d30;
+}
+
+.bottom-panel-tabs .ant-tabs-ink-bar {
+  background: #1890ff;
+}
+
+.bottom-panel-tabs .ant-tabs-extra-content {
+  background: #2d2d30;
+  padding: 4px 8px;
+}
+
+/* Resizable handle for bottom panel */
+.bottom-panel-resize-handle {
+  height: 4px;
+  background: transparent;
+  cursor: ns-resize;
+  position: absolute;
+  top: -2px;
+  left: 0;
+  right: 0;
+  z-index: 10;
+}
+
+.bottom-panel-resize-handle:hover {
+  background: #1890ff;
+}

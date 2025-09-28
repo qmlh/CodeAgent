@@ -1,0 +1,415 @@
+/**
+ * Collaboration Components Styles
+ * Shared styles for collaboration monitoring and communication interfaces
+ */
+
+/* Collaboration View Container */
+.collaboration-view {
+  height: 100%;
+  background-color: #1f1f1f;
+}
+
+.collaboration-view .ant-layout {
+  background-color: #1f1f1f;
+}
+
+.collaboration-view .ant-layout-content {
+  background-color: #1f1f1f;
+}
+
+/* Tabs Styling */
+.collaboration-view .ant-tabs {
+  height: 100%;
+}
+
+.collaboration-view .ant-tabs-content-holder {
+  height: calc(100% - 46px);
+}
+
+.collaboration-view .ant-tabs-tabpane {
+  height: 100%;
+  overflow: hidden;
+}
+
+.collaboration-view .ant-tabs-tab {
+  color: #888 !important;
+}
+
+.collaboration-view .ant-tabs-tab-active {
+  color: #1890ff !important;
+}
+
+/* Card Styling */
+.collaboration-view .ant-card {
+  background-color: #262626;
+  border-color: #434343;
+}
+
+.collaboration-view .ant-card-head {
+  background-color: #262626;
+  border-bottom-color: #434343;
+}
+
+.collaboration-view .ant-card-head-title {
+  color: #cccccc;
+  font-size: 12px;
+}
+
+.collaboration-view .ant-card-body {
+  background-color: #262626;
+  color: #cccccc;
+}
+
+/* List Styling */
+.collaboration-view .ant-list {
+  background-color: transparent;
+}
+
+.collaboration-view .ant-list-item {
+  border-bottom-color: #434343;
+  color: #cccccc;
+}
+
+.collaboration-view .ant-list-item-meta-title {
+  color: #cccccc;
+}
+
+.collaboration-view .ant-list-item-meta-description {
+  color: #888;
+}
+
+/* Timeline Styling */
+.collaboration-view .ant-timeline {
+  color: #cccccc;
+}
+
+.collaboration-view .ant-timeline-item-content {
+  color: #cccccc;
+}
+
+/* Progress Styling */
+.collaboration-view .ant-progress-text {
+  color: #cccccc !important;
+}
+
+/* Badge Styling */
+.collaboration-view .ant-badge-count {
+  background-color: #1890ff;
+}
+
+/* Alert Styling */
+.collaboration-view .ant-alert {
+  background-color: #262626;
+  border-color: #434343;
+}
+
+.collaboration-view .ant-alert-warning {
+  background-color: #2d2a1f;
+  border-color: #594214;
+}
+
+.collaboration-view .ant-alert-error {
+  background-color: #2a1215;
+  border-color: #58181c;
+}
+
+.collaboration-view .ant-alert-success {
+  background-color: #162312;
+  border-color: #274916;
+}
+
+.collaboration-view .ant-alert-info {
+  background-color: #111b26;
+  border-color: #153450;
+}
+
+/* Input Styling */
+.collaboration-view .ant-input {
+  background-color: #1f1f1f;
+  border-color: #434343;
+  color: #cccccc;
+}
+
+.collaboration-view .ant-input:focus,
+.collaboration-view .ant-input-focused {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.collaboration-view .ant-input::placeholder {
+  color: #666;
+}
+
+/* Select Styling */
+.collaboration-view .ant-select {
+  color: #cccccc;
+}
+
+.collaboration-view .ant-select-selector {
+  background-color: #1f1f1f !important;
+  border-color: #434343 !important;
+  color: #cccccc !important;
+}
+
+.collaboration-view .ant-select-arrow {
+  color: #888;
+}
+
+/* Button Styling */
+.collaboration-view .ant-btn {
+  border-color: #434343;
+  color: #cccccc;
+}
+
+.collaboration-view .ant-btn:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+.collaboration-view .ant-btn-primary {
+  background-color: #1890ff;
+  border-color: #1890ff;
+}
+
+.collaboration-view .ant-btn-primary:hover {
+  background-color: #40a9ff;
+  border-color: #40a9ff;
+}
+
+/* Tag Styling */
+.collaboration-view .ant-tag {
+  background-color: #262626;
+  border-color: #434343;
+  color: #cccccc;
+}
+
+/* Empty State Styling */
+.collaboration-view .ant-empty {
+  color: #888;
+}
+
+.collaboration-view .ant-empty-description {
+  color: #888;
+}
+
+/* Scrollbar Styling */
+.collaboration-view ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.collaboration-view ::-webkit-scrollbar-track {
+  background: #1f1f1f;
+}
+
+.collaboration-view ::-webkit-scrollbar-thumb {
+  background: #434343;
+  border-radius: 3px;
+}
+
+.collaboration-view ::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Fullscreen Mode */
+.collaboration-view-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  background-color: #1f1f1f;
+}
+
+/* Connection Status Indicator */
+.collaboration-connection-status {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #888;
+}
+
+.collaboration-connection-status.connected {
+  color: #52c41a;
+}
+
+.collaboration-connection-status.disconnected {
+  color: #ff4d4f;
+}
+
+/* Activity Timeline Specific */
+.agent-activity-timeline {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.agent-activity-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #434343;
+}
+
+.agent-activity-item:last-child {
+  border-bottom: none;
+}
+
+/* Message Center Specific */
+.message-center {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.message-center-filters {
+  flex-shrink: 0;
+  margin-bottom: 12px;
+}
+
+.message-center-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Performance Monitor Specific */
+.performance-monitor {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.performance-metric-card {
+  margin-bottom: 12px;
+}
+
+.performance-metric-card:last-child {
+  margin-bottom: 0;
+}
+
+/* Notification Manager Specific */
+.notification-manager {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.notification-filters {
+  flex-shrink: 0;
+  margin-bottom: 12px;
+}
+
+.notification-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.notification-item {
+  padding: 8px;
+  margin-bottom: 4px;
+  border-radius: 4px;
+  background-color: #262626;
+  border-left: 3px solid transparent;
+}
+
+.notification-item.unread {
+  background-color: #2a2a2a;
+  border-left-color: #1890ff;
+}
+
+.notification-item.priority-high {
+  border-left-color: #fa8c16;
+}
+
+.notification-item.priority-critical {
+  border-left-color: #ff4d4f;
+}
+
+/* Session Panel Specific */
+.collaboration-session-panel {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.session-item {
+  padding: 8px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  background-color: #262626;
+  border: 1px solid #434343;
+}
+
+.session-item.active {
+  border-color: #52c41a;
+  background-color: #1b2618;
+}
+
+.session-item.paused {
+  border-color: #faad14;
+  background-color: #2d2a1f;
+  opacity: 0.8;
+}
+
+.session-participants {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.session-metrics {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  color: #888;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .collaboration-view .ant-tabs-tab {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  
+  .collaboration-view .ant-card-head-title {
+    font-size: 11px;
+  }
+  
+  .collaboration-view .ant-list-item-meta-title {
+    font-size: 11px;
+  }
+  
+  .collaboration-view .ant-list-item-meta-description {
+    font-size: 10px;
+  }
+}
+
+/* Animation for real-time updates */
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+.realtime-update {
+  animation: pulse 1s ease-in-out;
+}
+
+/* Loading states */
+.collaboration-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  color: #888;
+}
+
+/* Error states */
+.collaboration-error {
+  padding: 20px;
+  text-align: center;
+  color: #ff4d4f;
+}
+
+.collaboration-error .ant-result {
+  background-color: transparent;
+}

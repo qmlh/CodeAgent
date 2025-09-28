@@ -34,6 +34,17 @@ export class FileManager extends EventEmitter implements IFileManager {
     this.setupEventHandlers();
   }
 
+  async initialize(): Promise<void> {
+    // Initialize file manager components
+    this.locks.clear();
+    this.conflicts.clear();
+    this.fileHistory.clear();
+    
+    // Initialize sub-components
+    await this.conflictResolver.initialize();
+    await this.changeTracker.initialize();
+  }
+
   /**
    * Request a file lock for an agent
    */

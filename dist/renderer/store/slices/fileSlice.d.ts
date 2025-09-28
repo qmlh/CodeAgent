@@ -23,6 +23,7 @@ export interface OpenFile {
     encoding: string;
     lineEnding: 'lf' | 'crlf';
     lastModified: Date;
+    isBinary?: boolean;
 }
 export interface FileState {
     currentWorkspace: string | null;
@@ -55,6 +56,7 @@ export declare const openFile: import("@reduxjs/toolkit").AsyncThunk<{
     name: string;
     content: any;
     lastModified: Date;
+    isBinary: any;
 }, string, import("@reduxjs/toolkit").AsyncThunkConfig>;
 export declare const saveFile: import("@reduxjs/toolkit").AsyncThunk<{
     filePath: string;

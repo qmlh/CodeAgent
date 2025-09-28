@@ -23,6 +23,7 @@ export declare class MessageManager implements IMessageManager {
     private readonly maxQueueSize;
     private queueProcessorInterval;
     constructor();
+    initialize(): Promise<void>;
     /**
      * Send a message to specific agent(s)
      */

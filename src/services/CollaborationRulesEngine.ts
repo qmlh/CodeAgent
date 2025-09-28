@@ -110,6 +110,12 @@ export class CollaborationRulesEngine extends EventEmitter {
     this.initializeDefaultRules();
   }
 
+  async initialize(): Promise<void> {
+    // Initialize collaboration rules engine
+    // Any async initialization logic can be added here
+    this.emit('initialized');
+  }
+
   // Rule management
   addRule(rule: CollaborationRule): void {
     this.validateRule(rule);

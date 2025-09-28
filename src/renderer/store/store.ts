@@ -9,6 +9,10 @@ import { fileSlice } from './slices/fileSlice';
 import { agentSlice } from './slices/agentSlice';
 import { taskSlice } from './slices/taskSlice';
 import { themeSlice } from './slices/themeSlice';
+import { systemSlice } from './slices/systemSlice';
+import { conflictSlice } from './slices/conflictSlice';
+import browserReducer from './slices/browserSlice';
+import settingsReducer from './slices/settingsSlice';
 
 export const store = configureStore({
   reducer: {
@@ -17,7 +21,11 @@ export const store = configureStore({
     file: fileSlice.reducer,
     agent: agentSlice.reducer,
     task: taskSlice.reducer,
-    theme: themeSlice.reducer
+    theme: themeSlice.reducer,
+    system: systemSlice.reducer,
+    conflict: conflictSlice.reducer,
+    browser: browserReducer,
+    settings: settingsReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

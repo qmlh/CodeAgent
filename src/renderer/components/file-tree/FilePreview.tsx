@@ -148,13 +148,38 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ file, style }) => {
 
       case 'binary':
         return (
-          <div style={{ padding: '12px' }}>
-            <Alert
-              message="Binary File"
-              description="This file cannot be previewed as it contains binary data."
-              type="info"
-              showIcon
-            />
+          <div style={{ 
+            padding: '16px',
+            textAlign: 'center',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: '#1e1e1e'
+          }}>
+            <div style={{
+              padding: '20px',
+              borderRadius: '8px',
+              backgroundColor: '#2d2d30',
+              border: '1px solid #3e3e42',
+              maxWidth: '280px'
+            }}>
+              <div style={{ 
+                fontSize: '16px', 
+                marginBottom: '8px',
+                color: '#cccccc'
+              }}>
+                📄 Binary File
+              </div>
+              <div style={{ 
+                fontSize: '13px', 
+                color: '#888',
+                lineHeight: '1.4'
+              }}>
+                This file cannot be previewed as it contains binary data.
+              </div>
+            </div>
           </div>
         );
 
@@ -167,9 +192,15 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ file, style }) => {
     return (
       <Card
         title="File Preview"
-        size="small"
+        
         style={{ ...style, height: '100%' }}
-        bodyStyle={{ padding: '12px', textAlign: 'center', color: '#888' }}
+        styles={{ 
+          body: { 
+            padding: '12px', 
+            textAlign: 'center', 
+            color: '#888' 
+          }
+        }}
       >
         <Text type="secondary">Select a file to preview</Text>
       </Card>
@@ -180,9 +211,13 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ file, style }) => {
     return (
       <Card
         title="File Preview"
-        size="small"
+        
         style={{ ...style, height: '100%' }}
-        bodyStyle={{ padding: '12px' }}
+        styles={{ 
+          body: { 
+            padding: '12px' 
+          }
+        }}
       >
         <div style={{ textAlign: 'center', color: '#888' }}>
           <Text type="secondary">Directory selected</Text>
@@ -198,9 +233,21 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ file, style }) => {
   return (
     <Card
       title="File Preview"
-      size="small"
-      style={{ ...style, height: '100%' }}
-      bodyStyle={{ padding: 0 }}
+      
+      style={{ 
+        ...style, 
+        height: '100%',
+        position: 'relative',
+        zIndex: 'auto',
+        overflow: 'hidden'
+      }}
+      styles={{ 
+        body: { 
+          padding: 0,
+          height: 'calc(100% - 40px)',
+          overflow: 'auto'
+        }
+      }}
     >
       {loading && (
         <div style={{ padding: '24px', textAlign: 'center' }}>
@@ -221,7 +268,11 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ file, style }) => {
 
       {!loading && !error && preview && (
         <>
-          <div style={{ padding: '12px', borderBottom: '1px solid #333' }}>
+          <div style={{ 
+            padding: '12px', 
+            borderBottom: '1px solid #333',
+            backgroundColor: '#1e1e1e'
+          }}>
             <Text strong style={{ fontSize: '13px' }}>{file.name}</Text>
             <br />
             <Text type="secondary" style={{ fontSize: '11px' }}>
@@ -241,7 +292,13 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ file, style }) => {
             )}
           </div>
           
-          {renderPreviewContent()}
+          <div style={{ 
+            height: 'calc(100% - 80px)',
+            overflow: 'auto',
+            position: 'relative'
+          }}>
+            {renderPreviewContent()}
+          </div>
         </>
       )}
     </Card>

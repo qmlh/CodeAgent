@@ -4,6 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multi-Agent IDE</title>
+    <script>
+        // Global polyfills for Electron renderer process
+        if (typeof global === 'undefined') {
+            var global = globalThis;
+        }
+        if (typeof window !== 'undefined' && !window.global) {
+            window.global = globalThis;
+        }
+        
+        // Polyfill for require function (needed by Monaco Editor)
+        if (typeof require === 'undefined') {
+            window.require = function(module) {
+                console.warn('require() called for:', module);
+                return {};
+            };
+        }
+        
+        // Additional Node.js polyfills
+        if (typeof process === 'undefined') {
+            window.process = {
+                env: { NODE_ENV: 'development' },
+                platform: 'browser',
+                version: '16.0.0',
+                versions: { node: '16.0.0' }
+            };
+        }
+    </script>
     <style>
         body {
             margin: 0;
